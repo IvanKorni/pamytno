@@ -26,6 +26,6 @@ import java.lang.annotation.Target;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = TestEnvironmentInitializer.class)
-@Import(CapturedEvents.class)
+@Import({CapturedEvents.class, TestClockConfig.class})
 public @interface ModuleTest {
 }

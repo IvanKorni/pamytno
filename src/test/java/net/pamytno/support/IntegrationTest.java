@@ -22,6 +22,6 @@ import java.lang.annotation.Target;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = TestEnvironmentInitializer.class)
-@Import(CapturedEvents.class)
+@Import({CapturedEvents.class, TestClockConfig.class})
 public @interface IntegrationTest {
 }
