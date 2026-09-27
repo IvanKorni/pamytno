@@ -54,4 +54,24 @@ describe('Приложение', () => {
       password: 'correct-horse',
     })
   })
+
+  it('при выходе очищает кеш, и следующий пользователь не видит чужие темы', async () => {
+    // given
+    renderApp(backend, '/')
+    expect(await screen.findByText('Транзакции PostgreSQL')).toBeInTheDocument()
+    backend.on('POST', '/auth/login', { accessToken: 'other-token', tokenType: 'Bearer', expiresIn: 3600, userId: 'u2' })
+    backend.on('GET', '/users/me', { ...TEST_USER, id: 'u2', email: 'other@example.com' })
+    backend.on('GET', '/topics', [])
+    backend.on('GET', '/dashboard', { ...progress('', { totalCards: 0, dueCards: 0, dueToday: 0 }), topics: [] })
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: /Выйти/ }))
+    await userEvent.type(await screen.findByLabelText('Электронная почта'), 'other@example.com')
+    await userEvent.type(screen.getByLabelText('Пароль'), 'other-password')
+    await userEvent.click(screen.getByRole('button', { name: 'Войти' }))
+
+    // then
+    expect(await screen.findByText('Здесь пока пусто')).toBeInTheDocument()
+    expect(screen.queryByText('Транзакции PostgreSQL')).not.toBeInTheDocument()
+  })
 })

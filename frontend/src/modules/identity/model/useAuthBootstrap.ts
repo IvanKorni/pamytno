@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { tokenStorage, UNAUTHORIZED_EVENT } from '@/shared'
 import { getCurrentUser } from '../api/identityApi'
 import { useAuth } from './authStore'
+import { useLogout } from './useLogout'
 
 /**
  * Восстанавливает пользователя по сохранённому токену при старте приложения
@@ -11,20 +12,21 @@ import { useAuth } from './authStore'
  */
 export function useAuthBootstrap(): boolean {
   const [booting, setBooting] = useState(() => Boolean(tokenStorage.get()))
+  const logout = useLogout()
   useEffect(() => {
-    const { setUser, logout } = useAuth.getState()
     const onUnauthorized = () => {
       logout()
       setBooting(false)
     }
     window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized)
-    if (tokenStorage.get()) {
-      getCurrentUser()
-        .then(setUser)
-        .catch(logout)
-        .finally(() => setBooting(false))
-    }
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized)
-  }, [])
+  }, [logout])
+  useEffect(() => {
+    if (!tokenStorage.get()) return
+    getCurrentUser()
+      .then(useAuth.getState().setUser)
+      .catch(logout)
+      .finally(() => setBooting(false))
+  }, [logout])
   return booting
 }

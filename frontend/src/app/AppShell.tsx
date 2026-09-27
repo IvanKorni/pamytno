@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { LayoutDashboard, LogOut, Menu, Plus } from 'lucide-react'
-import { useAuth } from '@/modules/identity'
+import { useAuth, useLogout } from '@/modules/identity'
 import { ToastContainer } from '@/shared'
 
 /** Каркас приложения для вошедшего пользователя: боковое меню, экран и уведомления. */
@@ -25,7 +25,8 @@ export function AppShell() {
 
 /** Боковое меню: разделы, пользователь и выход; на мобильном выезжает поверх экрана. */
 function Sidebar({ open, onNavigate }: { open: boolean; onNavigate: () => void }) {
-  const { user, logout } = useAuth()
+  const user = useAuth((state) => state.user)
+  const logout = useLogout()
   return (
     <aside className={`sidebar ${open ? 'is-open' : ''}`}>
       <div className="brand">

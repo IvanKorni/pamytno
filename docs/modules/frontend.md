@@ -40,6 +40,7 @@ Frontend реализует пользовательский путь «Памя
 | `api/identityApi.ts` | регистрация, вход, профиль |
 | `model/authStore.ts` | текущий пользователь и выход |
 | `model/useAuthBootstrap.ts` | восстановление входа по токену и выход по 401 |
+| `model/useLogout.ts` | выход с очисткой кеша запросов |
 | `model/useSignIn.ts` | вход или регистрация с сохранением токена |
 
 ## modules/topic
