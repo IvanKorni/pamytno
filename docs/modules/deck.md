@@ -31,9 +31,11 @@
 | `service` | `FlashcardWriter` | сохранение карточки, `CARD_CREATED`, событие `FlashcardCreated` |
 | `service` | `FlashcardQueryService` | карточки темы, карточка владельца |
 | `service` | `FlashcardCommandService` | правка (`FlashcardUpdated`) и удаление (`FlashcardDeleted`) |
+| `service` | `DeckCleanupService` | удаление всех данных темы (идемпотентно) |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
 | `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер вопросов |
 | `listener` | `CardGenerationRequestedListener` | `@Async` после коммита запускает воркер карточек |
+| `listener` | `TopicDeletedListener` | `@ApplicationModuleListener` на `TopicDeleted` |
 | `exception` | `TopicContentNotReadyException` | 409 `TOPIC_CONTENT_NOT_READY` |
 | `exception` | `GenerationInProgressException` | 409 `GENERATION_IN_PROGRESS` |
 | `exception` | `GenerationJobNotFoundException` | 404 `GENERATION_JOB_NOT_FOUND` |
@@ -73,6 +75,7 @@
 | Направление | Событие | Реакция |
 |---|---|---|
 | слушает | `TopicContentPrepared` | строит фрагменты новой версии |
+| слушает | `TopicDeleted` | удаляет карточки, вопросы, задачи, фрагменты и проекцию темы |
 | публикует | `FlashcardCreated(cardId, topicId, userId, front, back)` | карточка создана |
 | публикует | `FlashcardUpdated(cardId, topicId, userId, front, back)` | карточка изменена |
 | публикует | `FlashcardDeleted(cardId, topicId, userId)` | карточка удалена |

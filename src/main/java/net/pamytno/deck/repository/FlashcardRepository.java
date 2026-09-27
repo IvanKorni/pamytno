@@ -2,6 +2,8 @@ package net.pamytno.deck.repository;
 
 import net.pamytno.deck.domain.Flashcard;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +31,14 @@ public interface FlashcardRepository extends JpaRepository<Flashcard, UUID> {
      * @return карточка, если есть и принадлежит пользователю
      */
     Optional<Flashcard> findByIdAndUserId(UUID id, UUID userId);
+
+    /**
+     * Удаляет все карточки темы.
+     *
+     * @param topicId идентификатор темы
+     * @return сколько записей удалено
+     */
+    @Modifying
+    @Query("delete from Flashcard f where f.topicId = :topicId")
+    int deleteAllByTopic(UUID topicId);
 }
