@@ -25,7 +25,7 @@ export function DashboardPage() {
   const progressById = new Map((dashboard.data?.topics || []).map((item) => [item.topicId, item]))
   const list = topics.data || []
   const startLearning = () => {
-    const first = list.find((topic) => (progressById.get(topic.id)?.dueToday || 0) > 0)
+    const first = list.find((topic) => (progressById.get(topic.id)?.dueCards ?? 0) > 0)
     if (first) navigate(`/topics/${first.id}/learn`)
   }
   return (
@@ -38,7 +38,7 @@ export function DashboardPage() {
         </div>
         <NewTopicButton />
       </header>
-      <TodayCard dueCount={dashboard.data?.dueToday ?? 0} onStart={startLearning} />
+      <TodayCard dueNow={dashboard.data?.dueCards ?? 0} dueToday={dashboard.data?.dueToday ?? 0} onStart={startLearning} />
       <div className="section-heading">
         <div>
           <h2>Мои темы</h2>
