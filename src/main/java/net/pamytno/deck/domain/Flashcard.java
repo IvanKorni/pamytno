@@ -30,6 +30,8 @@ public class Flashcard extends BaseEntity {
     private String back;
     @Column(name = "source_fragment", updatable = false, columnDefinition = "text")
     private String sourceFragment;
+    @Column(name = "seq", insertable = false, updatable = false)
+    private Long seq;
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
     @Column(name = "updated_at", nullable = false)
@@ -58,6 +60,23 @@ public class Flashcard extends BaseEntity {
         this.back = back;
         this.sourceFragment = question.getSourceFragment();
         this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    /**
+     * Меняет переданные стороны карточки; {@code null} означает «не менять».
+     *
+     * @param newFront новый вопрос или {@code null}
+     * @param newBack  новый ответ или {@code null}
+     * @param now      момент изменения
+     */
+    public void edit(String newFront, String newBack, Instant now) {
+        if (newFront != null) {
+            this.front = newFront;
+        }
+        if (newBack != null) {
+            this.back = newBack;
+        }
         this.updatedAt = now;
     }
 }

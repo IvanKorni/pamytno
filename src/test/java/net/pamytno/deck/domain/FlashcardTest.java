@@ -26,4 +26,17 @@ class FlashcardTest {
         assertThat(card.getQuestionId()).isEqualTo(question.getId());
         assertThat(card.getSourceFragment()).isEqualTo("JVM.");
     }
+
+    @Test
+    @DisplayName("Редактирование меняет только переданные стороны")
+    void edit_changesOnlyGivenSides() {
+        var question = new Question(DeckFixtures.chunk(DeckFixtures.topic(), "JVM."), "Что?", "JVM.", Instant.EPOCH);
+        var card = new Flashcard(question, "Что?", "Ответ.", Instant.EPOCH);
+
+        card.edit(null, "Новый ответ.", Instant.EPOCH.plusSeconds(1));
+
+        assertThat(card.getFront()).isEqualTo("Что?");
+        assertThat(card.getBack()).isEqualTo("Новый ответ.");
+        assertThat(card.getUpdatedAt()).isEqualTo(Instant.EPOCH.plusSeconds(1));
+    }
 }

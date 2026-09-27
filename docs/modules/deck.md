@@ -15,7 +15,7 @@
 | `domain` | `GenerationJob`, `GenerationJobType`, `GenerationJobStatus` | асинхронная задача генерации |
 | `domain` | `Question`, `QuestionStatus` | вопрос с цитатой-источником и ссылкой на фрагмент; после карточки не меняется |
 | `domain` | `QuestionDecision` | решение «изучать / не изучать» |
-| `domain` | `Flashcard` | карточка; цитата-источник переходит от вопроса |
+| `domain` | `Flashcard` | карточка; цитата-источник переходит от вопроса; редактируема |
 | `repository` | `TopicMaterialRepository`, `TextChunkRepository` | проекция и фрагменты |
 | `repository` | `GenerationJobRepository`, `QuestionRepository`, `FlashcardRepository` | задачи, вопросы, карточки |
 | `service` | `TopicMaterialService` | приём новой версии текста (идемпотентно), фрагменты актуальной версии |
@@ -29,6 +29,8 @@
 | `service` | `CardGenerationWorker` | вызовы AI по вопросам вне транзакции |
 | `service` | `CardContextBuilder` | контекст карточки: цитата + фрагмент единого текста |
 | `service` | `FlashcardWriter` | сохранение карточки, `CARD_CREATED`, событие `FlashcardCreated` |
+| `service` | `FlashcardQueryService` | карточки темы, карточка владельца |
+| `service` | `FlashcardCommandService` | правка (`FlashcardUpdated`) и удаление (`FlashcardDeleted`) |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
 | `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер вопросов |
 | `listener` | `CardGenerationRequestedListener` | `@Async` после коммита запускает воркер карточек |
@@ -38,12 +40,15 @@
 | `exception` | `QuestionNotFoundException` | 404 `QUESTION_NOT_FOUND` |
 | `exception` | `QuestionAlreadyHasCardException` | 409 `QUESTION_ALREADY_HAS_CARD` |
 | `exception` | `NoApprovedQuestionsException` | 409 `NO_APPROVED_QUESTIONS` |
+| `exception` | `CardNotFoundException` | 404 `CARD_NOT_FOUND` |
 | `mapper` | `GenerationJobMapper` | задача → DTO |
 | `mapper` | `QuestionMapper` | вопрос → DTO, статус и решение из запроса |
+| `mapper` | `FlashcardMapper` | карточка → DTO |
 | `rest` | `QuestionGenerationRestControllerV1` | `POST /api/topics/{id}/questions/generate` |
 | `rest` | `GenerationJobRestControllerV1` | `GET /api/generation-jobs/{id}` |
 | `rest` | `QuestionRestControllerV1` | список, правка, approve/reject, массовое решение |
 | `rest` | `CardGenerationRestControllerV1` | `POST /api/topics/{id}/cards/generate` |
+| `rest` | `FlashcardRestControllerV1` | список, карточка, правка, удаление |
 | `config` | `DeckProperties` | `pamytno.deck.chunk-size` |
 | `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude |
 | `integration.ai` | `AiProvider` | интерфейс модели из ТЗ: `generateQuestions`, `generateCard` |
@@ -60,8 +65,8 @@
 | `topic_materials` | `id` = id темы, владелец и последняя версия текста |
 | `text_chunks` | фрагменты по версиям; старые версии хранятся — на них ссылаются вопросы |
 | `generation_jobs` | задачи генерации вопросов и карточек |
-| `questions` | вопросы; `chunk_id` → `text_chunks` |
-| `flashcards` | карточки; `question_id` → `questions` |
+| `questions` | вопросы; `chunk_id` → `text_chunks`; порядок — `seq` |
+| `flashcards` | карточки; `question_id` → `questions`; порядок — `seq` |
 
 ## События
 
@@ -69,6 +74,8 @@
 |---|---|---|
 | слушает | `TopicContentPrepared` | строит фрагменты новой версии |
 | публикует | `FlashcardCreated(cardId, topicId, userId, front, back)` | карточка создана |
+| публикует | `FlashcardUpdated(cardId, topicId, userId, front, back)` | карточка изменена |
+| публикует | `FlashcardDeleted(cardId, topicId, userId)` | карточка удалена |
 
 ## Эндпоинты
 
@@ -82,6 +89,10 @@
 | POST | `/api/questions/{questionId}/reject` | 200 `QuestionDto` |
 | POST | `/api/questions/decisions` | 200 `QuestionDto[]` |
 | POST | `/api/topics/{topicId}/cards/generate` | 202 `GenerationJobDto` |
+| GET | `/api/topics/{topicId}/cards` | 200 `FlashcardDto[]` |
+| GET | `/api/cards/{cardId}` | 200 `FlashcardDto` |
+| PATCH | `/api/cards/{cardId}` | 200 `FlashcardDto` |
+| DELETE | `/api/cards/{cardId}` | 204 |
 
 ## Настройки
 

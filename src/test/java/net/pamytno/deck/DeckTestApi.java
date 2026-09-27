@@ -10,11 +10,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 import static org.awaitility.Awaitility.await;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -108,5 +111,29 @@ record DeckTestApi(MockMvc mockMvc, ObjectMapper objectMapper, TopicMaterialServ
         prepareContent(scenario, topicId, userId, content);
         awaitJob(userId, idOf(generateQuestions(userId, topicId)));
         return getJson(userId, "/api/topics/{id}/questions", topicId);
+    }
+
+    /**
+     * Готовит тему с карточками: вопросы от заглушки, все одобрены, карточки созданы.
+     *
+     * @param scenario сценарий Spring Modulith
+     * @param topicId  тема
+     * @param userId   владелец
+     * @param content  единый текст темы; по карточке на предложение
+     * @return карточки темы
+     * @throws Exception при ошибке MockMvc
+     */
+    JsonNode prepareCards(Scenario scenario, UUID topicId, UUID userId, String content) throws Exception {
+        var questions = prepareQuestions(scenario, topicId, userId, content);
+        var questionIds = StreamSupport.stream(questions.spliterator(), false)
+                .map(question -> question.get("id").asText())
+                .toList();
+        mockMvc.perform(post("/api/questions/decisions").with(TestJwt.user(userId)).contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("questionIds", questionIds,
+                                "decision", "APPROVE"))))
+                .andExpect(status().isOk());
+        var job = mockMvc.perform(post("/api/topics/{id}/cards/generate", topicId).with(TestJwt.user(userId)));
+        awaitJob(userId, idOf(job));
+        return getJson(userId, "/api/topics/{id}/cards", topicId);
     }
 }
