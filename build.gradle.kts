@@ -99,7 +99,7 @@ tasks.withType<Checkstyle> {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.compilerArgs.addAll(listOf("-parameters", "-Amapstruct.defaultComponentModel=spring"))
+    options.compilerArgs.add("-parameters")
 }
 
 /*
@@ -126,6 +126,8 @@ val openApiTasks = openApiSpecs.map { spec ->
         schemaMappings = mapOf("ErrorResponse" to "net.pamytno.common.error.ErrorResponse")
         typeMappings = mapOf("DateTime" to "Instant")
         importMappings = mapOf("Instant" to "java.time.Instant")
+        // Только интерфейсы и модели, без ApiUtil, README и прочих supporting files
+        globalProperties = mapOf("apis" to "", "models" to "", "modelDocs" to "false", "apiDocs" to "false")
         configOptions = mapOf(
             "interfaceOnly" to "true",
             "useSpringBoot3" to "true",
