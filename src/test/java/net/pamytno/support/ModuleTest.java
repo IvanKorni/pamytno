@@ -1,6 +1,7 @@
 package net.pamytno.support;
 
 import org.junit.jupiter.api.Tag;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -15,7 +16,7 @@ import java.lang.annotation.Target;
 /**
  * Модульный тест: поднимает только модуль, в пакете которого лежит тест, и общее ядро {@code common}.
  * Другие модули в контекст не попадают — так проверяется, что модуль самодостаточен.
- * БД — общий контейнер PostgreSQL, HTTP — MockMvc.
+ * БД — общий контейнер PostgreSQL, HTTP — MockMvc, события записывает {@link CapturedEvents}.
  */
 @Documented
 @Target(ElementType.TYPE)
@@ -25,5 +26,6 @@ import java.lang.annotation.Target;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = TestEnvironmentInitializer.class)
+@Import(CapturedEvents.class)
 public @interface ModuleTest {
 }

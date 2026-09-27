@@ -31,5 +31,5 @@
 ## Тесты
 
 - Unit: `MasterTextBuilderTest`, `TopicContentTest`, `TopicContentServiceTest`.
-- Модульные: `TopicContentModuleTest` — 404 до обработки, событие `TopicContentPrepared` (через `Scenario`),
+- Модульные: `TopicContentModuleTest` — 404 до обработки, событие `TopicContentPrepared` (через `CapturedEvents`),
   объединение источников и новая версия после удаления.

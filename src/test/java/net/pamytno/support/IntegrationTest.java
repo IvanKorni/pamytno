@@ -1,6 +1,7 @@
 package net.pamytno.support;
 
 import org.junit.jupiter.api.Tag;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,5 +22,6 @@ import java.lang.annotation.Target;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @ContextConfiguration(initializers = TestEnvironmentInitializer.class)
+@Import(CapturedEvents.class)
 public @interface IntegrationTest {
 }
