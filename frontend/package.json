@@ -13,6 +13,7 @@
     "test:integration": "vitest run .integration.test",
     "api:generate": "node scripts/generate-api.mjs",
     "api:check": "node scripts/generate-api.mjs --check",
+    "seed:demo": "node scripts/seed-demo.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

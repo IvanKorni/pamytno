@@ -64,7 +64,12 @@ npm run dev
 npm run check                  # типы из OpenAPI, ESLint, Prettier, unit + module тесты, сборка
 npm run api:generate           # перегенерировать типы DTO после изменения openapi/*.yaml
 VITE_PAMYTNO_INTEGRATION_URL=http://localhost:8080 npm run test:integration   # HTTP-путь через backend
+npm run seed:demo              # демо-пользователь с темами и карточками для ручной проверки
 ```
+
+`seed:demo` создаёт на локальном backend (`PAMYTNO_BACKEND`, по умолчанию `http://localhost:8080`, AI — `stub`)
+пользователя `demo@pamytno.dev` / `pamytno-demo-2026` и три темы: с карточками к повторению, с вопросами на отбор
+и пустую. Повторный запуск ничего не дублирует. Учётные данные — только для локальной разработки.
 
 ## Настройки
 
