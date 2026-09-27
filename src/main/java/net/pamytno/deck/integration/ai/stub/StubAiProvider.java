@@ -1,0 +1,77 @@
+package net.pamytno.deck.integration.ai.stub;
+
+import lombok.RequiredArgsConstructor;
+import net.pamytno.deck.config.AiProperties;
+import net.pamytno.deck.integration.ai.AiProvider;
+import net.pamytno.deck.integration.ai.GeneratedCard;
+import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+/**
+ * Детерминированная заглушка без сети: вопрос на каждое предложение, ответ — предложения контекста.
+ * Для локального запуска без ключей API и для тестов. Включается {@code pamytno.deck.ai.provider=stub}.
+ */
+@Component
+@RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "pamytno.deck.ai", name = "provider", havingValue = "stub", matchIfMissing = true)
+public class StubAiProvider implements AiProvider {
+
+    private static final Pattern SENTENCE_BREAK = Pattern.compile("(?<=[.!?…])\\s+|\\n+");
+    private static final int MAX_ANSWER_SENTENCES = 10;
+    private static final int MAX_QUOTE_LENGTH = 80;
+
+    private final AiProperties properties;
+
+    /**
+     * Вопрос на каждое предложение фрагмента, не больше {@code questionsPerChunk}.
+     *
+     * @param text фрагмент материала
+     * @return вопросы с предложением-источником
+     */
+    @Override
+    public List<GeneratedQuestion> generateQuestions(String text) {
+        return sentences(text).stream()
+                .limit(properties.questionsPerChunk())
+                .map(sentence -> new GeneratedQuestion("Что сказано в материале: «" + shorten(sentence) + "»?",
+                        sentence))
+                .toList();
+    }
+
+    /**
+     * Карточка: вопрос как есть, ответ — первые предложения контекста.
+     *
+     * @param question вопрос
+     * @param context  контекст
+     * @return карточка
+     */
+    @Override
+    public GeneratedCard generateCard(String question, String context) {
+        var answer = sentences(context).stream().limit(MAX_ANSWER_SENTENCES).collect(Collectors.joining(" "));
+        return new GeneratedCard(question, answer);
+    }
+
+    /**
+     * Делит текст на непустые предложения и строки.
+     *
+     * @param text текст
+     * @return предложения
+     */
+    private static List<String> sentences(String text) {
+        return SENTENCE_BREAK.splitAsStream(text).map(String::strip).filter(part -> !part.isEmpty()).toList();
+    }
+
+    /**
+     * Сокращает цитату для текста вопроса.
+     *
+     * @param sentence предложение
+     * @return предложение не длиннее {@value #MAX_QUOTE_LENGTH} символов
+     */
+    private static String shorten(String sentence) {
+        return sentence.length() <= MAX_QUOTE_LENGTH ? sentence : sentence.substring(0, MAX_QUOTE_LENGTH) + "…";
+    }
+}

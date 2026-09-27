@@ -16,6 +16,11 @@
 | `service` | `TopicMaterialService` | приём новой версии текста (идемпотентно), фрагменты актуальной версии |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
 | `config` | `DeckProperties` | `pamytno.deck.chunk-size` |
+| `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude |
+| `integration.ai` | `AiProvider` | интерфейс модели из ТЗ: `generateQuestions`, `generateCard` |
+| `integration.ai` | `GeneratedQuestion`, `GeneratedCard` | ответы модели |
+| `integration.ai` | `AiGenerationException` | модель не справилась |
+| `integration.ai.stub` | `StubAiProvider` | детерминированная заглушка без сети (`AI_PROVIDER=stub`) |
 
 Контракт: `openapi/deck-api.yaml`.
 
@@ -37,3 +42,8 @@
 | Свойство | Переменная окружения | По умолчанию |
 |---|---|---|
 | `pamytno.deck.chunk-size` | `AI_CHUNK_SIZE` | `6000` символов |
+| `pamytno.deck.ai.provider` | `AI_PROVIDER` | `stub` (`anthropic` — Claude) |
+| `pamytno.deck.ai.questions-per-chunk` | `AI_QUESTIONS_PER_CHUNK` | `8` |
+| `pamytno.deck.ai.anthropic.model` | `AI_MODEL` | `claude-opus-5` |
+| `pamytno.deck.ai.anthropic.max-tokens` | `AI_MAX_TOKENS` | `16000` |
+| `pamytno.deck.ai.anthropic.effort` | `AI_EFFORT` | пусто (по умолчанию API) |

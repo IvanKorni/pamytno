@@ -51,3 +51,10 @@ pamytno:
       preferred-languages: ${YOUTUBE_LANGUAGES:ru,en}
   deck:
     chunk-size: ${AI_CHUNK_SIZE:6000}
+    ai:
+      provider: ${AI_PROVIDER:stub}
+      questions-per-chunk: ${AI_QUESTIONS_PER_CHUNK:8}
+      anthropic:
+        model: ${AI_MODEL:claude-opus-5}
+        max-tokens: ${AI_MAX_TOKENS:16000}
+        effort: ${AI_EFFORT:}
