@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BookOpen, Check, ChevronLeft, ChevronRight, CircleHelp, FileText, Flame, GraduationCap, LayoutDashboard, LogOut, Menu, Play, Plus, Search, Sparkles, Trash2, Upload, Youtube, X } from 'lucide-react'
 import * as authApi from './api/auth'
@@ -7,7 +7,6 @@ import * as topicsApi from './api/topics'
 import * as sourceApi from './api/sources'
 import * as deckApi from './api/deck'
 import * as learningApi from './api/learning'
-import { HttpError } from './api/client'
 import { useAuth, useLearning, useToast } from './store'
 import type { DueCard, Flashcard, Question, Source, Topic } from './types'
 import { formatPercent, plural } from './utils'
@@ -134,7 +133,7 @@ function AddMaterialModal({ topicId, close }: { topicId: string; close: () => vo
 }
 
 function QuestionsPage() {
-  const { topicId } = useParams(); const queryClient = useQueryClient(); const navigate = useNavigate(); const [view, setView] = useState<'review' | 'list'>('review'); const [selected, setSelected] = useState<string[]>([]); const [jobId, setJobId] = useState<string>(); const [cardJobId, setCardJobId] = useState<string>(); const [index, setIndex] = useState(0); const [error, setError] = useState('')
+  const { topicId } = useParams(); const queryClient = useQueryClient(); const navigate = useNavigate(); const [view, setView] = useState<'review' | 'list'>('review'); const [selected, setSelected] = useState<string[]>([]); const [jobId, setJobId] = useState<string>(); const [cardJobId, setCardJobId] = useState<string>(); const [index] = useState(0); const [error, setError] = useState('')
   const questions = useQuery({ queryKey: ['questions', topicId], queryFn: () => deckApi.listQuestions(topicId!), enabled: Boolean(topicId) }); const job = useQuery({ queryKey: ['job', jobId], queryFn: () => deckApi.getGenerationJob(jobId!), enabled: Boolean(jobId), refetchInterval: 1200 }); const cardJob = useQuery({ queryKey: ['job', cardJobId], queryFn: () => deckApi.getGenerationJob(cardJobId!), enabled: Boolean(cardJobId), refetchInterval: 1200 })
   const refresh = () => { queryClient.invalidateQueries({ queryKey: ['questions', topicId] }); queryClient.invalidateQueries({ queryKey: ['progress', topicId] }) }
   const generate = useMutation({ mutationFn: () => deckApi.generateQuestions(topicId!), onSuccess: (data) => setJobId(data.id), onError: (e: Error) => setError(e.message) }); const decide = useMutation({ mutationFn: ({ id, decision }: { id: string; decision: 'APPROVE' | 'REJECT' }) => deckApi.decideQuestion(id, decision), onSuccess: () => { refresh() }, onError: (e: Error) => setError(e.message) }); const bulk = useMutation({ mutationFn: (decision: 'APPROVE' | 'REJECT') => deckApi.decideQuestions(selected, decision), onSuccess: () => { setSelected([]); refresh() }, onError: (e: Error) => setError(e.message) }); const makeCards = useMutation({ mutationFn: async () => { if (selected.length) await deckApi.decideQuestions(selected, 'APPROVE'); return deckApi.generateCards(topicId!) }, onSuccess: (data) => { setSelected([]); refresh(); setCardJobId(data.id) }, onError: (e: Error) => setError(e.message) })
