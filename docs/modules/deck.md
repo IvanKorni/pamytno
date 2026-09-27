@@ -12,9 +12,23 @@
 | `domain` | `TopicMaterial` | проекция: последняя известная версия единого текста темы |
 | `domain` | `TextChunk`, `ChunkSpan` | неизменяемый фрагмент версии текста со смещениями |
 | `domain` | `TextChunker` | деление текста: абзац → строка → предложение → жёсткий разрез |
+| `domain` | `GenerationJob`, `GenerationJobType`, `GenerationJobStatus` | асинхронная задача генерации |
+| `domain` | `Question`, `QuestionStatus` | вопрос с цитатой-источником и ссылкой на фрагмент |
 | `repository` | `TopicMaterialRepository`, `TextChunkRepository` | проекция и фрагменты |
+| `repository` | `GenerationJobRepository`, `QuestionRepository` | задачи и вопросы |
 | `service` | `TopicMaterialService` | приём новой версии текста (идемпотентно), фрагменты актуальной версии |
+| `service` | `GenerationJobService` | запуск (одна задача вида на тему), завершение, чтение задач |
+| `service` | `QuestionGenerationService`, `QuestionGenerationRequested` | проверка текста и постановка задачи |
+| `service` | `QuestionGenerationWorker` | вызовы AI по фрагментам вне транзакции, логи старта/финиша/длительности |
+| `service` | `QuestionWriter` | сохранение вопросов фрагмента |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
+| `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер |
+| `exception` | `TopicContentNotReadyException` | 409 `TOPIC_CONTENT_NOT_READY` |
+| `exception` | `GenerationInProgressException` | 409 `GENERATION_IN_PROGRESS` |
+| `exception` | `GenerationJobNotFoundException` | 404 `GENERATION_JOB_NOT_FOUND` |
+| `mapper` | `GenerationJobMapper` | задача → DTO |
+| `rest` | `QuestionGenerationRestControllerV1` | `POST /api/topics/{id}/questions/generate` |
+| `rest` | `GenerationJobRestControllerV1` | `GET /api/generation-jobs/{id}` |
 | `config` | `DeckProperties` | `pamytno.deck.chunk-size` |
 | `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude |
 | `integration.ai` | `AiProvider` | интерфейс модели из ТЗ: `generateQuestions`, `generateCard` |
@@ -30,12 +44,21 @@
 |---|---|
 | `topic_materials` | `id` = id темы, владелец и последняя версия текста |
 | `text_chunks` | фрагменты по версиям; старые версии хранятся — на них ссылаются вопросы |
+| `generation_jobs` | задачи генерации вопросов и карточек |
+| `questions` | вопросы; `chunk_id` → `text_chunks` |
 
 ## События
 
 | Направление | Событие | Реакция |
 |---|---|---|
 | слушает | `TopicContentPrepared` | строит фрагменты новой версии |
+
+## Эндпоинты
+
+| Метод | Путь | Ответ |
+|---|---|---|
+| POST | `/api/topics/{topicId}/questions/generate` | 202 `GenerationJobDto` |
+| GET | `/api/generation-jobs/{jobId}` | 200 `GenerationJobDto` |
 
 ## Настройки
 
