@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
-import { FakeBackend } from '@/test/fakeBackend'
+import { errorReply, FakeBackend } from '@/test/fakeBackend'
 import { progress, topic } from '@/test/fixtures'
 import { renderApp, TEST_USER } from '@/test/renderApp'
 import { useAuth } from '@/modules/identity'
@@ -129,5 +129,19 @@ describe('Приложение', () => {
 
     // then
     expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+  })
+
+  it('при недоступном сервере на старте не выходит, а предлагает повторить', async () => {
+    // given
+    renderApp(backend, '/', { me: errorReply(503, 'UNAVAILABLE', 'Сервис недоступен') })
+    expect(await screen.findByText('Не удалось связаться с сервером')).toBeInTheDocument()
+    backend.on('GET', '/users/me', TEST_USER)
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: 'Попробовать снова' }))
+
+    // then
+    expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+    expect(localStorage.getItem('pamytno-token')).toBe('test-token')
   })
 })

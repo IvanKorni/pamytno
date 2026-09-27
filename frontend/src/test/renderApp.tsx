@@ -12,12 +12,13 @@ export const TEST_USER = { id: 'user-1', email: 'student@example.com', createdAt
 
 /**
  * Рендерит всё приложение по адресу — как в браузере, в StrictMode, чтобы ловить двойной запуск эффектов.
- * По умолчанию от имени вошедшего пользователя; `signedIn: false` открывает приложение гостем.
+ * По умолчанию от имени вошедшего пользователя; `signedIn: false` открывает приложение гостем,
+ * `me` подменяет ответ профиля при старте.
  */
-export function renderApp(backend: FakeBackend, path: string, { signedIn = true } = {}) {
+export function renderApp(backend: FakeBackend, path: string, { signedIn = true, me = TEST_USER as unknown } = {}) {
   if (signedIn) tokenStorage.save('test-token')
   useAuth.setState({ user: undefined, signedOut: false })
-  backend.on('GET', '/users/me', TEST_USER)
+  backend.on('GET', '/users/me', me)
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 20_000 } } })
   const view = render(
     <StrictMode>

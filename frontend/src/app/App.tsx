@@ -9,7 +9,7 @@ import { MaterialsPage } from '@/pages/topic/MaterialsPage'
 import { ProgressPage } from '@/pages/topic/ProgressPage'
 import { QuestionsPage } from '@/pages/topic/QuestionsPage'
 import { TopicLayout } from '@/pages/topic/TopicLayout'
-import { PageLoading } from '@/shared'
+import { ErrorState, PageLoading } from '@/shared'
 import { AppShell } from './AppShell'
 
 /** Куда вернуть пользователя после входа: адрес, который он открывал без входа. */
@@ -19,8 +19,17 @@ interface ReturnState {
 
 /** Корень приложения: восстанавливает вход и раздаёт экраны по адресам. */
 export function App() {
-  const booting = useAuthBootstrap()
-  if (booting) return <PageLoading text="Загружаем Памятно…" />
+  const boot = useAuthBootstrap()
+  if (boot.status === 'booting') return <PageLoading text="Загружаем Памятно…" />
+  if (boot.status === 'failed') {
+    return (
+      <ErrorState
+        title="Не удалось связаться с сервером"
+        message="Вход сохранён — проверьте подключение и попробуйте снова."
+        onRetry={boot.retry}
+      />
+    )
+  }
   return (
     <Routes>
       <Route path="/login" element={<GuestOnly page={<AuthPage mode="login" />} />} />
