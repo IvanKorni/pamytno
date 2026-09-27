@@ -24,6 +24,7 @@ function YoutubeFields({ draft, update }: MaterialFieldsProps) {
           value={draft.url}
           onChange={(e) => update({ url: e.target.value })}
           placeholder="https://www.youtube.com/watch?v=…"
+          maxLength={2048}
           required
         />
       </label>
@@ -60,6 +61,7 @@ function TextFields({ draft, update }: MaterialFieldsProps) {
           onChange={(e) => update({ text: e.target.value })}
           rows={9}
           placeholder={words ? 'optimistic locking\nMVCC\npessimistic locking' : 'Вставьте сюда материал…'}
+          maxLength={1_000_000}
           required
         />
       </label>
@@ -73,7 +75,12 @@ function NameField({ draft, update, placeholder }: MaterialFieldsProps & { place
   return (
     <label>
       Название <span className="optional">необязательно</span>
-      <input value={draft.name} onChange={(e) => update({ name: e.target.value })} placeholder={placeholder} />
+      <input
+        value={draft.name}
+        onChange={(e) => update({ name: e.target.value })}
+        placeholder={placeholder}
+        maxLength={255}
+      />
     </label>
   )
 }

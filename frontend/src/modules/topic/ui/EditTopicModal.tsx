@@ -28,11 +28,11 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
       <div className="form-stack">
         <label>
           Название
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required />
         </label>
         <label>
           Описание
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={2000} />
         </label>
       </div>
       <div className="modal-danger">

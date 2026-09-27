@@ -75,4 +75,23 @@ describe('Экран материалов', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(open).toHaveFocus()
   })
+
+  it('отправляет ссылку YouTube без пробелов по краям', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1/sources', [])
+    backend.on('POST', '/topics/topic-1/sources/youtube', new Reply(202, source('UPLOADED')))
+    renderApp(backend, '/topics/topic-1')
+    await userEvent.click(await screen.findByRole('button', { name: /Добавить материал/ }))
+    await userEvent.click(screen.getByRole('button', { name: /YouTube/ }))
+
+    // when
+    await userEvent.type(screen.getByLabelText('YouTube URL'), '  https://youtu.be/abc  ')
+    await userEvent.click(screen.getAllByRole('button', { name: 'Добавить материал' }).at(-1)!)
+
+    // then
+    await waitFor(() => expect(backend.count('POST', '/topics/topic-1/sources/youtube')).toBe(1))
+    expect(backend.calls.find((call) => call.path.endsWith('/sources/youtube'))?.body).toEqual({
+      url: 'https://youtu.be/abc',
+    })
+  })
 })

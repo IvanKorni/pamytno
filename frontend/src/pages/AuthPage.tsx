@@ -53,7 +53,14 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
         >
           <label>
             Электронная почта
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              maxLength={255}
+              required
+              autoFocus
+            />
           </label>
           <label>
             Пароль
@@ -61,7 +68,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              minLength={8}
+              minLength={mode === 'register' ? 8 : undefined}
+              maxLength={72}
               required
             />
           </label>

@@ -16,16 +16,17 @@ export const EMPTY_DRAFT: MaterialDraft = { kind: 'TEXT', name: '', text: '', ur
 /** Проверяет, что в черновике заполнено главное поле выбранного типа. */
 export function isDraftReady(draft: MaterialDraft): boolean {
   if (draft.kind === 'PDF') return Boolean(draft.file)
-  if (draft.kind === 'YOUTUBE') return Boolean(draft.url)
+  if (draft.kind === 'YOUTUBE') return Boolean(draft.url.trim())
   return Boolean(draft.text.trim())
 }
 
 /** Отправляет черновик в нужный эндпоинт по его типу. */
 export function saveMaterial(topicId: string, draft: MaterialDraft): Promise<Source> {
   if (draft.kind === 'PDF') {
-    return draft.file ? addPdfSource(topicId, draft.file, draft.name) : Promise.reject(new Error('Выберите PDF-файл'))
+    return draft.file ? addPdfSource(topicId, draft.file, draft.name.trim()) : Promise.reject(new Error('Выберите PDF-файл'))
   }
-  if (draft.kind === 'YOUTUBE') return addYoutubeSource(topicId, { url: draft.url, name: draft.name || undefined })
+  const name = draft.name.trim()
+  if (draft.kind === 'YOUTUBE') return addYoutubeSource(topicId, { url: draft.url.trim(), name: name || undefined })
   const defaultName = draft.kind === 'WORD_LIST' ? 'Список слов' : 'Мои заметки'
-  return addTextSource(topicId, { type: draft.kind, name: draft.name || defaultName, text: draft.text })
+  return addTextSource(topicId, { type: draft.kind, name: name || defaultName, text: draft.text })
 }
