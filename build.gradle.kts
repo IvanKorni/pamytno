@@ -13,6 +13,7 @@ val versions = mapOf(
     "springModulith" to "1.4.13",
     "archunit" to "1.5.1",
     "checkstyle" to "14.1.0",
+    "springdoc" to "2.8.17",
 )
 
 java {
@@ -37,6 +38,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions["springdoc"]}")
 
     // MODULITH
     implementation("org.springframework.modulith:spring-modulith-starter-core")
@@ -54,6 +58,7 @@ dependencies {
     // TEST
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")

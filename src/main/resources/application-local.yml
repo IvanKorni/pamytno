@@ -1,0 +1,6 @@
+# Профиль для запуска из IDE: БД из docker-compose, dev-секрет JWT.
+# Секрет ниже — только для локальной машины, в проде задаётся JWT_SECRET.
+pamytno:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:local-dev-secret-change-me-0123456789abcdef}
