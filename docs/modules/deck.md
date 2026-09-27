@@ -57,6 +57,10 @@
 | `integration.ai` | `GeneratedQuestion`, `GeneratedCard` | ответы модели |
 | `integration.ai` | `AiGenerationException` | модель не справилась |
 | `integration.ai.stub` | `StubAiProvider` | детерминированная заглушка без сети (`AI_PROVIDER=stub`) |
+| `integration.ai.anthropic` | `AnthropicAiProvider` | Claude через Anthropic Java SDK, structured outputs, проверка `stop_reason` |
+| `integration.ai.anthropic` | `AnthropicPrompts` | инструкции; материал в XML-тегах |
+| `integration.ai.anthropic` | `QuestionsPayload`, `CardPayload` | JSON-схемы ответа модели |
+| `config` | `AnthropicConfig` | `AnthropicClient` из `ANTHROPIC_API_KEY` (только при `AI_PROVIDER=anthropic`) |
 
 Контракт: `openapi/deck-api.yaml`.
 
@@ -107,3 +111,5 @@
 | `pamytno.deck.ai.anthropic.model` | `AI_MODEL` | `claude-opus-5` |
 | `pamytno.deck.ai.anthropic.max-tokens` | `AI_MAX_TOKENS` | `16000` |
 | `pamytno.deck.ai.anthropic.effort` | `AI_EFFORT` | пусто (по умолчанию API) |
+| `pamytno.deck.ai.anthropic.refusal-fallback` | `AI_REFUSAL_FALLBACK` | `true` |
+| — | `ANTHROPIC_API_KEY` | ключ Anthropic, только из окружения |

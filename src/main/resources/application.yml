@@ -58,3 +58,4 @@ pamytno:
         model: ${AI_MODEL:claude-opus-5}
         max-tokens: ${AI_MAX_TOKENS:16000}
         effort: ${AI_EFFORT:}
+        refusal-fallback: ${AI_REFUSAL_FALLBACK:true}

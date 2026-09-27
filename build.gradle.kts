@@ -21,6 +21,7 @@ val versions = mapOf(
     "lombokMapstructBinding" to "0.2.0",
     "pdfbox" to "3.0.8",
     "wiremock" to "3.13.2",
+    "anthropic" to "2.65.0",
 )
 
 java {
@@ -52,6 +53,9 @@ dependencies {
     // MODULITH
     implementation("org.springframework.modulith:spring-modulith-starter-core")
     implementation("org.springframework.modulith:spring-modulith-starter-jdbc")
+
+    // AI
+    implementation("com.anthropic:anthropic-java:${versions["anthropic"]}")
 
     // MATERIALS
     implementation("org.apache.pdfbox:pdfbox:${versions["pdfbox"]}")

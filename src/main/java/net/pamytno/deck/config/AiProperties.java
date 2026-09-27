@@ -22,14 +22,17 @@ public record AiProperties(
     /**
      * Настройки Claude.
      *
-     * @param model     идентификатор модели
-     * @param maxTokens максимум токенов ответа
-     * @param effort    уровень усилий ({@code low}…{@code max}); пусто — значение API по умолчанию
+     * @param model            идентификатор модели
+     * @param maxTokens        максимум токенов ответа
+     * @param effort           уровень усилий ({@code low}…{@code max}); пусто — значение API по умолчанию
+     * @param refusalFallback  при отказе модели по соображениям безопасности сервер повторяет запрос
+     *                         на резервной модели (server-side fallbacks)
      */
     public record Anthropic(
             @DefaultValue("claude-opus-5") String model,
             @DefaultValue("16000") long maxTokens,
-            String effort
+            String effort,
+            @DefaultValue("true") boolean refusalFallback
     ) {
     }
 }

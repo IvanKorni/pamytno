@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StubAiProviderTest {
 
     private final StubAiProvider provider = new StubAiProvider(
-            new AiProperties("stub", 2, new AiProperties.Anthropic("model", 100, null)));
+            new AiProperties("stub", 2, new AiProperties.Anthropic("model", 100, null, false)));
 
     @Test
     @DisplayName("Вопрос строится на каждое предложение, количество ограничено настройкой")
