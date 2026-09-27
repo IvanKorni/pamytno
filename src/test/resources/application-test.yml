@@ -1,0 +1,9 @@
+pamytno:
+  security:
+    jwt:
+      secret: test-secret-for-automated-tests-only-0123456789
+
+logging:
+  level:
+    root: WARN
+    net.pamytno: INFO
