@@ -162,6 +162,15 @@ tasks.compileJava {
     dependsOn(openApiTasks)
 }
 
+tasks.bootJar {
+    archiveFileName.set("pamytno.jar")
+}
+
+tasks.bootRun {
+    // Локальный запуск — профиль local (dev-секрет JWT), если профиль не задан явно.
+    systemProperty("spring.profiles.active", System.getenv("SPRING_PROFILES_ACTIVE") ?: "local")
+}
+
 /*
 ──────────────────────────────────────────────────────
 ============== Тесты: unit / module / integration ==============

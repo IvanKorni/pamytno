@@ -7,7 +7,8 @@ Spring Boot 3.5 модульный монолит (Java 21, Spring Modulith, Pos
 
 ```bash
 docker compose up -d postgres        # БД для локального запуска (порт 5433)
-./gradlew bootRun                    # запуск приложения
+./gradlew bootRun                    # запуск приложения (профиль local)
+docker compose up -d --build         # БД + backend в Docker (настройки из .env)
 ./gradlew checkstyleMain checkstyleTest test   # быстро: стиль + unit + архитектура
 ./gradlew moduleTest                 # модульные тесты (Docker)
 ./gradlew integrationTest            # сквозные тесты (Docker)
