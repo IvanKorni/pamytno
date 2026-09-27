@@ -4,27 +4,28 @@ import type { Question, QuestionDecision } from '../model/types'
 
 /** Свойства просмотра вопросов по одному. */
 interface QuestionReviewProps {
-  pending: Question[]
   current?: Question
-  index: number
+  position: number
+  total: number
   onDecide: (decision: QuestionDecision) => void
+  deciding: boolean
 }
 
 /** Просмотр новых вопросов по одному: «Хочу изучить» или «Не изучать». */
-export function QuestionReview({ pending, current, index, onDecide }: QuestionReviewProps) {
+export function QuestionReview({ current, position, total, onDecide, deciding }: QuestionReviewProps) {
   if (!current) {
     return (
       <EmptyState
         icon={<Check size={24} />}
         title="Все вопросы просмотрены"
-        text="Выберите вопросы в списке или создайте карточки из одобренных."
+        text="Создайте карточки из выбранных вопросов или вернитесь к списку."
       />
     )
   }
   return (
     <div className="review-panel">
       <div className="review-count">
-        {Math.min(index + 1, pending.length)} <span>/ {pending.length}</span>
+        {position} <span>/ {total}</span>
       </div>
       <div className="review-question">
         <div className="question-label">ВОПРОС</div>
@@ -37,10 +38,10 @@ export function QuestionReview({ pending, current, index, onDecide }: QuestionRe
         )}
       </div>
       <div className="review-actions">
-        <button className="decision-button reject" onClick={() => onDecide('REJECT')}>
+        <button className="decision-button reject" disabled={deciding} onClick={() => onDecide('REJECT')}>
           <X size={19} /> Не изучать
         </button>
-        <button className="decision-button approve" onClick={() => onDecide('APPROVE')}>
+        <button className="decision-button approve" disabled={deciding} onClick={() => onDecide('APPROVE')}>
           Хочу изучить <Check size={19} />
         </button>
       </div>

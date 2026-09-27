@@ -26,6 +26,7 @@ Frontend реализует пользовательский путь «Памя
 | `api/client.ts` | `request` с токеном и разбором JSON, `HttpError`, событие 401 |
 | `api/tokenStorage.ts` | хранение access-токена в localStorage |
 | `lib/format.ts` | проценты и склонение слов |
+| `lib/sessionValues.ts` | значения в sessionStorage, безопасно при недоступном хранилище |
 | `ui/Modal.tsx` | модальное окно |
 | `ui/EmptyState.tsx`, `ui/ErrorState.tsx`, `ui/InlineError.tsx`, `ui/Loading.tsx` | пустое состояние, ошибка, загрузка |
 | `ui/ProcessingCard.tsx` | карточка долгой операции backend |
@@ -63,8 +64,10 @@ Frontend реализует пользовательский путь «Памя
 |---|---|
 | `api/deckApi.ts` | вопросы, решения, генерация, карточки |
 | `api/deckKeys.ts` | ключи кеша модуля |
-| `api/questionQueries.ts` | вопросы и опрос задачи генерации |
+| `api/questionQueries.ts` | вопросы, решения с подменой в кеше, опрос задачи генерации |
 | `api/cardQueries.ts` | карточки, изменение и удаление |
+| `model/generationJobs.ts` | интервал опроса, ошибка задачи и запоминание идущих задач |
+| `model/useGenerationRun.ts` | запуск генерации и опрос задачи до `READY` / `ERROR` |
 | `model/useQuestionsWorkflow.ts` | сценарий отбора вопросов и генерации карточек |
 | `model/labels.ts` | подписи статусов вопроса |
 | `ui/QuestionReview.tsx`, `ui/QuestionList.tsx` | отбор по одному и списком |
@@ -93,6 +96,7 @@ Frontend реализует пользовательский путь «Памя
 | `pages/topic/TopicLayout.tsx` | шапка темы, статистика, вкладки |
 | `pages/topic/MaterialsPage.tsx`, `QuestionsPage.tsx`, `CardsPage.tsx`, `ProgressPage.tsx` | экраны темы |
 | `pages/learning/LearningPage.tsx` | режим обучения — отдельный экран без шапки темы |
+| `pages/topic/QuestionsFooter.tsx` | действия под вопросами и баннер созданных карточек |
 | `pages/topic/useTopicId.ts` | идентификатор темы из адреса |
 | `app/App.tsx` | маршруты и восстановление входа |
 | `app/AppShell.tsx` | боковое меню и каркас |

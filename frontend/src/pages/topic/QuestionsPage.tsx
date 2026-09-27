@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Sparkles } from 'lucide-react'
-import { QuestionList, QuestionReview, useQuestionsWorkflow } from '@/modules/deck'
+import { QuestionList, QuestionReview, useQuestionsWorkflow, type QuestionsWorkflow } from '@/modules/deck'
 import { learningKeys } from '@/modules/learning'
 import { EmptyState, ErrorState, InlineError, InlineLoading, ProcessingCard } from '@/shared'
 import { CardsReadyBanner, QuestionsFooter } from './QuestionsFooter'
@@ -10,21 +10,19 @@ import { useTopicId } from './useTopicId'
 /** Режим отбора вопросов: по одному или списком. */
 type View = 'review' | 'list'
 
-/** Сценарий отбора вопросов, который возвращает `useQuestionsWorkflow`. */
-type Workflow = ReturnType<typeof useQuestionsWorkflow>
-
 /** Экран вопросов: генерация, отбор по одному или списком и создание карточек. */
 export function QuestionsPage() {
   const topicId = useTopicId()
   const queryClient = useQueryClient()
   const [view, setView] = useState<View>('review')
-  const workflow = useQuestionsWorkflow(topicId, () =>
-    queryClient.invalidateQueries({ queryKey: learningKeys.progress(topicId) }),
-  )
-  if (workflow.questions.isLoading) return <InlineLoading />
-  if (workflow.questions.isError) return <ErrorState onRetry={() => workflow.questions.refetch()} />
-  const all = workflow.questions.data || []
-  const approved = all.filter((item) => item.status === 'APPROVED')
+  const workflow = useQuestionsWorkflow(topicId, () => {
+    queryClient.invalidateQueries({ queryKey: learningKeys.progress(topicId) })
+    queryClient.invalidateQueries({ queryKey: learningKeys.dashboard })
+  })
+  const { questions, questionRun, cardRun } = workflow
+  if (questions.isLoading) return <InlineLoading />
+  if (questions.isError) return <ErrorState onRetry={() => questions.refetch()} />
+  const hasQuestions = Boolean(questions.data?.length)
   return (
     <section className="topic-section">
       <div className="section-heading">
@@ -36,19 +34,16 @@ export function QuestionsPage() {
       </div>
       {workflow.error && <InlineError message={workflow.error} />}
       <QuestionsBody workflow={workflow} view={view} />
-      {all.length > 0 && !workflow.processingQuestions && <QuestionsFooter workflow={workflow} approved={approved.length} />}
-      {workflow.processingCards && (
+      {hasQuestions && !questionRun.running && <QuestionsFooter workflow={workflow} />}
+      {cardRun.running && (
         <ProcessingCard
           title="Создаём карточки"
           subtitle="Превращаем выбранные вопросы в карточки…"
-          count={workflow.cardJob.data?.itemsCreated}
+          count={cardRun.itemsCreated}
         />
       )}
-      {approved.length > 0 && !workflow.processingCards && <CardsReadyBanner count={approved.length} />}
-      {!all.length && !workflow.processingQuestions && (
-        <button className="text-button centered-action" onClick={() => workflow.generate.mutate()}>
-          <Sparkles size={15} /> Создать вопросы
-        </button>
+      {cardRun.readyJob && !cardRun.running && (
+        <CardsReadyBanner topicId={topicId} count={cardRun.readyJob.itemsCreated} />
       )}
     </section>
   )
@@ -69,42 +64,49 @@ function ViewSwitch({ view, setView }: { view: View; setView: (view: View) => vo
 }
 
 /** Основной блок: приглашение сгенерировать, ход генерации или отбор вопросов. */
-function QuestionsBody({ workflow, view }: { workflow: Workflow; view: View }) {
-  const all = workflow.questions.data || []
-  const pending = all.filter((item) => item.status === 'GENERATED')
-  if (!all.length && !workflow.processingQuestions) {
+function QuestionsBody({ workflow, view }: { workflow: QuestionsWorkflow; view: View }) {
+  const all = workflow.questions.data ?? []
+  if (workflow.questionRun.running) {
+    return (
+      <ProcessingCard
+        title="Анализируем материалы"
+        subtitle="Создаём вопросы по единому тексту…"
+        count={workflow.questionRun.itemsCreated}
+      />
+    )
+  }
+  if (!all.length) {
     return (
       <EmptyState
         icon={<Sparkles size={24} />}
         title="Вопросов пока нет"
         text="Когда материалы будут готовы, запустите генерацию вопросов."
         action={
-          <button className="button button-primary" onClick={() => workflow.generate.mutate()}>
+          <button className="button button-primary" onClick={workflow.questionRun.launch}>
             <Sparkles size={17} /> Создать вопросы
           </button>
         }
       />
     )
   }
-  if (workflow.processingQuestions) {
-    return (
-      <ProcessingCard
-        title="Анализируем материалы"
-        subtitle="Создаём вопросы по единому тексту…"
-        count={workflow.job.data?.itemsCreated}
-      />
-    )
-  }
   if (view === 'list') {
     return <QuestionList questions={all} selected={workflow.selected} setSelected={workflow.setSelected} />
   }
+  return <ReviewOneByOne workflow={workflow} />
+}
+
+/** Отбор вопросов по одному: номер вопроса считается среди ещё не превращённых в карточки. */
+function ReviewOneByOne({ workflow }: { workflow: QuestionsWorkflow }) {
+  const reviewable = (workflow.questions.data ?? []).filter((item) => item.status !== 'CARD_CREATED')
+  const pending = reviewable.filter((item) => item.status === 'GENERATED')
   const current = pending[0]
   return (
     <QuestionReview
-      pending={pending}
       current={current}
-      index={0}
-      onDecide={(decision) => current && workflow.decide.mutate({ id: current.id, decision })}
+      position={reviewable.length - pending.length + 1}
+      total={reviewable.length}
+      deciding={workflow.deciding}
+      onDecide={(decision) => current && workflow.decide(current.id, decision)}
     />
   )
 }

@@ -1,6 +1,6 @@
 export { useCards, useDeleteCard } from './api/cardQueries'
 export { deckKeys } from './api/deckKeys'
-export { useQuestionsWorkflow } from './model/useQuestionsWorkflow'
+export { useQuestionsWorkflow, type QuestionsWorkflow } from './model/useQuestionsWorkflow'
 export type { Flashcard, Question } from './model/types'
 export { EditCardModal } from './ui/EditCardModal'
 export { FlashcardRow } from './ui/FlashcardRow'
