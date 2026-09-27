@@ -128,7 +128,8 @@
   inset: 0;
   border-radius: inherit;
 }
-.topic-card-action {
+.topic-card-action,
+.topic-card .clamp {
   position: relative;
   z-index: 1;
 }
