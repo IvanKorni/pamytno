@@ -5,12 +5,13 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * Подключает Spring-контекст теста к общему контейнеру PostgreSQL.
+ * Готовит внешнее окружение для Spring-контекста теста: общий контейнер PostgreSQL
+ * и временный каталог файлового хранилища.
  */
-public class PostgresContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+public class TestEnvironmentInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     /**
-     * Прописывает в окружение параметры подключения к контейнеру.
+     * Прописывает в окружение параметры подключения к контейнеру и каталог хранилища.
      *
      * @param context инициализируемый контекст
      */
@@ -20,7 +21,8 @@ public class PostgresContainerInitializer implements ApplicationContextInitializ
         TestPropertyValues.of(
                 "spring.datasource.url=" + postgres.getJdbcUrl(),
                 "spring.datasource.username=" + postgres.getUsername(),
-                "spring.datasource.password=" + postgres.getPassword()
+                "spring.datasource.password=" + postgres.getPassword(),
+                "pamytno.topic.storage.root=" + TestStorage.root()
         ).applyTo(context.getEnvironment());
     }
 }

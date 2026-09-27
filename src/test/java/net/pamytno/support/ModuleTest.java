@@ -24,6 +24,6 @@ import java.lang.annotation.Target;
 @ApplicationModuleTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = PostgresContainerInitializer.class)
+@ContextConfiguration(initializers = TestEnvironmentInitializer.class)
 public @interface ModuleTest {
 }

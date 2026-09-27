@@ -1,7 +1,6 @@
 package net.pamytno.topic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import net.pamytno.common.event.topic.TopicDeleted;
 import net.pamytno.support.ModuleTest;
 import net.pamytno.support.TestJwt;
@@ -12,7 +11,6 @@ import org.springframework.modulith.test.AssertablePublishedEvents;
 import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,18 +25,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Модульный тест {@code topic}: CRUD тем через HTTP, изоляция пользователей и событие удаления.
  */
 @ModuleTest
-@RequiredArgsConstructor
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 class TopicModuleTest {
 
     private final MockMvc mockMvc;
-    private final ObjectMapper objectMapper;
+    private final TopicTestApi api;
+
+    /**
+     * Создаёт тест с клиентом API модуля.
+     *
+     * @param mockMvc      MockMvc
+     * @param objectMapper JSON-маппер
+     */
+    TopicModuleTest(MockMvc mockMvc, ObjectMapper objectMapper) {
+        this.mockMvc = mockMvc;
+        this.api = new TopicTestApi(mockMvc, objectMapper);
+    }
 
     @Test
     @DisplayName("Созданная тема в статусе DRAFT видна владельцу в списке и по id")
     void createTopic_returnsDraftTopic() throws Exception {
         var userId = UUID.randomUUID();
-        var topicId = createTopic(userId, "Spring Security");
+        var topicId = api.createTopic(userId, "Spring Security");
 
         mockMvc.perform(get("/api/topics/{id}", topicId).with(TestJwt.user(userId)))
                 .andExpect(status().isOk())
@@ -53,7 +61,7 @@ class TopicModuleTest {
     @Test
     @DisplayName("Чужая тема отвечает 404 и не попадает в список")
     void topic_isInvisibleToOtherUser() throws Exception {
-        var topicId = createTopic(UUID.randomUUID(), "Чужая тема");
+        var topicId = api.createTopic(UUID.randomUUID(), "Чужая тема");
         var stranger = UUID.randomUUID();
 
         mockMvc.perform(get("/api/topics/{id}", topicId).with(TestJwt.user(stranger)))
@@ -67,7 +75,7 @@ class TopicModuleTest {
     @DisplayName("PATCH меняет только переданные поля")
     void updateTopic_changesOnlyGivenFields() throws Exception {
         var userId = UUID.randomUUID();
-        var topicId = createTopic(userId, "JVM");
+        var topicId = api.createTopic(userId, "JVM");
 
         mockMvc.perform(patch("/api/topics/{id}", topicId).with(TestJwt.user(userId))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,7 +99,7 @@ class TopicModuleTest {
     @DisplayName("Удаление темы отвечает 204, публикует TopicDeleted, после чего тема не находится")
     void deleteTopic_publishesTopicDeleted(AssertablePublishedEvents events) throws Exception {
         var userId = UUID.randomUUID();
-        var topicId = createTopic(userId, "Временная тема");
+        var topicId = api.createTopic(userId, "Временная тема");
 
         mockMvc.perform(delete("/api/topics/{id}", topicId).with(TestJwt.user(userId)))
                 .andExpect(status().isNoContent());
@@ -101,22 +109,5 @@ class TopicModuleTest {
                 .matching(TopicDeleted::userId, userId);
         mockMvc.perform(get("/api/topics/{id}", topicId).with(TestJwt.user(userId)))
                 .andExpect(status().isNotFound());
-    }
-
-    /**
-     * Создаёт тему через API.
-     *
-     * @param userId владелец
-     * @param title  название
-     * @return идентификатор созданной темы
-     * @throws Exception при ошибке MockMvc
-     */
-    private UUID createTopic(UUID userId, String title) throws Exception {
-        var body = mockMvc.perform(post("/api/topics").with(TestJwt.user(userId))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Map.of("title", title))))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        return UUID.fromString(objectMapper.readTree(body).get("id").asText());
     }
 }

@@ -6,7 +6,7 @@ import net.pamytno.topic.mapper.SourceMapper;
 import net.pamytno.topic.rest.api.TextSourcesApi;
 import net.pamytno.topic.rest.dto.SourceDto;
 import net.pamytno.topic.rest.dto.TextSourceRequest;
-import net.pamytno.topic.service.SourceSubmissionService;
+import net.pamytno.topic.service.TextSourceSubmissionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TextSourceRestControllerV1 implements TextSourcesApi {
 
-    private final SourceSubmissionService submissionService;
+    private final TextSourceSubmissionService submissionService;
     private final SourceMapper sourceMapper;
     private final CurrentUser currentUser;
 
@@ -32,7 +32,7 @@ public class TextSourceRestControllerV1 implements TextSourcesApi {
      */
     @Override
     public ResponseEntity<SourceDto> addTextSource(UUID topicId, TextSourceRequest request) {
-        var source = submissionService.submitText(currentUser.id(), topicId,
+        var source = submissionService.submit(currentUser.id(), topicId,
                 sourceMapper.toSourceType(request.getType()), request.getName(), request.getText());
         return ResponseEntity.accepted().body(sourceMapper.toDto(source));
     }

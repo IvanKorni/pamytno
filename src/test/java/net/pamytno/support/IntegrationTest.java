@@ -20,6 +20,6 @@ import java.lang.annotation.Target;
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@ContextConfiguration(initializers = PostgresContainerInitializer.class)
+@ContextConfiguration(initializers = TestEnvironmentInitializer.class)
 public @interface IntegrationTest {
 }

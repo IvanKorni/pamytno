@@ -19,7 +19,8 @@
 | `service` | `TopicQueryService` | список тем, тема владельца (чужая = 404) |
 | `service` | `TopicCommandService` | создание и частичное изменение темы |
 | `service` | `TopicDeletionService` | удаление темы + событие `TopicDeleted` |
-| `service` | `SourceSubmissionService`, `SourceSubmitted` | приём источника, тема → PROCESSING, внутреннее событие на обработку |
+| `service` | `SourceRegistrar`, `SourceSubmitted` | общий шаг приёма: сохранить, тема → PROCESSING, внутреннее событие на обработку |
+| `service` | `TextSourceSubmissionService` | приём текста и списка слов |
 | `service` | `SourceProcessingService` | извлечение текста вне транзакции, запись результата, пересчёт темы |
 | `service` | `SourceStateService` | короткие транзакции смены состояния источника |
 | `service` | `TopicMaterialRefresher` | пересчёт статуса и единого текста темы под блокировкой строки |
