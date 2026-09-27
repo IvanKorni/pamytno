@@ -1,7 +1,7 @@
 export { learningKeys } from './api/learningKeys'
 export { useDashboard, useTopicProgress } from './api/learningQueries'
 export type { SessionProgress } from './model/learningSession'
-export type { TopicProgress } from './model/types'
+export type { Dashboard, TopicProgress } from './model/types'
 export { useLearningSession } from './model/useLearningSession'
 export { LearningCard } from './ui/LearningCard'
 export { LearningComplete } from './ui/LearningComplete'

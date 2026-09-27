@@ -16,10 +16,7 @@ export interface SessionProgress extends Answers {
 
 /** Состояние экрана обучения. */
 export type LearningState =
-  | { phase: 'loading' }
-  | { phase: 'empty' }
-  | { phase: 'failed'; message: string }
-  | SessionProgress
+  { phase: 'loading' } | { phase: 'empty' } | { phase: 'failed'; message: string } | SessionProgress
 
 /** Событие экрана обучения. */
 export type LearningAction =
@@ -39,16 +36,28 @@ export function learningReducer(state: LearningState, action: LearningAction): L
     case 'restarted':
       return INITIAL_LEARNING_STATE
     case 'started':
-      return { phase: 'active', session: action.session, queue: action.cards, revealed: false, remembered: 0, forgotten: 0 }
+      return {
+        phase: 'active',
+        session: action.session,
+        queue: action.cards,
+        revealed: false,
+        remembered: 0,
+        forgotten: 0,
+      }
     case 'empty':
       return { phase: 'empty' }
     case 'failed':
       return { phase: 'failed', message: action.message }
     case 'revealed':
-      return state.phase === 'active' ? { ...state, revealed: true } : state
+      return whenActive(state, (active) => ({ ...active, revealed: true }))
     case 'answered':
-      return state.phase === 'active' ? applyAnswer(state, action.outcome, action.card) : state
+      return whenActive(state, (active) => applyAnswer(active, action.outcome, action.card))
   }
+}
+
+/** Применяет изменение только к идущей сессии; в остальных состояниях событие игнорируется. */
+function whenActive(state: LearningState, change: (active: SessionProgress) => SessionProgress): LearningState {
+  return state.phase === 'active' ? change(state) : state
 }
 
 /**

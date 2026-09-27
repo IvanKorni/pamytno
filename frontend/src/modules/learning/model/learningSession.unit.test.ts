@@ -10,7 +10,14 @@ const session: LearningSession = {
   cardsRemembered: 0,
   cardsForgotten: 0,
 }
-const card = (cardId: string): DueCard => ({ cardId, topicId: 't-1', front: cardId, back: '', stage: 0, totalReviews: 0 })
+const card = (cardId: string): DueCard => ({
+  cardId,
+  topicId: 't-1',
+  front: cardId,
+  back: '',
+  stage: 0,
+  totalReviews: 0,
+})
 const outcome = (cardId: string, result: 'REMEMBER' | 'FORGOT', returnToSession = false): ReviewOutcome => ({
   cardId,
   result,
@@ -48,7 +55,11 @@ describe('очередь учебной сессии', () => {
     const state = started(card('a'), card('b'))
 
     // when
-    const next = learningReducer(state, { type: 'answered', outcome: outcome('a', 'FORGOT', true), card: card('a') })
+    const next = learningReducer(state, {
+      type: 'answered',
+      outcome: outcome('a', 'FORGOT', true),
+      card: card('a'),
+    })
 
     // then
     expect(next).toMatchObject({ phase: 'active', forgotten: 1 })

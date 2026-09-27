@@ -32,3 +32,16 @@ export function jobPollInterval(job?: GenerationJob): number | false {
 export function jobFailure(job: GenerationJob | undefined, fallback: string): string | undefined {
   return job?.status === 'ERROR' ? job.errorMessage || fallback : undefined
 }
+
+/** Состояние запроса задачи генерации, из которого выводится состояние запуска. */
+export interface JobQueryState {
+  jobId?: string
+  job?: GenerationJob
+  lost: boolean
+}
+
+/** Задача ещё выполняется: она известна, не потеряна и не пришла завершённой. */
+export function isJobPolling({ jobId, job, lost }: JobQueryState): boolean {
+  if (!jobId || lost) return false
+  return job?.status !== 'READY' && job?.status !== 'ERROR'
+}

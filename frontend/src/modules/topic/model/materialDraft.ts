@@ -23,7 +23,9 @@ export function isDraftReady(draft: MaterialDraft): boolean {
 /** Отправляет черновик в нужный эндпоинт по его типу. */
 export function saveMaterial(topicId: string, draft: MaterialDraft): Promise<Source> {
   if (draft.kind === 'PDF') {
-    return draft.file ? addPdfSource(topicId, draft.file, draft.name.trim()) : Promise.reject(new Error('Выберите PDF-файл'))
+    return draft.file
+      ? addPdfSource(topicId, draft.file, draft.name.trim())
+      : Promise.reject(new Error('Выберите PDF-файл'))
   }
   const name = draft.name.trim()
   if (draft.kind === 'YOUTUBE') return addYoutubeSource(topicId, { url: draft.url.trim(), name: name || undefined })

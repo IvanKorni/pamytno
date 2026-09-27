@@ -18,11 +18,17 @@ describe('API-клиент', () => {
   })
 
   it('сообщает серверную ошибку и уведомляет приложение об истёкшем токене', async () => {
-    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ code: 'UNAUTHORIZED', message: 'Нужен вход' }), { status: 401 }))
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ code: 'UNAUTHORIZED', message: 'Нужен вход' }), { status: 401 }),
+    )
     const handler = vi.fn()
     window.addEventListener('pamytno:unauthorized', handler)
 
-    await expect(request('/dashboard')).rejects.toMatchObject({ status: 401, code: 'UNAUTHORIZED', message: 'Нужен вход' })
+    await expect(request('/dashboard')).rejects.toMatchObject({
+      status: 401,
+      code: 'UNAUTHORIZED',
+      message: 'Нужен вход',
+    })
     expect(handler).toHaveBeenCalledOnce()
     window.removeEventListener('pamytno:unauthorized', handler)
   })

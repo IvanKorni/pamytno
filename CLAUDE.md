@@ -15,6 +15,7 @@ docker compose up -d --build         # БД + backend в Docker (настрой�
 ./gradlew moduleTest                 # модульные тесты (Docker)
 ./gradlew integrationTest            # сквозные тесты (Docker)
 ./gradlew check                      # всё вместе — перед пушем
+cd frontend && npm run check         # фронт: типы из OpenAPI, ESLint, Prettier, тесты, сборка
 ```
 
 ## Главное

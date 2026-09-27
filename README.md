@@ -60,6 +60,12 @@ npm run dev
 
 Откройте `http://localhost:5173`. Для production-сборки используйте `npm run build`.
 
+```bash
+npm run check                  # типы из OpenAPI, ESLint, Prettier, unit + module тесты, сборка
+npm run api:generate           # перегенерировать типы DTO после изменения openapi/*.yaml
+VITE_PAMYTNO_INTEGRATION_URL=http://localhost:8080 npm run test:integration   # HTTP-путь через backend
+```
+
 ## Настройки
 
 Всё задаётся переменными окружения, полный список с пояснениями — [`.env.example`](.env.example).

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { LayoutDashboard, LogOut, Menu, Plus } from 'lucide-react'
 import { useAuth, useLogout } from '@/modules/identity'
-import { ToastContainer } from '@/shared'
+import { Brand, ToastContainer } from '@/shared'
 
 /** Каркас приложения для вошедшего пользователя: боковое меню, экран и уведомления. */
 export function AppShell() {
@@ -29,10 +29,7 @@ function Sidebar({ open, onNavigate }: { open: boolean; onNavigate: () => void }
   const logout = useLogout()
   return (
     <aside className={`sidebar ${open ? 'is-open' : ''}`}>
-      <div className="brand">
-        <span className="brand-mark">п</span>
-        <span>памятно</span>
-      </div>
+      <Brand />
       <nav className="main-nav">
         <NavLink to="/" end onClick={onNavigate}>
           <LayoutDashboard size={18} /> Обзор

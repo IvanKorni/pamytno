@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { FileText, Plus, Upload } from 'lucide-react'
-import { AddMaterialModal, SourceRow, TopicContentModal, useDeleteSource, useSources, type Source } from '@/modules/topic'
+import {
+  AddMaterialModal,
+  SourceRow,
+  TopicContentModal,
+  useDeleteSource,
+  useSources,
+  type Source,
+} from '@/modules/topic'
 import { EmptyState, ErrorState, InlineLoading } from '@/shared'
 import { useTopicId } from './useTopicId'
 

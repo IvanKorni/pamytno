@@ -47,7 +47,13 @@ describe('Режим обучения', () => {
   it('после ухода с экрана и возврата снова показывает свежие карточки', async () => {
     // given
     backend.on('GET', DUE, [dueCard('c-1', 'Что такое MVCC?'), dueCard('c-2', 'Что такое xmin?')])
-    backend.on('POST', '/cards/c-1/review', { cardId: 'c-1', result: 'REMEMBER', stage: 1, mastered: false, returnToSession: false })
+    backend.on('POST', '/cards/c-1/review', {
+      cardId: 'c-1',
+      result: 'REMEMBER',
+      stage: 1,
+      mastered: false,
+      returnToSession: false,
+    })
     renderApp(backend, '/topics/topic-1/learn')
     await answer('Помню')
     backend.on('GET', DUE, [dueCard('c-2', 'Что такое xmin?')])

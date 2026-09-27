@@ -18,7 +18,10 @@ export function QuestionList({ questions, selected, setSelected }: QuestionListP
   return (
     <div className="question-list">
       <div className="list-toolbar">
-        <button className="text-button" onClick={() => setSelected(allSelected ? [] : selectable.map((item) => item.id))}>
+        <button
+          className="text-button"
+          onClick={() => setSelected(allSelected ? [] : selectable.map((item) => item.id))}
+        >
           {allSelected ? 'Снять всё' : 'Выбрать всё'}
         </button>
         <span className="muted">{selected.length} выбрано</span>

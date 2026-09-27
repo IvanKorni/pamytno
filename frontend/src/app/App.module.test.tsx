@@ -31,7 +31,12 @@ describe('Приложение', () => {
   it('входит по email и паролю и сохраняет токен', async () => {
     // given
     useAuth.setState({ user: undefined })
-    backend.on('POST', '/auth/login', { accessToken: 'new-token', tokenType: 'Bearer', expiresIn: 3600, userId: 'u' })
+    backend.on('POST', '/auth/login', {
+      accessToken: 'new-token',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      userId: 'u',
+    })
     backend.on('GET', '/users/me', TEST_USER)
     render(
       <QueryClientProvider client={new QueryClient()}>
@@ -59,7 +64,12 @@ describe('Приложение', () => {
     // given
     renderApp(backend, '/')
     expect(await screen.findByText('Транзакции PostgreSQL')).toBeInTheDocument()
-    backend.on('POST', '/auth/login', { accessToken: 'other-token', tokenType: 'Bearer', expiresIn: 3600, userId: 'u2' })
+    backend.on('POST', '/auth/login', {
+      accessToken: 'other-token',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      userId: 'u2',
+    })
     backend.on('GET', '/users/me', { ...TEST_USER, id: 'u2', email: 'other@example.com' })
     backend.on('GET', '/topics', [])
     backend.on('GET', '/dashboard', { ...progress('', { totalCards: 0, dueCards: 0, dueToday: 0 }), topics: [] })
@@ -77,7 +87,12 @@ describe('Приложение', () => {
 
   it('после входа возвращает на адрес, который открывали без входа', async () => {
     // given
-    backend.on('POST', '/auth/login', { accessToken: 'new-token', tokenType: 'Bearer', expiresIn: 3600, userId: 'u' })
+    backend.on('POST', '/auth/login', {
+      accessToken: 'new-token',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      userId: 'u',
+    })
     backend.on('GET', '/topics/topic-1', topic())
     backend.on('GET', '/topics/topic-1/progress', progress())
     backend.on('GET', '/topics/topic-1/cards', [])

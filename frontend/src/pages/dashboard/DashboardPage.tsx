@@ -1,18 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { BookOpen, Plus } from 'lucide-react'
-import { useDashboard, type TopicProgress } from '@/modules/learning'
+import { useDashboard, type Dashboard, type TopicProgress } from '@/modules/learning'
 import { useTopics, type Topic } from '@/modules/topic'
 import { EmptyState, ErrorState, PageLoading, plural } from '@/shared'
 import { TodayCard } from './TodayCard'
 import { TopicCard } from './TopicCard'
 
-/** Главный экран: карточки к повторению сегодня и темы пользователя с прогрессом. */
+/** Главный экран: загрузка обзора и тем пользователя. */
 export function DashboardPage() {
-  const navigate = useNavigate()
   const dashboard = useDashboard()
   const topics = useTopics()
   if (dashboard.isLoading || topics.isLoading) return <PageLoading />
-  if (dashboard.isError || topics.isError) {
+  if (!dashboard.data || !topics.data) {
     return (
       <ErrorState
         onRetry={() => {
@@ -22,10 +21,15 @@ export function DashboardPage() {
       />
     )
   }
-  const progressById = new Map((dashboard.data?.topics || []).map((item) => [item.topicId, item]))
-  const list = topics.data || []
+  return <DashboardContent dashboard={dashboard.data} topics={topics.data} />
+}
+
+/** Обзор: сколько карточек ждут повторения сейчас и темы пользователя с прогрессом. */
+function DashboardContent({ dashboard, topics }: { dashboard: Dashboard; topics: Topic[] }) {
+  const navigate = useNavigate()
+  const progressById = new Map(dashboard.topics.map((item) => [item.topicId, item]))
   const startLearning = () => {
-    const first = list.find((topic) => (progressById.get(topic.id)?.dueCards ?? 0) > 0)
+    const first = topics.find((topic) => (progressById.get(topic.id)?.dueCards ?? 0) > 0)
     if (first) navigate(`/topics/${first.id}/learn`)
   }
   return (
@@ -38,16 +42,16 @@ export function DashboardPage() {
         </div>
         <NewTopicButton />
       </header>
-      <TodayCard dueNow={dashboard.data?.dueCards ?? 0} dueToday={dashboard.data?.dueToday ?? 0} onStart={startLearning} />
+      <TodayCard dueNow={dashboard.dueCards} dueToday={dashboard.dueToday} onStart={startLearning} />
       <div className="section-heading">
         <div>
           <h2>Мои темы</h2>
           <p className="muted">
-            {list.length} {plural(list.length, 'тема', 'темы', 'тем')}
+            {topics.length} {plural(topics.length, 'тема', 'темы', 'тем')}
           </p>
         </div>
       </div>
-      <TopicGrid topics={list} progressById={progressById} />
+      <TopicGrid topics={topics} progressById={progressById} />
     </div>
   )
 }

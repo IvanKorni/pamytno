@@ -37,6 +37,7 @@ export function TodayCard({ dueNow, dueToday, onStart }: TodayCardProps) {
 /** Подсказка под счётчиком: повторять сейчас, позже сегодня или всё чисто. */
 function todayHint(dueNow: number, dueLater: number): string {
   if (dueNow) return 'Самое время освежить то, что уже начинали.'
-  if (dueLater) return `Ещё ${dueLater} ${plural(dueLater, 'карточка подойдёт', 'карточки подойдут', 'карточек подойдут')} до конца дня.`
+  if (dueLater)
+    return `Ещё ${dueLater} ${plural(dueLater, 'карточка подойдёт', 'карточки подойдут', 'карточек подойдут')} до конца дня.`
   return 'Отлично — на сегодня всё чисто.'
 }

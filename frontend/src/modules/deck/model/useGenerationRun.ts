@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useGenerationJob } from '../api/questionQueries'
-import { jobFailure, jobStorage, type JobKind } from './generationJobs'
+import { isJobPolling, jobFailure, jobStorage, type JobKind } from './generationJobs'
 import type { GenerationJob } from './types'
 
 /** Что нужно для запуска и отслеживания генерации. */
@@ -33,12 +33,12 @@ export function useGenerationRun({ topicId, kind, start, onReady, failureText }:
       setJobId(created.id)
     },
   })
-  const polling = Boolean(jobId) && !job.isError && job.data?.status !== 'READY' && job.data?.status !== 'ERROR'
+  const current = job.data
   return {
     launch: () => launch.mutate(),
-    running: launch.isPending || polling,
-    itemsCreated: job.data?.itemsCreated,
-    readyJob: job.data?.status === 'READY' ? job.data : undefined,
-    error: launch.error?.message ?? jobFailure(job.data, failureText) ?? job.error?.message,
+    running: launch.isPending || isJobPolling({ jobId, job: current, lost: job.isError }),
+    itemsCreated: current?.itemsCreated,
+    readyJob: current?.status === 'READY' ? current : undefined,
+    error: [launch.error?.message, jobFailure(current, failureText), job.error?.message].find(Boolean),
   }
 }

@@ -14,14 +14,13 @@ interface EditTopicModalProps {
 /** Окно настроек темы: название, описание и удаление. */
 export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps) {
   const [title, setTitle] = useState(topic.title)
-  const [description, setDescription] = useState(topic.description || '')
+  const [description, setDescription] = useState(topic.description ?? '')
   const update = useUpdateTopic(topic.id, close)
   const remove = useDeleteTopic(topic.id, () => {
     onDeleted()
     close()
   })
   const error = update.error ?? remove.error
-  const confirmRemove = () => window.confirm('Удалить тему вместе с материалами и карточками?') && remove.mutate()
   return (
     <Modal title="Настройки темы" close={close}>
       {error && <InlineError message={error.message} />}
@@ -35,11 +34,7 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={2000} />
         </label>
       </div>
-      <div className="modal-danger">
-        <button className="text-button danger" disabled={remove.isPending} onClick={confirmRemove}>
-          <Trash2 size={15} /> Удалить тему
-        </button>
-      </div>
+      <DangerZone removing={remove.isPending} onRemove={() => remove.mutate()} />
       <div className="modal-actions">
         <button className="button button-secondary" onClick={close}>
           Отмена
@@ -53,5 +48,17 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
         </button>
       </div>
     </Modal>
+  )
+}
+
+/** Удаление темы с подтверждением. */
+function DangerZone({ removing, onRemove }: { removing: boolean; onRemove: () => void }) {
+  const confirmRemove = () => window.confirm('Удалить тему вместе с материалами и карточками?') && onRemove()
+  return (
+    <div className="modal-danger">
+      <button className="text-button danger" disabled={removing} onClick={confirmRemove}>
+        <Trash2 size={15} /> Удалить тему
+      </button>
+    </div>
   )
 }

@@ -35,18 +35,23 @@ export function QuestionsPage() {
       {workflow.error && <InlineError message={workflow.error} />}
       <QuestionsBody workflow={workflow} view={view} />
       {hasQuestions && !questionRun.running && <QuestionsFooter workflow={workflow} />}
-      {cardRun.running && (
-        <ProcessingCard
-          title="Создаём карточки"
-          subtitle="Превращаем выбранные вопросы в карточки…"
-          count={cardRun.itemsCreated}
-        />
-      )}
-      {cardRun.readyJob && !cardRun.running && (
-        <CardsReadyBanner topicId={topicId} count={cardRun.readyJob.itemsCreated} />
-      )}
+      <CardGenerationStatus topicId={topicId} run={cardRun} />
     </section>
   )
+}
+
+/** Ход генерации карточек или баннер с созданными карточками. */
+function CardGenerationStatus({ topicId, run }: { topicId: string; run: QuestionsWorkflow['cardRun'] }) {
+  if (run.running) {
+    return (
+      <ProcessingCard
+        title="Создаём карточки"
+        subtitle="Превращаем выбранные вопросы в карточки…"
+        count={run.itemsCreated}
+      />
+    )
+  }
+  return run.readyJob ? <CardsReadyBanner topicId={topicId} count={run.readyJob.itemsCreated} /> : null
 }
 
 /** Переключатель режима отбора. */
