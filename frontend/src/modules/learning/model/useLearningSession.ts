@@ -1,8 +1,8 @@
 import { useEffect, useReducer, useRef } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useToast } from '@/shared'
 import { completeLearningSession, getDueCards, reviewCard, startLearningSession } from '../api/learningApi'
-import { learningKeys } from '../api/learningKeys'
+import { useRefreshProgress } from '../api/learningQueries'
 import {
   INITIAL_LEARNING_STATE,
   learningReducer,
@@ -28,7 +28,7 @@ interface Answer {
 export function useLearningSession(topicId: string) {
   const [state, dispatch] = useReducer(learningReducer, INITIAL_LEARNING_STATE)
   const started = useRef(false)
-  const invalidateProgress = useProgressInvalidation(topicId)
+  const invalidateProgress = useRefreshProgress(topicId)
   const complete = useCompleteSession(invalidateProgress)
   useCompleteOnLeave(state)
   const review = useMutation({
@@ -85,15 +85,6 @@ async function beginSession(topicId: string): Promise<LearningAction> {
     return { type: 'started', session: await startLearningSession(topicId), cards }
   } catch (error) {
     return { type: 'failed', message: (error as Error).message }
-  }
-}
-
-/** Возвращает функцию, которая перечитывает прогресс темы и dashboard после ответа. */
-function useProgressInvalidation(topicId: string) {
-  const queryClient = useQueryClient()
-  return () => {
-    queryClient.invalidateQueries({ queryKey: learningKeys.progress(topicId) })
-    queryClient.invalidateQueries({ queryKey: learningKeys.dashboard })
   }
 }
 

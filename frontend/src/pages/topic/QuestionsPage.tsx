@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { Sparkles } from 'lucide-react'
 import { QuestionList, QuestionReview, useQuestionsWorkflow, type QuestionsWorkflow } from '@/modules/deck'
-import { learningKeys } from '@/modules/learning'
+import { useRefreshProgress } from '@/modules/learning'
 import { EmptyState, ErrorState, InlineError, InlineLoading, ProcessingCard } from '@/shared'
 import { CardsReadyBanner, QuestionsFooter } from './QuestionsFooter'
 import { useTopicId } from './useTopicId'
@@ -13,12 +12,9 @@ type View = 'review' | 'list'
 /** Экран вопросов: генерация, отбор по одному или списком и создание карточек. */
 export function QuestionsPage() {
   const topicId = useTopicId()
-  const queryClient = useQueryClient()
   const [view, setView] = useState<View>('review')
-  const workflow = useQuestionsWorkflow(topicId, () => {
-    queryClient.invalidateQueries({ queryKey: learningKeys.progress(topicId) })
-    queryClient.invalidateQueries({ queryKey: learningKeys.dashboard })
-  })
+  const refreshProgress = useRefreshProgress(topicId)
+  const workflow = useQuestionsWorkflow(topicId, refreshProgress)
   const { questions, questionRun, cardRun } = workflow
   if (questions.isLoading) return <InlineLoading />
   if (questions.isError) return <ErrorState onRetry={() => questions.refetch()} />

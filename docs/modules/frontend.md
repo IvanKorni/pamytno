@@ -83,7 +83,7 @@ Frontend реализует пользовательский путь «Памя
 |---|---|
 | `api/learningApi.ts` | dashboard, прогресс, карточки к повторению, сессии, ответы |
 | `api/learningKeys.ts` | ключи кеша модуля |
-| `api/learningQueries.ts` | dashboard и прогресс темы |
+| `api/learningQueries.ts` | dashboard, прогресс темы и его перечитывание после изменения карточек |
 | `model/learningSession.ts` | состояние учебной сессии: очередь, ответы, возврат забытых карточек |
 | `model/useLearningSession.ts` | старт сессии без кеша, ответы и завершение на backend |
 | `ui/LearningCard.tsx` | карточка в режиме обучения |
