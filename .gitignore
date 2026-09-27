@@ -1,0 +1,21 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+out/
+
+# OS
+.DS_Store
+
+# Окружение и локальные данные
+.env
+storage/
+*.log
+
+# Claude Code: локальные настройки пользователя
+.claude/settings.local.json
