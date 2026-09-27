@@ -1,4 +1,4 @@
-import { sessionValues } from '@/shared'
+import { HttpError, sessionValues } from '@/shared'
 import type { GenerationJob } from './types'
 
 /** Вид задачи генерации: вопросы или карточки. */
@@ -44,4 +44,9 @@ export interface JobQueryState {
 export function isJobPolling({ jobId, job, lost }: JobQueryState): boolean {
   if (!jobId || lost) return false
   return job?.status !== 'READY' && job?.status !== 'ERROR'
+}
+
+/** Задачи больше нет на backend (404) — в отличие от сетевой ошибки или 5xx, после которых опрос продолжается. */
+export function isJobGone(error: unknown): boolean {
+  return error instanceof HttpError && error.status === 404
 }

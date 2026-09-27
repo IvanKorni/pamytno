@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useGenerationJob } from '../api/questionQueries'
-import { isJobPolling, jobFailure, jobStorage, type JobKind } from './generationJobs'
+import { isJobGone, isJobPolling, jobFailure, jobStorage, type JobKind } from './generationJobs'
 import type { GenerationJob } from './types'
 
 /** Что нужно для запуска и отслеживания генерации. */
@@ -36,9 +36,14 @@ export function useGenerationRun({ topicId, kind, start, onReady, failureText }:
   const current = job.data
   return {
     launch: () => launch.mutate(),
-    running: launch.isPending || isJobPolling({ jobId, job: current, lost: job.isError }),
+    running: launch.isPending || isJobPolling({ jobId, job: current, lost: isJobGone(job.error) }),
     itemsCreated: current?.itemsCreated,
     readyJob: current?.status === 'READY' ? current : undefined,
-    error: [launch.error?.message, jobFailure(current, failureText), job.error?.message].find(Boolean),
+    error: launch.error?.message ?? jobFailure(current, failureText) ?? lostMessage(job.error),
   }
+}
+
+/** Сообщение о потерянной задаче; временные ошибки опроса не показываются — опрос продолжается. */
+function lostMessage(error: Error | null): string | undefined {
+  return isJobGone(error) ? error?.message : undefined
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { jobPollInterval } from '../model/generationJobs'
+import { isJobGone, jobPollInterval } from '../model/generationJobs'
 import type { GenerationJob, Question, QuestionDecision } from '../model/types'
 import { decideQuestion, decideQuestions, getGenerationJob, listQuestions } from './deckApi'
 import { deckKeys } from './deckKeys'
@@ -13,27 +13,27 @@ export function useQuestions(topicId: string) {
 export interface JobListener {
   /** Задача впервые пришла завершённой (`READY` или `ERROR`). */
   onFinished: (job: GenerationJob) => void
-  /** Задачу не удалось получить — например, её уже нет на backend. */
+  /** Задачи больше нет на backend (404); при сетевой ошибке или 5xx опрос просто продолжается. */
   onLost: () => void
 }
 
 /**
- * Задача генерации: опрашивается, пока выполняется. Реакция вызывается из загрузки —
- * завершённая задача больше не перезапрашивается, поэтому и реакция срабатывает один раз.
+ * Задача генерации: опрашивается, пока выполняется, в том числе после временной ошибки сети или backend.
+ * Реакция вызывается из загрузки — завершённая задача больше не перезапрашивается, поэтому и реакция
+ * срабатывает один раз.
  */
 export function useGenerationJob(jobId: string | undefined, listener: JobListener) {
   return useQuery({
     queryKey: deckKeys.job(jobId),
     queryFn: async () => {
       const job = await getGenerationJob(jobId!).catch((error: unknown) => {
-        listener.onLost()
+        if (isJobGone(error)) listener.onLost()
         throw error
       })
       if (job.status !== 'PROCESSING') listener.onFinished(job)
       return job
     },
     enabled: Boolean(jobId),
-    retry: false,
     refetchInterval: (query) => jobPollInterval(query.state.data),
     staleTime: (query) => (query.state.data?.status === 'PROCESSING' ? 0 : Infinity),
   })

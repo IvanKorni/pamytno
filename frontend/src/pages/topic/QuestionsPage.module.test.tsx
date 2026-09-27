@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FakeBackend, Reply } from '@/test/fakeBackend'
+import { errorReply, FakeBackend, Reply } from '@/test/fakeBackend'
 import { job, progress, question, topic } from '@/test/fixtures'
 import { renderApp } from '@/test/renderApp'
 
@@ -106,4 +106,29 @@ describe('Экран вопросов', () => {
     expect(await screen.findByText('1 карточка создана')).toBeInTheDocument()
     await waitFor(() => expect(backend.count('GET', '/topics/topic-1/progress')).toBe(2))
   })
+
+  it('не теряет генерацию после временной ошибки опроса', async () => {
+    // given
+    let polls = 0
+    let ready = false
+    backend.on('POST', `${QUESTIONS}/generate`, new Reply(202, job('job-1', 'PROCESSING')))
+    backend.on('GET', '/generation-jobs/job-1', () => {
+      polls += 1
+      if (polls === 1) return errorReply(502, 'BAD_GATEWAY', 'Backend перезапускается')
+      return job('job-1', ready ? 'READY' : 'PROCESSING')
+    })
+    renderApp(backend, '/topics/topic-1/questions')
+
+    // when
+    await userEvent.click(await screen.findByRole('button', { name: /Создать вопросы/ }))
+    await waitFor(() => expect(polls).toBe(2), { timeout: 3000 })
+
+    // then
+    expect(screen.getByText(/Анализируем материалы/)).toBeInTheDocument()
+    expect(screen.queryByText('Backend перезапускается')).not.toBeInTheDocument()
+    expect(sessionStorage.getItem('pamytno-job:topic-1:QUESTIONS')).toBe('job-1')
+    backend.on('GET', QUESTIONS, [question('q-1', 'Что такое MVCC?')])
+    ready = true
+    expect(await screen.findByText('Что такое MVCC?', {}, { timeout: 3000 })).toBeInTheDocument()
+  }, 10_000)
 })
