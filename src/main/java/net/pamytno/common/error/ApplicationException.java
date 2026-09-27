@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * Базовое исключение приложения со стабильным кодом ошибки.
  * Модули наследуют не его, а категории: {@link NotFoundException}, {@link ConflictException},
- * {@link BadRequestException}, {@link UnauthorizedException}.
+ * {@link BadRequestException}, {@link UnauthorizedException}, {@link ForbiddenException}.
  */
 @Getter
 public abstract class ApplicationException extends RuntimeException {

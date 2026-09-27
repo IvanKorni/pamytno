@@ -64,6 +64,17 @@ public class ApplicationExceptionHandler {
     }
 
     /**
+     * Операция запрещена — 403.
+     *
+     * @param ex исключение
+     * @return ответ с ошибкой
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex) {
+        return toResponse(HttpStatus.FORBIDDEN, ex);
+    }
+
+    /**
      * Логирует исключение и собирает ответ.
      *
      * @param status HTTP-статус

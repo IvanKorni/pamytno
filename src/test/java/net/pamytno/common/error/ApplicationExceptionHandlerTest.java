@@ -54,4 +54,13 @@ class ApplicationExceptionHandlerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
         assertThat(response.getBody().code()).isEqualTo("INVALID_CREDENTIALS");
     }
+
+    @Test
+    @DisplayName("ForbiddenException превращается в 403")
+    void handleForbidden_returns403() {
+        var response = handler.handleForbidden(new ForbiddenException("REGISTRATION_DISABLED", "Запрещено"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(response.getBody().code()).isEqualTo("REGISTRATION_DISABLED");
+    }
 }
