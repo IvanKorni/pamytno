@@ -1,0 +1,363 @@
+openapi: 3.0.3
+info:
+  title: Памятно — Learning API
+  description: Интервальное повторение карточек, учебные сессии и прогресс.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Reviews
+    description: Карточки к повторению и ответы пользователя
+  - name: LearningSessions
+    description: Учебные сессии для статистики
+  - name: Progress
+    description: Прогресс по теме и общий dashboard
+
+paths:
+  /api/topics/{topicId}/reviews/due:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    get:
+      tags: [ Reviews ]
+      summary: Карточки темы, которые пора повторить
+      operationId: getDueReviews
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 100
+      responses:
+        '200':
+          description: Карточки, срок повторения которых наступил, — самые давние первыми
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DueCardDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/cards/{cardId}/review:
+    parameters:
+      - name: cardId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [ Reviews ]
+      summary: Ответ пользователя по карточке
+      description: >
+        REMEMBER — вспомнил, карточка переходит на следующий этап. FORGOT — не вспомнил, этап уменьшается,
+        карточка возвращается в текущую сессию. CONTINUE — не оценка памяти, прогресс не меняется.
+      operationId: reviewCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewRequest'
+      responses:
+        '200':
+          description: Новое состояние карточки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResultDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Прогресса карточки нет (CARD_PROGRESS_NOT_FOUND) или сессия не найдена (LEARNING_SESSION_NOT_FOUND)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Сессия завершена (LEARNING_SESSION_COMPLETED) или относится к другой теме (LEARNING_SESSION_TOPIC_MISMATCH)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/topics/{topicId}/learning-sessions:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    post:
+      tags: [ LearningSessions ]
+      summary: Начать учебную сессию по теме
+      operationId: startLearningSession
+      responses:
+        '201':
+          description: Сессия начата; cardsTotal — сколько карточек к повторению на старте
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningSessionDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/learning-sessions/{sessionId}:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    get:
+      tags: [ LearningSessions ]
+      summary: Учебная сессия
+      operationId: getLearningSession
+      responses:
+        '200':
+          description: Сессия
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningSessionDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/learning-sessions/{sessionId}/complete:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [ LearningSessions ]
+      summary: Завершить учебную сессию
+      operationId: completeLearningSession
+      responses:
+        '200':
+          description: Завершённая сессия
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningSessionDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/topics/{topicId}/progress:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    get:
+      tags: [ Progress ]
+      summary: Прогресс изучения темы
+      operationId: getTopicProgress
+      responses:
+        '200':
+          description: Прогресс темы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicProgressDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/dashboard:
+    get:
+      tags: [ Progress ]
+      summary: Общий прогресс пользователя по всем темам
+      operationId: getDashboard
+      responses:
+        '200':
+          description: Итоги и прогресс каждой темы с карточками
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  parameters:
+    TopicId:
+      name: topicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос (VALIDATION_FAILED, MALFORMED_REQUEST)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Нет валидного токена (UNAUTHORIZED)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Не найдено (LEARNING_SESSION_NOT_FOUND)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ReviewResult:
+      type: string
+      enum: [ REMEMBER, FORGOT, CONTINUE ]
+
+    ReviewRequest:
+      type: object
+      required: [ result ]
+      properties:
+        result:
+          $ref: '#/components/schemas/ReviewResult'
+        sessionId:
+          type: string
+          format: uuid
+          description: Текущая учебная сессия — для статистики
+
+    DueCardDto:
+      type: object
+      required: [ cardId, topicId, front, back, stage, totalReviews ]
+      properties:
+        cardId:
+          type: string
+          format: uuid
+        topicId:
+          type: string
+          format: uuid
+        front:
+          type: string
+        back:
+          type: string
+        stage:
+          type: integer
+          description: Этап повторения 0–5; 6 — карточка изучена
+        nextReviewAt:
+          type: string
+          format: date-time
+        totalReviews:
+          type: integer
+
+    ReviewResultDto:
+      type: object
+      required: [ cardId, result, stage, mastered, returnToSession ]
+      properties:
+        cardId:
+          type: string
+          format: uuid
+        result:
+          $ref: '#/components/schemas/ReviewResult'
+        stage:
+          type: integer
+        nextReviewAt:
+          type: string
+          format: date-time
+          description: Когда повторить; пусто, если карточка изучена
+        mastered:
+          type: boolean
+        returnToSession:
+          type: boolean
+          description: Показать карточку ещё раз в текущей сессии (после FORGOT)
+
+    LearningSessionDto:
+      type: object
+      required: [ id, topicId, startedAt, cardsTotal, cardsRemembered, cardsForgotten ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        topicId:
+          type: string
+          format: uuid
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        cardsTotal:
+          type: integer
+        cardsRemembered:
+          type: integer
+        cardsForgotten:
+          type: integer
+
+    TopicProgressDto:
+      type: object
+      required: [ topicId, totalCards, newCards, learningCards, masteredCards, dueCards, dueToday, progress ]
+      properties:
+        topicId:
+          type: string
+          format: uuid
+        totalCards:
+          type: integer
+        newCards:
+          type: integer
+          description: Ни разу не повторялись
+        learningCards:
+          type: integer
+          description: На изучении — повторялись, но ещё не изучены
+        masteredCards:
+          type: integer
+          description: Изучены (прошли этап 5)
+        dueCards:
+          type: integer
+          description: Ожидают повторения прямо сейчас
+        dueToday:
+          type: integer
+          description: К повторению до конца сегодняшнего дня
+        progress:
+          type: number
+          format: double
+          description: Процент изученных карточек, 0–100 с одним знаком после запятой
+
+    DashboardDto:
+      type: object
+      required: [ totalCards, newCards, learningCards, masteredCards, dueCards, dueToday, progress, topics ]
+      properties:
+        totalCards:
+          type: integer
+        newCards:
+          type: integer
+        learningCards:
+          type: integer
+        masteredCards:
+          type: integer
+        dueCards:
+          type: integer
+        dueToday:
+          type: integer
+        progress:
+          type: number
+          format: double
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopicProgressDto'
+
+    ErrorResponse:
+      type: object
+      required: [ code, message, timestamp ]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
