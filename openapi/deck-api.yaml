@@ -1,0 +1,480 @@
+openapi: 3.0.3
+info:
+  title: Памятно — Deck API
+  description: Генерация вопросов по единому тексту темы, отбор вопросов и карточки.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: QuestionGeneration
+    description: Запуск генерации вопросов AI
+  - name: Questions
+    description: Сгенерированные вопросы и их отбор пользователем
+  - name: CardGeneration
+    description: Запуск генерации карточек по одобренным вопросам
+  - name: Cards
+    description: Карточки и их редактирование
+  - name: GenerationJobs
+    description: Статус асинхронных задач генерации
+
+paths:
+  /api/topics/{topicId}/questions/generate:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    post:
+      tags: [ QuestionGeneration ]
+      summary: Сгенерировать вопросы по единому тексту темы
+      description: Текст делится на фрагменты, по каждому AI предлагает вопросы. Выполняется асинхронно.
+      operationId: generateQuestions
+      responses:
+        '202':
+          description: Задача генерации запущена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationJobDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Текст темы ещё не готов (TOPIC_CONTENT_NOT_READY) или генерация уже идёт (GENERATION_IN_PROGRESS)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/topics/{topicId}/questions:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    get:
+      tags: [ Questions ]
+      summary: Вопросы темы
+      operationId: listQuestions
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/QuestionStatus'
+      responses:
+        '200':
+          description: Вопросы в порядке появления
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/questions/{questionId}:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    patch:
+      tags: [ Questions ]
+      summary: Изменить формулировку вопроса
+      operationId: updateQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateQuestionRequest'
+      responses:
+        '200':
+          description: Обновлённый вопрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/QuestionConflict'
+
+  /api/questions/{questionId}/approve:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    post:
+      tags: [ Questions ]
+      summary: Изучать вопрос
+      operationId: approveQuestion
+      responses:
+        '200':
+          description: Вопрос одобрен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/QuestionConflict'
+
+  /api/questions/{questionId}/reject:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    post:
+      tags: [ Questions ]
+      summary: Не изучать вопрос
+      operationId: rejectQuestion
+      responses:
+        '200':
+          description: Вопрос отклонён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/QuestionConflict'
+
+  /api/questions/decisions:
+    post:
+      tags: [ Questions ]
+      summary: Массово одобрить или отклонить вопросы
+      operationId: decideQuestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionDecisionRequest'
+      responses:
+        '200':
+          description: Изменённые вопросы
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/QuestionConflict'
+
+  /api/topics/{topicId}/cards/generate:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    post:
+      tags: [ CardGeneration ]
+      summary: Создать карточки по одобренным вопросам
+      operationId: generateCards
+      responses:
+        '202':
+          description: Задача генерации запущена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationJobDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Нет одобренных вопросов (NO_APPROVED_QUESTIONS) или генерация уже идёт (GENERATION_IN_PROGRESS)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/topics/{topicId}/cards:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    get:
+      tags: [ Cards ]
+      summary: Все карточки темы
+      operationId: listCards
+      responses:
+        '200':
+          description: Карточки в порядке создания
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlashcardDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/cards/{cardId}:
+    parameters:
+      - $ref: '#/components/parameters/CardId'
+    get:
+      tags: [ Cards ]
+      summary: Карточка
+      operationId: getCard
+      responses:
+        '200':
+          description: Карточка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [ Cards ]
+      summary: Изменить вопрос или ответ карточки
+      operationId: updateCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCardRequest'
+      responses:
+        '200':
+          description: Обновлённая карточка
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlashcardDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [ Cards ]
+      summary: Удалить карточку
+      operationId: deleteCard
+      responses:
+        '204':
+          description: Карточка удалена
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/generation-jobs/{jobId}:
+    parameters:
+      - name: jobId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [ GenerationJobs ]
+      summary: Статус задачи генерации (для опроса)
+      operationId: getGenerationJob
+      responses:
+        '200':
+          description: Задача
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationJobDto'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    TopicId:
+      name: topicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    QuestionId:
+      name: questionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CardId:
+      name: cardId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос (VALIDATION_FAILED, MALFORMED_REQUEST)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Нет валидного токена (UNAUTHORIZED)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Не найдено (QUESTION_NOT_FOUND, CARD_NOT_FOUND, GENERATION_JOB_NOT_FOUND)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    QuestionConflict:
+      description: По вопросу уже создана карточка (QUESTION_ALREADY_HAS_CARD)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    QuestionStatus:
+      type: string
+      enum: [ GENERATED, APPROVED, REJECTED, CARD_CREATED ]
+
+    QuestionDecision:
+      type: string
+      enum: [ APPROVE, REJECT ]
+
+    GenerationJobType:
+      type: string
+      enum: [ QUESTIONS, CARDS ]
+
+    GenerationJobStatus:
+      type: string
+      enum: [ PROCESSING, READY, ERROR ]
+
+    GenerationJobDto:
+      type: object
+      required: [ id, topicId, type, status, itemsCreated, createdAt ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        topicId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/GenerationJobType'
+        status:
+          $ref: '#/components/schemas/GenerationJobStatus'
+        itemsCreated:
+          type: integer
+          description: Сколько вопросов или карточек создано
+        errorMessage:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+
+    QuestionDto:
+      type: object
+      required: [ id, topicId, text, status, createdAt ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        topicId:
+          type: string
+          format: uuid
+        chunkId:
+          type: string
+          format: uuid
+          description: Фрагмент единого текста, по которому создан вопрос
+        text:
+          type: string
+        sourceFragment:
+          type: string
+          description: Цитата из материала, на которой основан вопрос
+        status:
+          $ref: '#/components/schemas/QuestionStatus'
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateQuestionRequest:
+      type: object
+      required: [ text ]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+
+    QuestionDecisionRequest:
+      type: object
+      required: [ questionIds, decision ]
+      properties:
+        questionIds:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            type: string
+            format: uuid
+        decision:
+          $ref: '#/components/schemas/QuestionDecision'
+
+    FlashcardDto:
+      type: object
+      required: [ id, topicId, front, back, createdAt, updatedAt ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        topicId:
+          type: string
+          format: uuid
+        questionId:
+          type: string
+          format: uuid
+        front:
+          type: string
+        back:
+          type: string
+        sourceFragment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateCardRequest:
+      type: object
+      description: Передаются только изменяемые поля
+      properties:
+        front:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        back:
+          type: string
+          minLength: 1
+          maxLength: 10000
+
+    ErrorResponse:
+      type: object
+      required: [ code, message, timestamp ]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
