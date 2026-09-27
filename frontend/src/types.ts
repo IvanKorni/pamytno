@@ -1,39 +1,32 @@
-export type Id = string
+import type { components as DeckContract } from './modules/deck/api/schema.gen'
+import type { components as IdentityContract } from './modules/identity/api/schema.gen'
+import type { components as LearningContract } from './modules/learning/api/schema.gen'
+import type { components as TopicContract } from './modules/topic/api/schema.gen'
 
-export type TopicStatus = 'DRAFT' | 'PROCESSING' | 'READY' | 'ERROR'
-export type SourceType = 'PDF' | 'YOUTUBE' | 'TEXT' | 'WORD_LIST'
-export type SourceStatus = 'UPLOADED' | 'PROCESSING' | 'READY' | 'ERROR'
-export type QuestionStatus = 'GENERATED' | 'APPROVED' | 'REJECTED' | 'CARD_CREATED'
-export type GenerationJobStatus = 'PROCESSING' | 'READY' | 'ERROR'
-export type ReviewResult = 'REMEMBER' | 'FORGOT' | 'CONTINUE'
+type Identity = IdentityContract['schemas']
+type TopicSchemas = TopicContract['schemas']
+type Deck = DeckContract['schemas']
+type Learning = LearningContract['schemas']
 
-export interface User { id: Id; email: string; createdAt: string }
-export interface AuthToken { accessToken: string; tokenType: string; expiresIn: number; userId: Id }
-export interface Topic { id: Id; title: string; description?: string; status: TopicStatus; createdAt: string; updatedAt: string }
-export interface Source {
-  id: Id; topicId: Id; type: SourceType; status: SourceStatus; originalName?: string; originalUrl?: string
-  errorCode?: string; errorMessage?: string; extractedTextLength?: number; createdAt: string; updatedAt: string
-}
-export interface SourceText { sourceId: Id; originalText?: string; extractedText?: string }
-export interface TopicContent { topicId: Id; version: number; content: string; createdAt: string }
-export interface GenerationJob {
-  id: Id; topicId: Id; type: 'QUESTIONS' | 'CARDS'; status: GenerationJobStatus; itemsCreated: number
-  errorMessage?: string; createdAt: string; completedAt?: string
-}
-export interface Question { id: Id; topicId: Id; chunkId?: Id; text: string; sourceFragment?: string; status: QuestionStatus; createdAt: string }
-export interface Flashcard {
-  id: Id; topicId: Id; questionId?: Id; front: string; back: string; sourceFragment?: string; createdAt: string; updatedAt: string
-}
-export interface DueCard { cardId: Id; topicId: Id; front: string; back: string; stage: number; nextReviewAt?: string; totalReviews: number }
-export interface ReviewOutcome {
-  cardId: Id; result: ReviewResult; stage: number; nextReviewAt?: string; mastered: boolean; returnToSession: boolean
-}
-export interface LearningSession {
-  id: Id; topicId: Id; startedAt: string; completedAt?: string; cardsTotal: number; cardsRemembered: number; cardsForgotten: number
-}
-export interface TopicProgress {
-  topicId: Id; totalCards: number; newCards: number; learningCards: number; masteredCards: number; dueCards: number; dueToday: number; progress: number
-}
-export interface Dashboard extends TopicProgress { topics: TopicProgress[] }
-export interface ApiError { code?: string; message?: string; timestamp?: string }
+export type TopicStatus = TopicSchemas['TopicStatus']
+export type SourceType = TopicSchemas['SourceType']
+export type SourceStatus = TopicSchemas['SourceStatus']
+export type QuestionStatus = Deck['QuestionStatus']
+export type GenerationJobStatus = Deck['GenerationJobStatus']
+export type ReviewResult = Learning['ReviewResult']
 
+export type User = Identity['UserDto']
+export type AuthToken = Identity['AuthTokenDto']
+export type Topic = TopicSchemas['TopicDto']
+export type Source = TopicSchemas['SourceDto']
+export type SourceText = TopicSchemas['SourceTextDto']
+export type TopicContent = TopicSchemas['TopicContentDto']
+export type GenerationJob = Deck['GenerationJobDto']
+export type Question = Deck['QuestionDto']
+export type Flashcard = Deck['FlashcardDto']
+export type DueCard = Learning['DueCardDto']
+export type ReviewOutcome = Learning['ReviewResultDto']
+export type LearningSession = Learning['LearningSessionDto']
+export type TopicProgress = Learning['TopicProgressDto']
+export type Dashboard = Learning['DashboardDto']
+export type ApiError = Partial<Identity['ErrorResponse']>

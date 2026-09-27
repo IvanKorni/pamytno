@@ -11,7 +11,9 @@
     "test:unit": "vitest run .unit.test",
     "test:module": "vitest run .module.test",
     "test:integration": "vitest run .integration.test",
-    "check": "npm run test && npm run build"
+    "api:generate": "node scripts/generate-api.mjs",
+    "api:check": "node scripts/generate-api.mjs --check",
+    "check": "npm run api:check && npm run test && npm run build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.59.16",
@@ -22,15 +24,16 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "typescript": "~5.7.2",
-    "vite": "^6.0.7",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
     "jsdom": "^25.0.1",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.7",
     "vitest": "^2.1.8"
   }
 }
