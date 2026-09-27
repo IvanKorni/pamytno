@@ -3,7 +3,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/shared'
 import { completeLearningSession, getDueCards, reviewCard, startLearningSession } from '../api/learningApi'
 import { learningKeys } from '../api/learningKeys'
-import { INITIAL_LEARNING_STATE, learningReducer, nextQueue, type LearningAction } from './learningSession'
+import {
+  INITIAL_LEARNING_STATE,
+  learningReducer,
+  nextQueue,
+  type LearningAction,
+  type LearningState,
+} from './learningSession'
 import type { DueCard, LearningSession } from './types'
 
 /** Ответ пользователя вместе с состоянием сессии на момент ответа. */
@@ -24,6 +30,7 @@ export function useLearningSession(topicId: string) {
   const started = useRef(false)
   const invalidateProgress = useProgressInvalidation(topicId)
   const complete = useCompleteSession(invalidateProgress)
+  useCompleteOnLeave(state)
   const review = useMutation({
     mutationFn: (answer: Answer) => reviewCard(answer.card.cardId, answer.result, answer.session.id),
     onSuccess: (outcome, answer) => {
@@ -51,6 +58,23 @@ export function useLearningSession(topicId: string) {
       beginSession(topicId).then(dispatch)
     },
   }
+}
+
+/**
+ * Завершает начатую сессию, если с экрана ушли, не ответив на все карточки, — иначе на backend
+ * копились бы незакрытые сессии. Итоги уже не показать, поэтому ошибка не важна.
+ */
+function useCompleteOnLeave(state: LearningState) {
+  const openSession = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    openSession.current = state.phase === 'active' ? state.session.id : undefined
+  })
+  useEffect(
+    () => () => {
+      if (openSession.current) completeLearningSession(openSession.current).catch(() => undefined)
+    },
+    [],
+  )
 }
 
 /** Загружает карточки к повторению и, если они есть, начинает сессию на backend. */

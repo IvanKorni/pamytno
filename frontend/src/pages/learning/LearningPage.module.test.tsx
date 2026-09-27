@@ -66,6 +66,7 @@ describe('Режим обучения', () => {
     expect(await screen.findByText('Что такое xmin?')).toBeInTheDocument()
     expect(backend.count('GET', DUE)).toBe(2)
     expect(backend.count('POST', SESSIONS)).toBe(2)
+    expect(backend.count('POST', '/learning-sessions/session-1/complete')).toBe(1)
   })
 
   it('возвращает забытую карточку в конец очереди и завершает сессию', async () => {
