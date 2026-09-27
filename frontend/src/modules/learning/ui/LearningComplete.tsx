@@ -1,17 +1,15 @@
-import { Link } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { Stat } from '@/shared'
 
 /** Свойства экрана завершения сессии. */
 interface LearningCompleteProps {
-  session?: { cardsRemembered: number; cardsForgotten: number }
   remembered: number
   forgotten: number
-  reset: () => void
+  children: ReactNode
 }
 
-/** Экран завершения учебной сессии с её итогами. */
-export function LearningComplete({ session, remembered, forgotten, reset }: LearningCompleteProps) {
-  const total = (session?.cardsRemembered || 0) + (session?.cardsForgotten || 0) || remembered + forgotten
+/** Итоги учебной сессии; куда идти дальше, решает страница через `children`. */
+export function LearningComplete({ remembered, forgotten, children }: LearningCompleteProps) {
   return (
     <div className="complete-page">
       <div className="complete-mark">✓</div>
@@ -19,18 +17,11 @@ export function LearningComplete({ session, remembered, forgotten, reset }: Lear
       <h1>Готово 🎉</h1>
       <p className="muted">Хорошая работа. Знания становятся крепче с каждым повторением.</p>
       <div className="complete-stats">
-        <Stat label="Пройдено" value={total} />
-        <Stat label="Помню" value={session?.cardsRemembered || remembered} />
-        <Stat label="Не помню" value={session?.cardsForgotten || forgotten} />
+        <Stat label="Ответов" value={remembered + forgotten} />
+        <Stat label="Помню" value={remembered} />
+        <Stat label="Не помню" value={forgotten} />
       </div>
-      <div className="complete-actions">
-        <Link className="button button-primary" to=".." onClick={reset}>
-          На главную темы
-        </Link>
-        <button className="button button-secondary" onClick={reset}>
-          Закрыть
-        </button>
-      </div>
+      <div className="complete-actions">{children}</div>
     </div>
   )
 }

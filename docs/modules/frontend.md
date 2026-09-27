@@ -1,7 +1,8 @@
 # Frontend
 
 Frontend реализует пользовательский путь «Памятно»: авторизация → тема → материалы → вопросы → карточки →
-обучение → прогресс. React + TypeScript + Vite, server state — TanStack Query, маленький client state — Zustand.
+обучение → прогресс. React + TypeScript + Vite, server state — TanStack Query, пользователь и уведомления — Zustand,
+состояние одного экрана — локальный `useState` / `useReducer`.
 
 ## Слои
 
@@ -76,8 +77,8 @@ Frontend реализует пользовательский путь «Памя
 | `api/learningApi.ts` | dashboard, прогресс, карточки к повторению, сессии, ответы |
 | `api/learningKeys.ts` | ключи кеша модуля |
 | `api/learningQueries.ts` | dashboard и прогресс темы |
-| `model/learningStore.ts` | очередь текущей сессии |
-| `model/useLearningFlow.ts` | сценарий учебной сессии |
+| `model/learningSession.ts` | состояние учебной сессии: очередь, ответы, возврат забытых карточек |
+| `model/useLearningSession.ts` | старт сессии без кеша, ответы и завершение на backend |
 | `ui/LearningCard.tsx` | карточка в режиме обучения |
 | `ui/LearningComplete.tsx` | итоги сессии |
 | `ui/ProgressOverview.tsx` | кольцо и полосы прогресса |
@@ -90,7 +91,8 @@ Frontend реализует пользовательский путь «Памя
 | `pages/CreateTopicPage.tsx` | создание темы |
 | `pages/dashboard/*` | обзор: «Сегодня» и карточки тем с прогрессом |
 | `pages/topic/TopicLayout.tsx` | шапка темы, статистика, вкладки |
-| `pages/topic/MaterialsPage.tsx`, `QuestionsPage.tsx`, `CardsPage.tsx`, `LearningPage.tsx`, `ProgressPage.tsx` | экраны темы |
+| `pages/topic/MaterialsPage.tsx`, `QuestionsPage.tsx`, `CardsPage.tsx`, `ProgressPage.tsx` | экраны темы |
+| `pages/learning/LearningPage.tsx` | режим обучения — отдельный экран без шапки темы |
 | `pages/topic/useTopicId.ts` | идентификатор темы из адреса |
 | `app/App.tsx` | маршруты и восстановление входа |
 | `app/AppShell.tsx` | боковое меню и каркас |

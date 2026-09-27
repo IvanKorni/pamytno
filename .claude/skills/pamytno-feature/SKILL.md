@@ -12,7 +12,8 @@ description: Порядок работы над backend и frontend «Памят
 
 - Фронтенд живёт в `frontend/`, использует React + TypeScript + Vite.
 - Компоненты не делают `fetch`: все HTTP-вызовы находятся в `frontend/src/api/`.
-- Server state хранится в TanStack Query, Zustand — только для токена, learning session и коротких UI-состояний.
+- Server state хранится в TanStack Query, Zustand — только для пользователя и уведомлений; состояние экрана —
+  локальный `useState` / `useReducer`.
 - Контракты фронта следуют `openapi/*.yaml`; даты и spaced repetition рассчитывает только backend.
 - Долгие операции (источники, генерация вопросов и карточек) показывают loading/success/error и опрашивают backend по id задачи.
 - Unit-тесты покрывают чистые функции, module-тесты — API-слой и границы компонентов, integration-тесты — HTTP-путь с `VITE_PAMYTNO_INTEGRATION_URL`.

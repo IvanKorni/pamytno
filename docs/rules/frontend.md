@@ -2,7 +2,9 @@
 
 - Frontend находится в `frontend/` и собирается Vite.
 - React-компоненты не вызывают `fetch` напрямую: запросы находятся в `src/api/`.
-- TanStack Query используется для server state, Zustand — только для небольшого client state.
+- TanStack Query используется для server state, Zustand — только для глобального client state (пользователь, уведомления).
+  Состояние одного экрана (учебная сессия, черновик формы) — локальный `useState` / `useReducer`: уходит вместе с экраном.
+- Данные, от которых зависит расписание повторений (карточки к повторению), не берутся из кеша.
 - Типы DTO генерируются из `openapi/*.yaml` командой `npm run api:generate` в `src/modules/<module>/api/schema.gen.ts`
   и руками не правятся; `npm run check` падает, если контракт изменился, а типы нет (`api:check`).
 - Frontend не пересчитывает даты повторения.
