@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 /**
- * Удаляет тему и сообщает другим модулям, что всё построенное по ней больше не нужно.
+ * Удаляет тему с источниками и файлами и сообщает другим модулям, что всё построенное по ней больше не нужно.
  */
 @Slf4j
 @Service
@@ -32,6 +32,7 @@ public class TopicDeletionService {
     public void delete(UUID topicId, UUID userId) {
         var topic = topicQueryService.getOwned(topicId, userId);
         topicRepository.delete(topic);
+        events.publishEvent(new StoragePathObsolete(topicId.toString()));
         events.publishEvent(new TopicDeleted(topicId, userId));
         log.info("Тема [{}] удалена пользователем [{}]", topicId, userId);
     }

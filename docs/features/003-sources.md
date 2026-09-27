@@ -12,6 +12,7 @@
 | Метод | Путь | Успех | Ошибки |
 |---|---|---|---|
 | POST | `/api/topics/{topicId}/sources/text` | 202 | 400, 401, 404 |
+| POST | `/api/topics/{topicId}/sources/pdf` (multipart `file`, `name`) | 202 | 400, 401, 404, 413 |
 | GET | `/api/topics/{topicId}/sources` | 200 | 401, 404 |
 | GET | `/api/sources/{sourceId}` | 200 | 401, 404 |
 | GET | `/api/sources/{sourceId}/text` | 200 | 401, 404 |
@@ -29,6 +30,11 @@
 - Статус темы: нет источников — `DRAFT`; хоть один в обработке — `PROCESSING`; есть готовый — `READY`;
   все с ошибкой — `ERROR`.
 - Удаление источника пересчитывает тему без него.
+- **PDF**: проверяется сигнатура `%PDF-`, файл сохраняется в `STORAGE_ROOT/<topicId>/<sourceId>.pdf`
+  (в Docker — volume), текстовый слой извлекает PDFBox, OCR нет. Слова, разорванные переносом в конце строки,
+  склеиваются (только для PDF, чтобы не портить «из-за» в обычном тексте). Лимит размера — `MAX_UPLOAD_SIZE`.
+- Файлы удаляются из хранилища **после коммита** удаления источника или темы (внутреннее событие
+  `StoragePathObsolete`), чтобы откат не оставил запись без файла.
 
 ## Ошибки
 
@@ -36,12 +42,15 @@
 |---|---|---|
 | `TOPIC_NOT_FOUND` | HTTP 404 | тема чужая или не существует |
 | `SOURCE_NOT_FOUND` | HTTP 404 | источник чужой или не существует |
-| `TEXT_EXTRACTION_FAILED` | `source.errorCode` | после очистки текста не осталось |
+| `UNSUPPORTED_FILE_TYPE` | HTTP 400 | загружен не PDF |
+| `FILE_TOO_LARGE` | HTTP 413 | файл больше `MAX_UPLOAD_SIZE` |
+| `TEXT_EXTRACTION_FAILED` | `source.errorCode` | после очистки текста не осталось; PDF из картинок, битый или с паролем |
 | `SOURCE_PROCESSING_FAILED` | `source.errorCode` | непредвиденная ошибка обработки |
 
 ## Тесты
 
 - Unit: `SourceTest`, `TopicStatusPolicyTest`, `TextCleanerTest`, `SourceTextExtractorsTest`,
-  `SourceProcessingServiceTest`.
+  `SourceProcessingServiceTest`, `PdfTextReaderTest`, `LocalFileStorageTest`, `PdfSourceSubmissionServiceTest`.
 - Модульные: `TextSourceModuleTest` — приём и обработка текста, сохранность исходного текста, ошибка пустого
-  текста, список слов, изоляция пользователей, удаление источника.
+  текста, список слов, изоляция пользователей, удаление источника; `PdfSourceModuleTest` — PDF с текстом,
+  PDF без текстового слоя, не-PDF, удаление файла из хранилища.

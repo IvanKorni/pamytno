@@ -41,4 +41,17 @@ class TextCleanerTest {
     void clean_returnsEmpty_forBlankText() {
         assertThat(TextCleaner.clean(" \n\t \n")).isEmpty();
     }
+
+    @Test
+    @DisplayName("Слово, разорванное переносом в конце строки PDF, склеивается")
+    void joinHyphenatedLineBreaks_joinsWordSplitAcrossLines() {
+        assertThat(TextCleaner.joinHyphenatedLineBreaks("обра-\nботка и hyphen- \r\nation"))
+                .isEqualTo("обработка и hyphenation");
+    }
+
+    @Test
+    @DisplayName("Дефис перед строкой с заглавной буквы или цифрой не трогается")
+    void joinHyphenatedLineBreaks_keepsHyphenBeforeCapitalOrDigit() {
+        assertThat(TextCleaner.joinHyphenatedLineBreaks("Wi-\nFi и 2-\n3")).isEqualTo("Wi-\nFi и 2-\n3");
+    }
 }

@@ -97,6 +97,20 @@ public class Source extends BaseEntity {
     }
 
     /**
+     * Источник из PDF-файла. Ключ хранилища строится из темы и идентификатора источника.
+     *
+     * @param topic    тема
+     * @param fileName исходное имя файла
+     * @param now      момент создания
+     * @return новый источник
+     */
+    public static Source pdf(Topic topic, String fileName, Instant now) {
+        var source = new Source(topic, SourceType.PDF, fileName, now);
+        source.storageKey = topic.getId() + "/" + source.getId() + ".pdf";
+        return source;
+    }
+
+    /**
      * Начинает обработку.
      *
      * @param now момент начала

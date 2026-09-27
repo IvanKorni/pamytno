@@ -37,7 +37,7 @@ class TopicDeletionServiceTest {
     private TopicDeletionService service;
 
     @Test
-    @DisplayName("Удаление темы публикует TopicDeleted")
+    @DisplayName("Удаление темы публикует TopicDeleted и освобождает каталог хранилища")
     void delete_removesTopicAndPublishesEvent() {
         // given
         var userId = UUID.randomUUID();
@@ -50,6 +50,7 @@ class TopicDeletionServiceTest {
         // then
         verify(topicRepository).delete(topic);
         verify(events).publishEvent(new TopicDeleted(topic.getId(), userId));
+        verify(events).publishEvent(new StoragePathObsolete(topic.getId().toString()));
     }
 
     @Test

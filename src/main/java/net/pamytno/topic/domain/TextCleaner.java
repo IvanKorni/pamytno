@@ -13,6 +13,7 @@ public final class TextCleaner {
     private static final Pattern INVISIBLE =
             Pattern.compile("[\\p{Cc}&&[^\\n\\t]]|[\\u00AD\\u200B-\\u200D\\u2060\\uFEFF]");
     private static final Pattern HORIZONTAL_SPACES = Pattern.compile("\\h+");
+    private static final Pattern HYPHENATED_LINE_BREAK = Pattern.compile("(\\p{L})-\\h*\\R\\h*(\\p{Ll})");
 
     /**
      * Запрещает создание экземпляров.
@@ -33,5 +34,16 @@ public final class TextCleaner {
                 .map(line -> HORIZONTAL_SPACES.matcher(line).replaceAll(" ").strip())
                 .filter(line -> !line.isEmpty())
                 .collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * Склеивает слова, разорванные переносом в конце строки ({@code "обра-\nботка"} → {@code "обработка"}).
+     * Типичная проблема извлечения текста из PDF, поэтому применяется только к PDF.
+     *
+     * @param text извлечённый текст
+     * @return текст со склеенными переносами
+     */
+    public static String joinHyphenatedLineBreaks(String text) {
+        return HYPHENATED_LINE_BREAK.matcher(text).replaceAll("$1$2");
     }
 }

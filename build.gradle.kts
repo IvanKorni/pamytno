@@ -19,6 +19,7 @@ val versions = mapOf(
     "springdoc" to "2.8.17",
     "mapstruct" to "1.6.3",
     "lombokMapstructBinding" to "0.2.0",
+    "pdfbox" to "3.0.8",
 )
 
 java {
@@ -50,6 +51,9 @@ dependencies {
     // MODULITH
     implementation("org.springframework.modulith:spring-modulith-starter-core")
     implementation("org.springframework.modulith:spring-modulith-starter-jdbc")
+
+    // MATERIALS
+    implementation("org.apache.pdfbox:pdfbox:${versions["pdfbox"]}")
 
     // PERSISTENCE
     implementation("org.flywaydb:flyway-core")

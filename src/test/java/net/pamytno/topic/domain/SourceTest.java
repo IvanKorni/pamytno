@@ -60,4 +60,14 @@ class SourceTest {
         assertThat(source.getErrorCode()).isEqualTo(SourceErrorCode.TEXT_EXTRACTION_FAILED);
         assertThat(source.getErrorMessage()).hasSize(1000);
     }
+
+    @Test
+    @DisplayName("PDF-источник получает ключ хранилища вида <тема>/<источник>.pdf")
+    void pdf_buildsStorageKeyFromTopicAndSource() {
+        var source = Source.pdf(TOPIC, "notes.pdf", NOW);
+
+        assertThat(source.getType()).isEqualTo(SourceType.PDF);
+        assertThat(source.getOriginalName()).isEqualTo("notes.pdf");
+        assertThat(source.getStorageKey()).isEqualTo(TOPIC.getId() + "/" + source.getId() + ".pdf");
+    }
 }
