@@ -1,3 +1,5 @@
+export * as sourceApi from './api/sourceApi'
+export * as topicApi from './api/topicApi'
 export { topicKeys } from './api/topicKeys'
 export { useAddMaterial, useDeleteSource, useSources, useTopicContent } from './api/sourceQueries'
 export { useCreateTopic, useDeleteTopic, useTopic, useTopics, useUpdateTopic } from './api/topicQueries'

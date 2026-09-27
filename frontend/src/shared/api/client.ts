@@ -1,7 +1,9 @@
 import { tokenStorage } from './tokenStorage'
 
-/** Базовый адрес API: в dev-режиме Vite проксирует `/api` на backend. */
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined) || '/api'
+/** Базовый адрес API: по умолчанию `/api`, который в dev-режиме Vite проксирует на backend. */
+function apiUrl(): string {
+  return (import.meta.env.VITE_API_URL as string | undefined) || '/api'
+}
 
 /** Событие окна: backend ответил 401, приложение должно разлогинить пользователя. */
 export const UNAUTHORIZED_EVENT = 'pamytno:unauthorized'
@@ -31,7 +33,7 @@ export class HttpError extends Error {
 
 /** Выполняет запрос к API с токеном пользователя и возвращает разобранный JSON-ответ. */
 export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers: buildHeaders(options) })
+  const response = await fetch(`${apiUrl()}${path}`, { ...options, headers: buildHeaders(options) })
   if (response.status === 204) return undefined as T
   const payload = parseJson(await response.text())
   if (!response.ok) {

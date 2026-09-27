@@ -1,3 +1,4 @@
+export * as learningApi from './api/learningApi'
 export { learningKeys } from './api/learningKeys'
 export { useDashboard, useTopicProgress } from './api/learningQueries'
 export type { SessionProgress } from './model/learningSession'

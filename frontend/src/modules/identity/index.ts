@@ -1,3 +1,4 @@
+export * as identityApi from './api/identityApi'
 export { useAuth } from './model/authStore'
 export type { User } from './model/types'
 export { useAuthBootstrap } from './model/useAuthBootstrap'
