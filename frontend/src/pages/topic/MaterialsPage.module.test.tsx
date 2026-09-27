@@ -94,4 +94,19 @@ describe('Экран материалов', () => {
       url: 'https://youtu.be/abc',
     })
   })
+
+  it('когда материал обработан, перечитывает статус темы', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1/sources', [source('PROCESSING')])
+    renderApp(backend, '/topics/topic-1')
+    await screen.findByText('Обрабатываем')
+    const topicLoads = backend.count('GET', '/topics/topic-1')
+
+    // when
+    backend.on('GET', '/topics/topic-1/sources', [source('READY')])
+
+    // then
+    expect(await screen.findByText('Готово', {}, { timeout: 3000 })).toBeInTheDocument()
+    await waitFor(() => expect(backend.count('GET', '/topics/topic-1')).toBe(topicLoads + 1))
+  })
 })
