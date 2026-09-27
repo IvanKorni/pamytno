@@ -76,7 +76,10 @@
         <module name="MemberName"/>
         <module name="ParameterName"/>
         <module name="LocalVariableName"/>
-        <module name="ConstantName"/>
+        <!-- Правила ArchUnit (@ArchTest static final ArchRule) по соглашению называются в camelCase -->
+        <module name="ConstantName">
+            <property name="format" value="^([A-Z][A-Z0-9]*(_[A-Z0-9]+)*|[a-z][a-zA-Z0-9]*)$"/>
+        </module>
 
         <!-- ===== Блоки и форматирование ===== -->
         <module name="NeedBraces"/>
