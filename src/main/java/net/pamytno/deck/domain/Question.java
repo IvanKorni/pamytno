@@ -34,6 +34,8 @@ public class Question extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private QuestionStatus status;
+    @Column(name = "seq", insertable = false, updatable = false)
+    private Long seq;
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
     @Column(name = "updated_at", nullable = false)

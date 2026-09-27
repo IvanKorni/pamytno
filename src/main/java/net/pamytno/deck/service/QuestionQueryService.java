@@ -31,9 +31,8 @@ public class QuestionQueryService {
      */
     public List<Question> list(UUID topicId, UUID userId, QuestionStatus status) {
         return status == null
-                ? questionRepository.findAllByTopicIdAndUserIdOrderByCreatedAtAscIdAsc(topicId, userId)
-                : questionRepository.findAllByTopicIdAndUserIdAndStatusOrderByCreatedAtAscIdAsc(topicId, userId,
-                status);
+                ? questionRepository.findAllByTopicIdAndUserIdOrderBySeqAsc(topicId, userId)
+                : questionRepository.findAllByTopicIdAndUserIdAndStatusOrderBySeqAsc(topicId, userId, status);
     }
 
     /**

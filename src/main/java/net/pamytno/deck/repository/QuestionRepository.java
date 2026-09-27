@@ -15,24 +15,23 @@ import java.util.UUID;
 public interface QuestionRepository extends JpaRepository<Question, UUID> {
 
     /**
-     * Все вопросы темы пользователя по порядку появления.
+     * Все вопросы темы пользователя в порядке генерации.
      *
      * @param topicId идентификатор темы
      * @param userId  владелец
      * @return вопросы темы
      */
-    List<Question> findAllByTopicIdAndUserIdOrderByCreatedAtAscIdAsc(UUID topicId, UUID userId);
+    List<Question> findAllByTopicIdAndUserIdOrderBySeqAsc(UUID topicId, UUID userId);
 
     /**
-     * Вопросы темы пользователя в статусе по порядку появления.
+     * Вопросы темы пользователя в статусе в порядке генерации.
      *
      * @param topicId идентификатор темы
      * @param userId  владелец
      * @param status  статус
      * @return вопросы темы в статусе
      */
-    List<Question> findAllByTopicIdAndUserIdAndStatusOrderByCreatedAtAscIdAsc(UUID topicId, UUID userId,
-                                                                              QuestionStatus status);
+    List<Question> findAllByTopicIdAndUserIdAndStatusOrderBySeqAsc(UUID topicId, UUID userId, QuestionStatus status);
 
     /**
      * Вопрос пользователя.

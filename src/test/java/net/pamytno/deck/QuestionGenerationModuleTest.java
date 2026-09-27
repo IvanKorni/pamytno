@@ -59,7 +59,7 @@ class QuestionGenerationModuleTest {
         var job = api.awaitJob(userId, jobId);
         assertThat(job.get("status").asText()).isEqualTo("READY");
         assertThat(job.get("itemsCreated").asInt()).isEqualTo(2);
-        assertThat(questionRepository.findAllByTopicIdAndUserIdOrderByCreatedAtAscIdAsc(topicId, userId))
+        assertThat(questionRepository.findAllByTopicIdAndUserIdOrderBySeqAsc(topicId, userId))
                 .allSatisfy(question -> assertThat(question.getChunkId()).isNotNull());
     }
 

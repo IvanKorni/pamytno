@@ -46,7 +46,7 @@ public class QuestionReviewService {
      * @param questionIds идентификаторы вопросов
      * @param userId      владелец
      * @param decision    решение
-     * @return изменённые вопросы по порядку появления
+     * @return изменённые вопросы в порядке генерации
      * @throws QuestionNotFoundException если хотя бы один вопрос не найден или чужой
      */
     @Transactional
@@ -59,7 +59,9 @@ public class QuestionReviewService {
         });
         var now = clock.instant();
         questions.forEach(question -> decision.applyTo(question, now));
-        return questions.stream().sorted(Comparator.comparing(Question::getCreatedAt)).toList();
+        return questions.stream()
+                .sorted(Comparator.comparing(Question::getSeq, Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
     }
 
     /**

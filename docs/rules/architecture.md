@@ -33,6 +33,9 @@
 - Внешних ключей между схемами нет. Ссылки на чужие сущности — просто `uuid`.
 - Все изменения схемы — только Flyway: `src/main/resources/db/migration/V<N>__<module>_<действие>.sql`.
 - `ddl-auto: validate` — сущности обязаны совпадать с миграциями.
+- Применённые (закоммиченные) миграции не редактируются — только новая миграция.
+- Записи, создаваемые пачкой (вопросы, карточки), упорядочиваются по identity-колонке `seq`, а не по
+  `created_at`: время у пачки совпадает, и порядок молча становится случайным.
 
 ## Пакеты внутри модуля
 
@@ -63,8 +66,9 @@
 ## Ошибки
 
 - Исключения модулей наследуют `NotFoundException`, `ConflictException`, `BadRequestException`,
-  `UnauthorizedException` из `common.error` и задают стабильный `code` (`TOPIC_NOT_FOUND`).
-- `GlobalExceptionHandler` в `common` — единственное место, где исключения превращаются в HTTP-ответ.
+  `UnauthorizedException`, `ForbiddenException` из `common.error` и задают стабильный `code` (`TOPIC_NOT_FOUND`).
+- Обработчики `*ExceptionHandler` в `common.error` — единственное место, где исключения превращаются
+  в HTTP-ответ. Модули не пишут свои `@RestControllerAdvice`.
 
 ## Время, конфигурация, секреты
 
