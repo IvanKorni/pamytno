@@ -7,14 +7,17 @@ export interface RecordedCall {
   body?: unknown
 }
 
-/** Ответ фейкового backend. */
-export interface Reply {
-  status?: number
-  body?: unknown
+/** Ответ фейкового backend с явным статусом; всё остальное считается телом ответа 200. */
+export class Reply {
+  /** Создаёт ответ со статусом и телом. */
+  constructor(
+    readonly status: number,
+    readonly body?: unknown,
+  ) {}
 }
 
-/** Обработчик маршрута: по запросу возвращает ответ, в том числе асинхронно. */
-type Handler = (call: RecordedCall) => Reply | Promise<Reply>
+/** Обработчик маршрута: по запросу возвращает тело или `Reply`, в том числе асинхронно. */
+type Handler = (call: RecordedCall) => unknown
 
 /**
  * Фейковый backend для модульных тестов экранов: подменяет `fetch`, отвечает по таблице маршрутов
@@ -35,9 +38,9 @@ export class FakeBackend {
     return this
   }
 
-  /** Отвечает на маршрут JSON-телом со статусом 200 или заданным ответом/обработчиком. */
-  on(method: string, path: string, reply: Handler | Reply | unknown): this {
-    const handler: Handler = typeof reply === 'function' ? (reply as Handler) : () => asReply(reply)
+  /** Отвечает на маршрут телом со статусом 200, заданным `Reply` или результатом обработчика. */
+  on(method: string, path: string, response: unknown): this {
+    const handler: Handler = typeof response === 'function' ? (response as Handler) : () => response
     this.routes.set(`${method} /api${path}`, handler)
     return this
   }
@@ -52,21 +55,16 @@ export class FakeBackend {
     const call = { method: init?.method ?? 'GET', path: input, body: parseBody(init?.body) }
     this.calls.push(call)
     const handler = this.routes.get(`${call.method} ${call.path}`)
-    const reply = handler ? await handler(call) : { status: 404, body: { code: 'NOT_FOUND', message: call.path } }
-    const status = reply.status ?? 200
-    return new Response(status === 204 ? null : JSON.stringify(reply.body ?? null), { status })
+    const result = handler ? await handler(call) : errorReply(404, 'NOT_FOUND', call.path)
+    const reply = result instanceof Reply ? result : new Reply(200, result)
+    const body = reply.status === 204 ? null : JSON.stringify(reply.body ?? null)
+    return new Response(body, { status: reply.status })
   }
 }
 
 /** Ошибка backend в формате `ErrorResponse`. */
 export function errorReply(status: number, code: string, message: string): Reply {
-  return { status, body: { code, message, timestamp: '2026-09-27T10:00:00Z' } }
-}
-
-/** Превращает значение в ответ: `Reply` остаётся как есть, остальное становится телом 200. */
-function asReply(value: unknown): Reply {
-  const isReply = typeof value === 'object' && value !== null && ('status' in value || 'body' in value)
-  return isReply ? (value as Reply) : { status: 200, body: value }
+  return new Reply(status, { code, message, timestamp: '2026-09-27T10:00:00Z' })
 }
 
 /** Разбирает JSON-тело запроса; форму и пустое тело оставляет как есть. */
