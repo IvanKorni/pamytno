@@ -1,0 +1,23 @@
+# Локальное окружение «Памятно».
+#   docker compose up -d postgres   — только БД, backend запускается из IDE;
+#   docker compose up -d --build    — БД и backend в контейнерах.
+services:
+  postgres:
+    image: postgres:17
+    container_name: pamytno-postgres
+    environment:
+      POSTGRES_DB: pamytno
+      POSTGRES_USER: pamytno
+      POSTGRES_PASSWORD: pamytno
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U pamytno -d pamytno" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
