@@ -17,5 +17,9 @@ out/
 storage/
 *.log
 
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
 # Claude Code: локальные настройки пользователя
 .claude/settings.local.json

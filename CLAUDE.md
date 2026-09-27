@@ -1,7 +1,9 @@
-# Памятно — backend
+# Памятно — backend и frontend
 
 Spring Boot 3.5 модульный монолит (Java 21, Spring Modulith, PostgreSQL, Flyway, Gradle Kotlin DSL).
 ТЗ — `docs/tz-backend.md`. Стиль кода — как в проекте `proselyte-system`.
+
+Frontend находится в `frontend/` и запускается через Vite; его правила — `docs/rules/frontend.md`.
 
 ## Команды
 
@@ -32,3 +34,4 @@ docker compose up -d --build         # БД + backend в Docker (настрой�
 @docs/rules/testing.md
 @docs/rules/documentation.md
 @docs/rules/git.md
+@docs/rules/frontend.md

@@ -48,6 +48,18 @@ docker compose up -d postgres
 Приложение — `http://localhost:8080`, Swagger UI — `http://localhost:8080/swagger-ui.html`,
 health-check — `/actuator/health`.
 
+## Frontend
+
+Фронтенд MVP находится в [`frontend/`](frontend/) и работает с этим API через `/api`.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Откройте `http://localhost:5173`. Для production-сборки используйте `npm run build`.
+
 ## Настройки
 
 Всё задаётся переменными окружения, полный список с пояснениями — [`.env.example`](.env.example).
