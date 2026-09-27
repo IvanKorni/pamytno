@@ -69,7 +69,7 @@ function TopicHeader({ topic, onEdit }: { topic: Topic; onEdit: () => void }) {
         <Link className="button button-primary" to={`/topics/${topic.id}/learn`}>
           <Play size={16} fill="currentColor" /> Учить
         </Link>
-        <button className="icon-button" title="Изменить тему" onClick={onEdit}>
+        <button className="icon-button" title="Изменить тему" aria-label="Изменить тему" onClick={onEdit}>
           …
         </button>
       </div>

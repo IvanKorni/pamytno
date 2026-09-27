@@ -45,5 +45,6 @@ describe('Обзор', () => {
     expect(screen.getByText('Ещё 3 карточки подойдут до конца дня.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Начать/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Повторить/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Позже сегодня' })).toHaveAttribute('href', '/topics/topic-1')
   })
 })

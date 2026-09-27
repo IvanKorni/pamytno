@@ -59,4 +59,20 @@ describe('Экран материалов', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось удалить материал: Сервис недоступен')
     await waitFor(() => expect(screen.getByText('Конспект')).toBeInTheDocument())
   })
+
+  it('закрывает окно добавления по Esc и возвращает фокус на кнопку', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1/sources', [])
+    renderApp(backend, '/topics/topic-1')
+    const open = await screen.findByRole('button', { name: /Добавить материал/ })
+    await userEvent.click(open)
+    expect(screen.getByRole('dialog', { name: 'Добавить материал' })).toBeInTheDocument()
+
+    // when
+    await userEvent.keyboard('{Escape}')
+
+    // then
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(open).toHaveFocus()
+  })
 })

@@ -14,7 +14,7 @@ export function FlashcardRow({ card, edit, remove }: FlashcardRowProps) {
   const [open, setOpen] = useState(false)
   return (
     <article className="flashcard-row">
-      <button className="flashcard-main" onClick={() => setOpen(!open)}>
+      <button className="flashcard-main" onClick={() => setOpen(!open)} aria-expanded={open}>
         <span className="flashcard-front">{card.front}</span>
         <span className="flashcard-chevron">{open ? '−' : '+'}</span>
         {open && <span className="flashcard-back">{card.back}</span>}
@@ -23,7 +23,7 @@ export function FlashcardRow({ card, edit, remove }: FlashcardRowProps) {
         <button className="text-button" onClick={edit}>
           Изменить
         </button>
-        <button className="icon-button subtle" onClick={remove} title="Удалить">
+        <button className="icon-button subtle" onClick={remove} title="Удалить" aria-label="Удалить карточку">
           <Trash2 size={16} />
         </button>
       </div>

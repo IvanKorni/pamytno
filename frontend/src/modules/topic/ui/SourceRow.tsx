@@ -25,7 +25,7 @@ export function SourceRow({ source, onDelete }: SourceRowProps) {
       <div className={`source-status source-status-${source.status.toLowerCase()}`}>
         <SourceStatus source={source} />
       </div>
-      <button className="icon-button subtle" onClick={onDelete} title="Удалить материал">
+      <button className="icon-button subtle" onClick={onDelete} title="Удалить материал" aria-label="Удалить материал">
         <Trash2 size={16} />
       </button>
     </article>

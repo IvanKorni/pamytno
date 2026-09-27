@@ -13,7 +13,7 @@ export function AppShell() {
       <Sidebar open={mobileOpen} onNavigate={closeMenu} />
       {mobileOpen && <button className="mobile-backdrop" aria-label="Закрыть меню" onClick={closeMenu} />}
       <main className="main-content">
-        <button className="mobile-menu" onClick={() => setMobileOpen(true)}>
+        <button className="mobile-menu" aria-label="Открыть меню" onClick={() => setMobileOpen(true)}>
           <Menu size={22} />
         </button>
         <Outlet />
