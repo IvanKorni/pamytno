@@ -152,7 +152,11 @@
     font-size: 10px;
   }
   .learning-actions {
-    grid-template-columns: 1fr;
+    position: sticky;
+    bottom: 0;
+    grid-template-columns: 1fr 1fr;
+    padding: 10px 0 12px;
+    background: #fff;
   }
   .progress-grid {
     grid-template-columns: 1fr;
