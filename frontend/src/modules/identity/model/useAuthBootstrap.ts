@@ -15,7 +15,7 @@ export function useAuthBootstrap(): boolean {
   const logout = useLogout()
   useEffect(() => {
     const onUnauthorized = () => {
-      logout()
+      logout('expired')
       setBooting(false)
     }
     window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized)
@@ -25,7 +25,7 @@ export function useAuthBootstrap(): boolean {
     if (!tokenStorage.get()) return
     getCurrentUser()
       .then(useAuth.getState().setUser)
-      .catch(logout)
+      .catch(() => logout('expired'))
       .finally(() => setBooting(false))
   }, [logout])
   return booting

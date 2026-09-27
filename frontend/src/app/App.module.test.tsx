@@ -106,4 +106,28 @@ describe('Приложение', () => {
     // then
     expect(await screen.findByText('Карточек пока нет')).toBeInTheDocument()
   })
+
+  it('после «Выйти» следующий пользователь попадает на обзор, а не на страницу предыдущего', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1', topic())
+    backend.on('GET', '/topics/topic-1/progress', progress())
+    backend.on('GET', '/topics/topic-1/cards', [])
+    backend.on('POST', '/auth/login', {
+      accessToken: 'other-token',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      userId: 'u2',
+    })
+    renderApp(backend, '/topics/topic-1/cards')
+    await screen.findByText('Карточек пока нет')
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: /Выйти/ }))
+    await userEvent.type(await screen.findByLabelText('Электронная почта'), 'other@example.com')
+    await userEvent.type(screen.getByLabelText('Пароль'), 'other-password')
+    await userEvent.click(screen.getByRole('button', { name: 'Войти' }))
+
+    // then
+    expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+  })
 })

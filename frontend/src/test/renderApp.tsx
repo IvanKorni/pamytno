@@ -16,7 +16,7 @@ export const TEST_USER = { id: 'user-1', email: 'student@example.com', createdAt
  */
 export function renderApp(backend: FakeBackend, path: string, { signedIn = true } = {}) {
   if (signedIn) tokenStorage.save('test-token')
-  useAuth.setState({ user: undefined })
+  useAuth.setState({ user: undefined, signedOut: false })
   backend.on('GET', '/users/me', TEST_USER)
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 20_000 } } })
   const view = render(

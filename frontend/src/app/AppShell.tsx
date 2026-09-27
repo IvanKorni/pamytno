@@ -43,7 +43,7 @@ function Sidebar({ open, onNavigate }: { open: boolean; onNavigate: () => void }
           <span className="avatar">{user?.email.slice(0, 1).toUpperCase()}</span>
           <span className="user-email">{user?.email}</span>
         </div>
-        <button className="sidebar-logout" onClick={logout}>
+        <button className="sidebar-logout" onClick={() => logout('signOut')}>
           <LogOut size={16} /> Выйти
         </button>
       </div>

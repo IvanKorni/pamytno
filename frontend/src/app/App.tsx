@@ -42,13 +42,16 @@ export function App() {
   )
 }
 
-/** Пускает только вошедшего пользователя; остальных отправляет на вход, запомнив адрес. */
+/**
+ * Пускает только вошедшего пользователя; остальных отправляет на вход. Адрес запоминается, только если
+ * пользователь не выходил сам: иначе следующий вошедший попал бы на страницу предыдущего.
+ */
 function RequireAuth() {
-  const user = useAuth((state) => state.user)
+  const { user, signedOut } = useAuth()
   const location = useLocation()
   if (user) return <AppShell />
-  const from = location.pathname + location.search
-  return <Navigate to="/login" replace state={{ from } satisfies ReturnState} />
+  const state: ReturnState | undefined = signedOut ? undefined : { from: location.pathname + location.search }
+  return <Navigate to="/login" replace state={state} />
 }
 
 /** Экран для гостя; вошедшего пользователя возвращает туда, откуда его отправили на вход. */

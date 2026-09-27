@@ -9,6 +9,6 @@ afterEach(() => {
   cleanup()
   localStorage.clear()
   sessionStorage.clear()
-  useAuth.setState({ user: undefined })
+  useAuth.setState({ user: undefined, signedOut: false })
   useToast.setState({ toast: undefined })
 })
