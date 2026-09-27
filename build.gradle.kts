@@ -1,8 +1,11 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 plugins {
     java
     checkstyle
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
+    id("org.openapi.generator") version "7.14.0"
 }
 
 group = "net.pamytno"
@@ -14,6 +17,8 @@ val versions = mapOf(
     "archunit" to "1.5.1",
     "checkstyle" to "14.1.0",
     "springdoc" to "2.8.17",
+    "mapstruct" to "1.6.3",
+    "lombokMapstructBinding" to "0.2.0",
 )
 
 java {
@@ -53,7 +58,10 @@ dependencies {
 
     // HELPERS
     compileOnly("org.projectlombok:lombok")
+    implementation("org.mapstruct:mapstruct:${versions["mapstruct"]}")
     annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${versions["mapstruct"]}")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:${versions["lombokMapstructBinding"]}")
 
     // TEST
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -91,7 +99,55 @@ tasks.withType<Checkstyle> {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.compilerArgs.add("-parameters")
+    options.compilerArgs.addAll(listOf("-parameters", "-Amapstruct.defaultComponentModel=spring"))
+}
+
+/*
+──────────────────────────────────────────────────────
+============== OpenAPI: contract-first REST ==============
+──────────────────────────────────────────────────────
+ Каждый openapi/<module>-api.yaml генерирует интерфейсы в net.pamytno.<module>.rest.api
+ и DTO в net.pamytno.<module>.rest.dto. Контроллеры модулей реализуют эти интерфейсы.
+*/
+
+val openApiOutput = layout.buildDirectory.dir("generated/openapi")
+val openApiSpecs = file("openapi").listFiles { file -> file.name.endsWith("-api.yaml") }.orEmpty().sortedBy { it.name }
+
+val openApiTasks = openApiSpecs.map { spec ->
+    val module = spec.name.removeSuffix("-api.yaml")
+    tasks.register<GenerateTask>("openApiGenerate${module.replaceFirstChar(Char::uppercase)}") {
+        description = "Генерирует REST-интерфейсы и DTO модуля $module из ${spec.name}."
+        group = "openapi"
+        generatorName = "spring"
+        inputSpec = spec.absolutePath
+        outputDir = openApiOutput.get().dir(module).asFile.absolutePath
+        apiPackage = "net.pamytno.$module.rest.api"
+        modelPackage = "net.pamytno.$module.rest.dto"
+        schemaMappings = mapOf("ErrorResponse" to "net.pamytno.common.error.ErrorResponse")
+        typeMappings = mapOf("DateTime" to "Instant")
+        importMappings = mapOf("Instant" to "java.time.Instant")
+        configOptions = mapOf(
+            "interfaceOnly" to "true",
+            "useSpringBoot3" to "true",
+            "useTags" to "true",
+            "skipDefaultInterface" to "true",
+            "openApiNullable" to "false",
+            "useBeanValidation" to "true",
+            "documentationProvider" to "springdoc",
+            "hideGenerationTimestamp" to "true",
+            "sourceFolder" to "src/main/java",
+        )
+    }
+}
+
+sourceSets.main {
+    openApiSpecs.forEach { spec ->
+        java.srcDir(openApiOutput.map { it.dir("${spec.name.removeSuffix("-api.yaml")}/src/main/java") })
+    }
+}
+
+tasks.compileJava {
+    dependsOn(openApiTasks)
 }
 
 /*
