@@ -12,7 +12,7 @@ import java.time.Clock;
 import java.util.UUID;
 
 /**
- * Приводит тему в соответствие с её источниками: пересчитывает статус.
+ * Приводит тему в соответствие с её источниками: пересчитывает статус и единый текст.
  * Строка темы блокируется, чтобы параллельные обработки не мешали друг другу.
  */
 @Service
@@ -21,6 +21,7 @@ public class TopicMaterialRefresher {
 
     private final TopicRepository topicRepository;
     private final SourceRepository sourceRepository;
+    private final TopicContentService contentService;
     private final Clock clock;
 
     /**
@@ -31,10 +32,10 @@ public class TopicMaterialRefresher {
     @Transactional
     public void refresh(UUID topicId) {
         topicRepository.findByIdForUpdate(topicId).ifPresent(topic -> {
-            var statuses = sourceRepository.findAllByTopicIdOrderByCreatedAtAsc(topicId).stream()
-                    .map(Source::getStatus)
-                    .toList();
+            var sources = sourceRepository.findAllByTopicIdOrderByCreatedAtAsc(topicId);
+            var statuses = sources.stream().map(Source::getStatus).toList();
             topic.changeStatus(TopicStatusPolicy.resolve(statuses), clock.instant());
+            contentService.rebuild(topic, sources);
         });
     }
 }
