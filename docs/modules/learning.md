@@ -16,11 +16,17 @@
 | `repository` | `LearningSessionRepository` | сессии пользователя |
 | `service` | `CardProgressRegistry` | синхронизация с карточками `deck` (идемпотентно) |
 | `service` | `LearningSessionService` | начало, чтение, завершение сессий |
+| `service` | `DueReviewService` | очередь повторения темы, самые давние первыми |
+| `service` | `ReviewService`, `ReviewOutcome` | ответ по карточке + учёт в сессии той же темы |
 | `listener` | `FlashcardEventsListener` | `FlashcardCreated/Updated/Deleted` |
 | `exception` | `LearningSessionNotFoundException` | 404 `LEARNING_SESSION_NOT_FOUND` |
 | `exception` | `LearningSessionCompletedException` | 409 `LEARNING_SESSION_COMPLETED` |
+| `exception` | `LearningSessionTopicMismatchException` | 409 `LEARNING_SESSION_TOPIC_MISMATCH` |
+| `exception` | `CardProgressNotFoundException` | 404 `CARD_PROGRESS_NOT_FOUND` |
 | `mapper` | `LearningSessionMapper` | сессия → DTO |
+| `mapper` | `ReviewMapper` | карточка к повторению и итог ответа → DTO |
 | `rest` | `LearningSessionRestControllerV1` | старт, чтение, завершение сессии |
+| `rest` | `ReviewRestControllerV1` | очередь повторения и ответы |
 
 Контракт: `openapi/learning-api.yaml`.
 
@@ -43,6 +49,8 @@
 
 | Метод | Путь | Ответ |
 |---|---|---|
+| GET | `/api/topics/{topicId}/reviews/due?limit=` | 200 `DueCardDto[]` |
+| POST | `/api/cards/{cardId}/review` | 200 `ReviewResultDto` |
 | POST | `/api/topics/{topicId}/learning-sessions` | 201 `LearningSessionDto` |
 | GET | `/api/learning-sessions/{sessionId}` | 200 `LearningSessionDto` |
 | POST | `/api/learning-sessions/{sessionId}/complete` | 200 `LearningSessionDto` |
