@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { BookOpen, ChevronRight, CircleHelp, FileText, GraduationCap, Play } from 'lucide-react'
-import { useTopicProgress } from '@/modules/learning'
+import { learningKeys, useTopicProgress } from '@/modules/learning'
 import { EditTopicModal, useTopic, type Topic } from '@/modules/topic'
 import { ErrorState, formatPercent, PageLoading, Stat } from '@/shared'
 import { useTopicId } from './useTopicId'
@@ -10,8 +11,13 @@ import { useTopicId } from './useTopicId'
 export function TopicLayout() {
   const topicId = useTopicId()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const topic = useTopic(topicId)
   const [showEdit, setShowEdit] = useState(false)
+  const onDeleted = () => {
+    queryClient.invalidateQueries({ queryKey: learningKeys.dashboard })
+    navigate('/')
+  }
   if (topic.isLoading) return <PageLoading />
   if (topic.isError || !topic.data) return <ErrorState />
   return (
@@ -29,7 +35,7 @@ export function TopicLayout() {
         <TopicTab to="progress" label="Прогресс" icon={<GraduationCap size={16} />} />
       </nav>
       <Outlet />
-      {showEdit && <EditTopicModal topic={topic.data} close={() => setShowEdit(false)} onDeleted={() => navigate('/')} />}
+      {showEdit && <EditTopicModal topic={topic.data} close={() => setShowEdit(false)} onDeleted={onDeleted} />}
     </div>
   )
 }

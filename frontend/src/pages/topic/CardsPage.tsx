@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { BookOpen, Search } from 'lucide-react'
 import { EditCardModal, FlashcardRow, useCards, useDeleteCard, type Flashcard } from '@/modules/deck'
+import { learningKeys } from '@/modules/learning'
 import { EmptyState, ErrorState, InlineLoading } from '@/shared'
 import { useTopicId } from './useTopicId'
 
@@ -46,7 +48,11 @@ interface SearchableCardsProps {
 /** Список карточек с поиском по вопросу и ответу. */
 function SearchableCards({ topicId, cards, onEdit }: SearchableCardsProps) {
   const [search, setSearch] = useState('')
-  const remove = useDeleteCard(topicId)
+  const queryClient = useQueryClient()
+  const remove = useDeleteCard(topicId, () => {
+    queryClient.invalidateQueries({ queryKey: learningKeys.progress(topicId) })
+    queryClient.invalidateQueries({ queryKey: learningKeys.dashboard })
+  })
   const query = search.toLowerCase()
   const filtered = cards.filter((card) => `${card.front} ${card.back}`.toLowerCase().includes(query))
   const confirmRemove = (id: string) => window.confirm('Удалить карточку?') && remove.mutate(id)

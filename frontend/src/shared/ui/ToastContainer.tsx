@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
-import { Check } from 'lucide-react'
+import { AlertCircle, Check } from 'lucide-react'
 import { useToast } from './toast'
 
 /** Время показа уведомления, мс. */
 const TOAST_DURATION_MS = 3200
 
-/** Показывает текущее уведомление и скрывает его по таймеру. */
+/** Показывает текущее уведомление и скрывает его по таймеру; ошибки объявляются скринридеру сразу. */
 export function ToastContainer() {
   const { toast, clear } = useToast()
   useEffect(() => {
@@ -14,9 +14,10 @@ export function ToastContainer() {
     return () => window.clearTimeout(timer)
   }, [toast, clear])
   if (!toast) return null
+  const isError = toast.tone === 'error'
   return (
-    <div className={`toast toast-${toast.tone}`} role="status">
-      <Check size={16} /> {toast.message}
+    <div className={`toast toast-${toast.tone}`} role={isError ? 'alert' : 'status'}>
+      {isError ? <AlertCircle size={16} /> : <Check size={16} />} {toast.message}
     </div>
   )
 }

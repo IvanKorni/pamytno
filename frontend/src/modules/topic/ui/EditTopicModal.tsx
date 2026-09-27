@@ -20,10 +20,11 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
     onDeleted()
     close()
   })
+  const error = update.error ?? remove.error
   const confirmRemove = () => window.confirm('Удалить тему вместе с материалами и карточками?') && remove.mutate()
   return (
     <Modal title="Настройки темы" close={close}>
-      {update.error && <InlineError message={update.error.message} />}
+      {error && <InlineError message={error.message} />}
       <div className="form-stack">
         <label>
           Название

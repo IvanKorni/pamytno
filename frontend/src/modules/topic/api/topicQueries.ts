@@ -38,14 +38,15 @@ export function useUpdateTopic(topicId: string, onUpdated: () => void) {
   })
 }
 
-/** Удаление темы; после успеха список тем перечитывается. */
+/** Удаление темы; после успеха тема убирается из кеша, а список тем перечитывается. */
 export function useDeleteTopic(topicId: string, onDeleted: () => void) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () => deleteTopic(topicId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: topicKeys.all })
       onDeleted()
+      queryClient.removeQueries({ queryKey: topicKeys.detail(topicId) })
+      queryClient.invalidateQueries({ queryKey: topicKeys.all })
     },
   })
 }
