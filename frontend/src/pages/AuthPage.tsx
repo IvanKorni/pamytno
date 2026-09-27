@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useSignIn } from '@/modules/identity'
 import { InlineError } from '@/shared'
 
@@ -23,12 +23,15 @@ const TEXTS = {
   },
 }
 
-/** Экран входа или регистрации по email и паролю. */
+/**
+ * Экран входа или регистрации по email и паролю. После входа маршрутизатор сам вернёт пользователя
+ * на исходный адрес; ссылка на соседний экран этот адрес сохраняет.
+ */
 export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
-  const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const signIn = useSignIn(mode, () => navigate('/'))
+  const signIn = useSignIn(mode)
   const texts = TEXTS[mode]
   return (
     <div className="auth-page">
@@ -67,7 +70,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           </button>
         </form>
         <p className="auth-switch">
-          {texts.switchText} <Link to={texts.switchTo}>{texts.switchLink}</Link>
+          {texts.switchText} <Link to={texts.switchTo} state={location.state}>{texts.switchLink}</Link>
         </p>
       </div>
     </div>

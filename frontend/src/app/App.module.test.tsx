@@ -74,4 +74,21 @@ describe('Приложение', () => {
     expect(await screen.findByText('Здесь пока пусто')).toBeInTheDocument()
     expect(screen.queryByText('Транзакции PostgreSQL')).not.toBeInTheDocument()
   })
+
+  it('после входа возвращает на адрес, который открывали без входа', async () => {
+    // given
+    backend.on('POST', '/auth/login', { accessToken: 'new-token', tokenType: 'Bearer', expiresIn: 3600, userId: 'u' })
+    backend.on('GET', '/topics/topic-1', topic())
+    backend.on('GET', '/topics/topic-1/progress', progress())
+    backend.on('GET', '/topics/topic-1/cards', [])
+    renderApp(backend, '/topics/topic-1/cards', { signedIn: false })
+
+    // when
+    await userEvent.type(await screen.findByLabelText('Электронная почта'), TEST_USER.email)
+    await userEvent.type(screen.getByLabelText('Пароль'), 'correct-horse')
+    await userEvent.click(screen.getByRole('button', { name: 'Войти' }))
+
+    // then
+    expect(await screen.findByText('Карточек пока нет')).toBeInTheDocument()
+  })
 })

@@ -13,10 +13,9 @@ export interface Credentials {
 /**
  * Вход или регистрация: сохраняет выданный токен и загружает профиль.
  *
- * @param mode      что делает форма — входит или регистрирует
- * @param onSuccess что сделать после успешного входа, например перейти на главную
+ * @param mode что делает форма — входит или регистрирует
  */
-export function useSignIn(mode: 'login' | 'register', onSuccess: (user: User) => void) {
+export function useSignIn(mode: 'login' | 'register') {
   const setUser = useAuth((state) => state.setUser)
   return useMutation({
     mutationFn: async ({ email, password }: Credentials) => {
@@ -24,9 +23,6 @@ export function useSignIn(mode: 'login' | 'register', onSuccess: (user: User) =>
       tokenStorage.save(token.accessToken)
       return getCurrentUser()
     },
-    onSuccess: (user) => {
-      setUser(user)
-      onSuccess(user)
-    },
+    onSuccess: (user: User) => setUser(user),
   })
 }

@@ -4,7 +4,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { BookOpen, ChevronRight, CircleHelp, FileText, GraduationCap, Play } from 'lucide-react'
 import { learningKeys, useTopicProgress } from '@/modules/learning'
 import { EditTopicModal, useTopic, type Topic } from '@/modules/topic'
-import { ErrorState, formatPercent, PageLoading, Stat } from '@/shared'
+import { ErrorState, formatPercent, HttpError, PageLoading, Stat } from '@/shared'
 import { useTopicId } from './useTopicId'
 
 /** Каркас экранов темы: шапка, статистика, вкладки и вложенный экран. */
@@ -19,7 +19,8 @@ export function TopicLayout() {
     navigate('/')
   }
   if (topic.isLoading) return <PageLoading />
-  if (topic.isError || !topic.data) return <ErrorState />
+  if (topic.error instanceof HttpError && topic.error.status === 404) return <TopicNotFound />
+  if (topic.isError || !topic.data) return <ErrorState onRetry={() => topic.refetch()} />
   return (
     <div className="content-wrap topic-wrap">
       <div className="topic-breadcrumb">
@@ -37,6 +38,21 @@ export function TopicLayout() {
       <Outlet />
       {showEdit && <EditTopicModal topic={topic.data} close={() => setShowEdit(false)} onDeleted={onDeleted} />}
     </div>
+  )
+}
+
+/** Тема не найдена: её удалили или она принадлежит другому пользователю — backend в обоих случаях отвечает 404. */
+function TopicNotFound() {
+  return (
+    <ErrorState
+      title="Тема не найдена"
+      message="Возможно, её удалили. Вернитесь к обзору и выберите другую тему."
+      action={
+        <Link className="button button-primary" to="/">
+          К обзору
+        </Link>
+      }
+    />
   )
 }
 

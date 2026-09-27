@@ -1,12 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { App } from './app/App'
+import { createQueryClient } from './app/queryClient'
 import './app/styles.css'
 
-/** Кеш запросов: данные считаются свежими 20 секунд, неудачный запрос повторяется один раз. */
-const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 20_000, retry: 1 } } })
+const queryClient = createQueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
