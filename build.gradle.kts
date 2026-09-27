@@ -1,5 +1,6 @@
 plugins {
     java
+    checkstyle
     id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -11,6 +12,7 @@ description = "Памятно — backend для изучения материа
 val versions = mapOf(
     "springModulith" to "1.4.13",
     "archunit" to "1.5.1",
+    "checkstyle" to "14.1.0",
 )
 
 java {
@@ -60,6 +62,26 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+/*
+──────────────────────────────────────────────────────
+============== Checkstyle ==============
+──────────────────────────────────────────────────────
+*/
+
+checkstyle {
+    toolVersion = versions.getValue("checkstyle")
+    maxWarnings = 0
+    isIgnoreFailures = false
+}
+
+tasks.checkstyleTest {
+    configFile = file("config/checkstyle/checkstyle-test.xml")
+}
+
+tasks.withType<Checkstyle> {
+    exclude { it.file.absolutePath.contains("${File.separator}build${File.separator}generated${File.separator}") }
 }
 
 tasks.withType<JavaCompile> {

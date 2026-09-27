@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Правила Checkstyle для основного кода «Памятно».
+    Цели: маленькие классы и методы, документация на русском у каждого класса и метода,
+    единый стиль. Меняя правило, обнови docs/rules/code-style.md.
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Сгенерированный код (OpenAPI, MapStruct) не проверяем -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value=".*[\\/]build[\\/]generated.*$"/>
+    </module>
+    <module name="SuppressWarningsFilter"/>
+
+    <!-- Размер файла -->
+    <module name="FileLength">
+        <property name="max" value="200"/>
+    </module>
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|https?://"/>
+    </module>
+    <module name="FileTabCharacter"/>
+    <module name="NewlineAtEndOfFile"/>
+
+    <module name="TreeWalker">
+        <module name="SuppressWarningsHolder"/>
+
+        <!-- ===== Документация: каждый класс и метод описан ===== -->
+        <module name="MissingJavadocType">
+            <property name="scope" value="private"/>
+        </module>
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="private"/>
+            <property name="minLineCount" value="-1"/>
+            <property name="allowMissingPropertyJavadoc" value="false"/>
+            <property name="allowedAnnotations" value="Generated"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="tokens" value="ENUM_CONSTANT_DEF"/>
+        </module>
+        <module name="JavadocMethod">
+            <property name="accessModifiers" value="public, protected, package, private"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="allowMissingReturnTag" value="true"/>
+            <property name="validateThrows" value="false"/>
+        </module>
+        <module name="JavadocType">
+            <property name="allowMissingParamTags" value="true"/>
+        </module>
+        <module name="JavadocMissingWhitespaceAfterAsterisk"/>
+        <module name="InvalidJavadocPosition"/>
+        <module name="NonEmptyAtclauseDescription"/>
+        <module name="AtclauseOrder"/>
+        <module name="JavadocBlockTagLocation"/>
+        <module name="JavadocContentLocation"/>
+        <module name="MissingJavadocPackage"/>
+
+        <!-- ===== Размер и сложность: ничего не расползается ===== -->
+        <module name="MethodLength">
+            <property name="max" value="25"/>
+            <property name="countEmpty" value="false"/>
+        </module>
+        <module name="JavaNCSS">
+            <property name="methodMaximum" value="15"/>
+            <property name="classMaximum" value="100"/>
+            <property name="fileMaximum" value="120"/>
+        </module>
+        <module name="ExecutableStatementCount">
+            <property name="max" value="15"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="5"/>
+            <property name="ignoreOverriddenMethods" value="true"/>
+        </module>
+        <module name="RecordComponentNumber">
+            <property name="max" value="8"/>
+        </module>
+        <module name="CyclomaticComplexity">
+            <property name="max" value="6"/>
+        </module>
+        <module name="NPathComplexity">
+            <property name="max" value="50"/>
+        </module>
+        <module name="BooleanExpressionComplexity">
+            <property name="max" value="3"/>
+        </module>
+        <module name="NestedIfDepth">
+            <property name="max" value="1"/>
+        </module>
+        <module name="NestedForDepth">
+            <property name="max" value="1"/>
+        </module>
+        <module name="NestedTryDepth">
+            <property name="max" value="1"/>
+        </module>
+        <module name="ReturnCount">
+            <property name="max" value="3"/>
+        </module>
+        <module name="ClassFanOutComplexity">
+            <property name="max" value="15"/>
+        </module>
+        <module name="ClassDataAbstractionCoupling">
+            <property name="max" value="7"/>
+        </module>
+        <module name="AnonInnerLength">
+            <property name="max" value="15"/>
+        </module>
+        <module name="LambdaBodyLength">
+            <property name="max" value="10"/>
+        </module>
+        <module name="OuterTypeNumber"/>
+
+        <!-- ===== Импорты ===== -->
+        <module name="AvoidStarImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="sun, javax.validation, javax.persistence, javax.annotation"/>
+        </module>
+
+        <!-- ===== Именование ===== -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+        <module name="TypeName"/>
+        <module name="MethodName"/>
+        <module name="MemberName"/>
+        <module name="ParameterName"/>
+        <module name="LambdaParameterName"/>
+        <module name="LocalVariableName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="StaticVariableName"/>
+        <module name="ConstantName"/>
+        <module name="RecordComponentName"/>
+        <module name="ClassTypeParameterName"/>
+        <module name="MethodTypeParameterName"/>
+        <module name="AbbreviationAsWordInName">
+            <property name="allowedAbbreviationLength" value="1"/>
+            <property name="ignoreStaticFinal" value="true"/>
+        </module>
+
+        <!-- ===== Блоки и выражения ===== -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+        <module name="EmptyCatchBlock"/>
+        <module name="EmptyStatement"/>
+        <module name="EqualsHashCode"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+            <property name="setterCanReturnItsClass" value="true"/>
+            <property name="ignoreAbstractMethods" value="true"/>
+        </module>
+        <module name="InnerAssignment"/>
+        <module name="MagicNumber">
+            <property name="ignoreHashCodeMethod" value="true"/>
+            <property name="ignoreAnnotation" value="true"/>
+            <property name="ignoreFieldDeclaration" value="true"/>
+        </module>
+        <module name="MissingSwitchDefault"/>
+        <module name="FallThrough"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="OneStatementPerLine"/>
+        <module name="ModifiedControlVariable"/>
+        <module name="DefaultComesLast"/>
+        <module name="OverloadMethodsDeclarationOrder"/>
+        <module name="UnnecessarySemicolonInEnumeration"/>
+        <module name="UnnecessarySemicolonInTryWithResources"/>
+        <module name="UnusedLocalVariable"/>
+
+        <!-- ===== Дизайн классов ===== -->
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor">
+            <property name="ignoreAnnotatedBy" value="SpringBootApplication"/>
+        </module>
+        <module name="InterfaceIsType"/>
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="false"/>
+        </module>
+        <module name="OneTopLevelClass"/>
+
+        <!-- ===== Модификаторы и форматирование ===== -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+        <module name="UpperEll"/>
+        <module name="ArrayTypeStyle"/>
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
+        </module>
+        <module name="WhitespaceAfter"/>
+        <module name="NoWhitespaceBefore"/>
+        <module name="NoWhitespaceAfter"/>
+        <module name="MethodParamPad"/>
+        <module name="ParenPad"/>
+        <module name="OperatorWrap"/>
+        <module name="EmptyLineSeparator">
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="allowMultipleEmptyLines" value="false"/>
+        </module>
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="lineWrappingIndentation" value="8"/>
+            <property name="forceStrictCondition" value="false"/>
+        </module>
+
+        <!-- ===== Запреты ===== -->
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="System\.(out|err)\.print"/>
+            <property name="message" value="Используй SLF4J-логгер вместо System.out/err."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="\.printStackTrace\(\)"/>
+            <property name="message" value="Логируй исключение через SLF4J вместо printStackTrace()."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="@(Autowired)\s*$"/>
+            <property name="message" value="Внедряй зависимости через конструктор (@RequiredArgsConstructor)."/>
+        </module>
+    </module>
+</module>
