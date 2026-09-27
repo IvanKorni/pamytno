@@ -5,13 +5,13 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * Готовит внешнее окружение для Spring-контекста теста: общий контейнер PostgreSQL
- * и временный каталог файлового хранилища.
+ * Готовит внешнее окружение для Spring-контекста теста: общий контейнер PostgreSQL,
+ * временный каталог файлового хранилища и WireMock вместо YouTube.
  */
 public class TestEnvironmentInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     /**
-     * Прописывает в окружение параметры подключения к контейнеру и каталог хранилища.
+     * Прописывает в окружение параметры подключения к контейнеру, каталог хранилища и адрес WireMock.
      *
      * @param context инициализируемый контекст
      */
@@ -22,7 +22,8 @@ public class TestEnvironmentInitializer implements ApplicationContextInitializer
                 "spring.datasource.url=" + postgres.getJdbcUrl(),
                 "spring.datasource.username=" + postgres.getUsername(),
                 "spring.datasource.password=" + postgres.getPassword(),
-                "pamytno.topic.storage.root=" + TestStorage.root()
+                "pamytno.topic.storage.root=" + TestStorage.root(),
+                "pamytno.topic.youtube.base-url=" + TestWireMock.started().baseUrl()
         ).applyTo(context.getEnvironment());
     }
 }

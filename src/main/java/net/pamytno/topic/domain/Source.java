@@ -111,6 +111,21 @@ public class Source extends BaseEntity {
     }
 
     /**
+     * Источник из видео YouTube.
+     *
+     * @param topic тема
+     * @param url   ссылка на видео
+     * @param name  название, может быть {@code null}
+     * @param now   момент создания
+     * @return новый источник
+     */
+    public static Source youtube(Topic topic, String url, String name, Instant now) {
+        var source = new Source(topic, SourceType.YOUTUBE, name, now);
+        source.originalUrl = url;
+        return source;
+    }
+
+    /**
      * Начинает обработку.
      *
      * @param now момент начала

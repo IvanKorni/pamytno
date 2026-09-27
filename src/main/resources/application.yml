@@ -46,3 +46,6 @@ pamytno:
   topic:
     storage:
       root: ${STORAGE_ROOT:./storage}
+    youtube:
+      base-url: ${YOUTUBE_BASE_URL:https://www.youtube.com}
+      preferred-languages: ${YOUTUBE_LANGUAGES:ru,en}

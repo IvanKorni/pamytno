@@ -34,4 +34,6 @@
   События из **асинхронных** обработчиков — только через `CapturedEvents.await(...)`: `Scenario` и `PublishedEvents`
   Spring Modulith привязаны к потоку (InheritableThreadLocal) и теряют события из уже созданных потоков пула.
 - Внешние HTTP-системы (YouTube, LLM) — WireMock или заглушка `AiProvider`; реальная сеть в тестах запрещена.
+  Общий WireMock-сервер — `TestWireMock`, его адрес прописывает `TestEnvironmentInitializer`;
+  заглушки разных тестов различаются уникальными идентификаторами (например, случайный `videoId`).
 - Тестовые данные собираются фабриками в `src/test/java/.../support`.

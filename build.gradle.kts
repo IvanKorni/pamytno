@@ -20,6 +20,7 @@ val versions = mapOf(
     "mapstruct" to "1.6.3",
     "lombokMapstructBinding" to "0.2.0",
     "pdfbox" to "3.0.8",
+    "wiremock" to "3.13.2",
 )
 
 java {
@@ -76,6 +77,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("com.tngtech.archunit:archunit-junit5:${versions["archunit"]}")
     testImplementation("org.awaitility:awaitility")
+    testImplementation("org.wiremock:wiremock-standalone:${versions["wiremock"]}")
     testCompileOnly("org.projectlombok:lombok")
     testAnnotationProcessor("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
