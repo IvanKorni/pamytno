@@ -4,7 +4,9 @@ import net.pamytno.deck.domain.Question;
 import net.pamytno.deck.domain.QuestionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -31,4 +33,22 @@ public interface QuestionRepository extends JpaRepository<Question, UUID> {
      */
     List<Question> findAllByTopicIdAndUserIdAndStatusOrderByCreatedAtAscIdAsc(UUID topicId, UUID userId,
                                                                               QuestionStatus status);
+
+    /**
+     * Вопрос пользователя.
+     *
+     * @param id     идентификатор вопроса
+     * @param userId владелец
+     * @return вопрос, если есть и принадлежит пользователю
+     */
+    Optional<Question> findByIdAndUserId(UUID id, UUID userId);
+
+    /**
+     * Вопросы пользователя из списка.
+     *
+     * @param ids    идентификаторы вопросов
+     * @param userId владелец
+     * @return найденные вопросы пользователя
+     */
+    List<Question> findAllByIdInAndUserId(Collection<UUID> ids, UUID userId);
 }

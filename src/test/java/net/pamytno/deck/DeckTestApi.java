@@ -93,4 +93,20 @@ record DeckTestApi(MockMvc mockMvc, ObjectMapper objectMapper, TopicMaterialServ
         return await().atMost(TIMEOUT).until(() -> getJson(userId, "/api/generation-jobs/{id}", jobId),
                 job -> !"PROCESSING".equals(job.get("status").asText()));
     }
+
+    /**
+     * Готовит тему с текстом и сгенерированными заглушкой вопросами.
+     *
+     * @param scenario сценарий Spring Modulith
+     * @param topicId  тема
+     * @param userId   владелец
+     * @param content  единый текст темы; по вопросу на предложение
+     * @return вопросы темы
+     * @throws Exception при ошибке MockMvc
+     */
+    JsonNode prepareQuestions(Scenario scenario, UUID topicId, UUID userId, String content) throws Exception {
+        prepareContent(scenario, topicId, userId, content);
+        awaitJob(userId, idOf(generateQuestions(userId, topicId)));
+        return getJson(userId, "/api/topics/{id}/questions", topicId);
+    }
 }

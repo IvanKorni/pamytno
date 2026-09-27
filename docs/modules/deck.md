@@ -13,7 +13,8 @@
 | `domain` | `TextChunk`, `ChunkSpan` | неизменяемый фрагмент версии текста со смещениями |
 | `domain` | `TextChunker` | деление текста: абзац → строка → предложение → жёсткий разрез |
 | `domain` | `GenerationJob`, `GenerationJobType`, `GenerationJobStatus` | асинхронная задача генерации |
-| `domain` | `Question`, `QuestionStatus` | вопрос с цитатой-источником и ссылкой на фрагмент |
+| `domain` | `Question`, `QuestionStatus` | вопрос с цитатой-источником и ссылкой на фрагмент; после карточки не меняется |
+| `domain` | `QuestionDecision` | решение «изучать / не изучать» |
 | `repository` | `TopicMaterialRepository`, `TextChunkRepository` | проекция и фрагменты |
 | `repository` | `GenerationJobRepository`, `QuestionRepository` | задачи и вопросы |
 | `service` | `TopicMaterialService` | приём новой версии текста (идемпотентно), фрагменты актуальной версии |
@@ -21,14 +22,20 @@
 | `service` | `QuestionGenerationService`, `QuestionGenerationRequested` | проверка текста и постановка задачи |
 | `service` | `QuestionGenerationWorker` | вызовы AI по фрагментам вне транзакции, логи старта/финиша/длительности |
 | `service` | `QuestionWriter` | сохранение вопросов фрагмента |
+| `service` | `QuestionQueryService` | вопросы темы с фильтром по статусу, вопрос владельца |
+| `service` | `QuestionReviewService` | решение поштучно и массово (всё или ничего), правка формулировки |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
 | `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер |
 | `exception` | `TopicContentNotReadyException` | 409 `TOPIC_CONTENT_NOT_READY` |
 | `exception` | `GenerationInProgressException` | 409 `GENERATION_IN_PROGRESS` |
 | `exception` | `GenerationJobNotFoundException` | 404 `GENERATION_JOB_NOT_FOUND` |
+| `exception` | `QuestionNotFoundException` | 404 `QUESTION_NOT_FOUND` |
+| `exception` | `QuestionAlreadyHasCardException` | 409 `QUESTION_ALREADY_HAS_CARD` |
 | `mapper` | `GenerationJobMapper` | задача → DTO |
+| `mapper` | `QuestionMapper` | вопрос → DTO, статус и решение из запроса |
 | `rest` | `QuestionGenerationRestControllerV1` | `POST /api/topics/{id}/questions/generate` |
 | `rest` | `GenerationJobRestControllerV1` | `GET /api/generation-jobs/{id}` |
+| `rest` | `QuestionRestControllerV1` | список, правка, approve/reject, массовое решение |
 | `config` | `DeckProperties` | `pamytno.deck.chunk-size` |
 | `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude |
 | `integration.ai` | `AiProvider` | интерфейс модели из ТЗ: `generateQuestions`, `generateCard` |
@@ -59,6 +66,11 @@
 |---|---|---|
 | POST | `/api/topics/{topicId}/questions/generate` | 202 `GenerationJobDto` |
 | GET | `/api/generation-jobs/{jobId}` | 200 `GenerationJobDto` |
+| GET | `/api/topics/{topicId}/questions?status=` | 200 `QuestionDto[]` |
+| PATCH | `/api/questions/{questionId}` | 200 `QuestionDto` |
+| POST | `/api/questions/{questionId}/approve` | 200 `QuestionDto` |
+| POST | `/api/questions/{questionId}/reject` | 200 `QuestionDto` |
+| POST | `/api/questions/decisions` | 200 `QuestionDto[]` |
 
 ## Настройки
 
