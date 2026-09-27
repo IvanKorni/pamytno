@@ -15,8 +15,9 @@
 | `domain` | `GenerationJob`, `GenerationJobType`, `GenerationJobStatus` | асинхронная задача генерации |
 | `domain` | `Question`, `QuestionStatus` | вопрос с цитатой-источником и ссылкой на фрагмент; после карточки не меняется |
 | `domain` | `QuestionDecision` | решение «изучать / не изучать» |
+| `domain` | `Flashcard` | карточка; цитата-источник переходит от вопроса |
 | `repository` | `TopicMaterialRepository`, `TextChunkRepository` | проекция и фрагменты |
-| `repository` | `GenerationJobRepository`, `QuestionRepository` | задачи и вопросы |
+| `repository` | `GenerationJobRepository`, `QuestionRepository`, `FlashcardRepository` | задачи, вопросы, карточки |
 | `service` | `TopicMaterialService` | приём новой версии текста (идемпотентно), фрагменты актуальной версии |
 | `service` | `GenerationJobService` | запуск (одна задача вида на тему), завершение, чтение задач |
 | `service` | `QuestionGenerationService`, `QuestionGenerationRequested` | проверка текста и постановка задачи |
@@ -24,18 +25,25 @@
 | `service` | `QuestionWriter` | сохранение вопросов фрагмента |
 | `service` | `QuestionQueryService` | вопросы темы с фильтром по статусу, вопрос владельца |
 | `service` | `QuestionReviewService` | решение поштучно и массово (всё или ничего), правка формулировки |
+| `service` | `CardGenerationService`, `CardGenerationRequested` | проверка одобренных вопросов и постановка задачи |
+| `service` | `CardGenerationWorker` | вызовы AI по вопросам вне транзакции |
+| `service` | `CardContextBuilder` | контекст карточки: цитата + фрагмент единого текста |
+| `service` | `FlashcardWriter` | сохранение карточки, `CARD_CREATED`, событие `FlashcardCreated` |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
-| `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер |
+| `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер вопросов |
+| `listener` | `CardGenerationRequestedListener` | `@Async` после коммита запускает воркер карточек |
 | `exception` | `TopicContentNotReadyException` | 409 `TOPIC_CONTENT_NOT_READY` |
 | `exception` | `GenerationInProgressException` | 409 `GENERATION_IN_PROGRESS` |
 | `exception` | `GenerationJobNotFoundException` | 404 `GENERATION_JOB_NOT_FOUND` |
 | `exception` | `QuestionNotFoundException` | 404 `QUESTION_NOT_FOUND` |
 | `exception` | `QuestionAlreadyHasCardException` | 409 `QUESTION_ALREADY_HAS_CARD` |
+| `exception` | `NoApprovedQuestionsException` | 409 `NO_APPROVED_QUESTIONS` |
 | `mapper` | `GenerationJobMapper` | задача → DTO |
 | `mapper` | `QuestionMapper` | вопрос → DTO, статус и решение из запроса |
 | `rest` | `QuestionGenerationRestControllerV1` | `POST /api/topics/{id}/questions/generate` |
 | `rest` | `GenerationJobRestControllerV1` | `GET /api/generation-jobs/{id}` |
 | `rest` | `QuestionRestControllerV1` | список, правка, approve/reject, массовое решение |
+| `rest` | `CardGenerationRestControllerV1` | `POST /api/topics/{id}/cards/generate` |
 | `config` | `DeckProperties` | `pamytno.deck.chunk-size` |
 | `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude |
 | `integration.ai` | `AiProvider` | интерфейс модели из ТЗ: `generateQuestions`, `generateCard` |
@@ -53,12 +61,14 @@
 | `text_chunks` | фрагменты по версиям; старые версии хранятся — на них ссылаются вопросы |
 | `generation_jobs` | задачи генерации вопросов и карточек |
 | `questions` | вопросы; `chunk_id` → `text_chunks` |
+| `flashcards` | карточки; `question_id` → `questions` |
 
 ## События
 
 | Направление | Событие | Реакция |
 |---|---|---|
 | слушает | `TopicContentPrepared` | строит фрагменты новой версии |
+| публикует | `FlashcardCreated(cardId, topicId, userId, front, back)` | карточка создана |
 
 ## Эндпоинты
 
@@ -71,6 +81,7 @@
 | POST | `/api/questions/{questionId}/approve` | 200 `QuestionDto` |
 | POST | `/api/questions/{questionId}/reject` | 200 `QuestionDto` |
 | POST | `/api/questions/decisions` | 200 `QuestionDto[]` |
+| POST | `/api/topics/{topicId}/cards/generate` | 202 `GenerationJobDto` |
 
 ## Настройки
 
