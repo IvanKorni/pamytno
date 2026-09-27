@@ -63,4 +63,27 @@ public interface CardProgressRepository extends JpaRepository<CardProgress, UUID
             where p.userId = :userId and p.topicId = :topicId and p.nextReviewAt <= :now
             order by p.nextReviewAt asc, p.createdAt asc""")
     List<CardProgress> findDue(UUID userId, UUID topicId, Instant now, Limit limit);
+
+    /**
+     * Счётчики прогресса по каждой теме пользователя.
+     *
+     * @param userId        пользователь
+     * @param masteredStage этап изученной карточки
+     * @param now           текущий момент
+     * @param endOfDay      начало следующего дня
+     * @return счётчики тем, в которых есть карточки
+     */
+    @Query("""
+            select new net.pamytno.learning.repository.ProgressCounts(
+                p.topicId,
+                count(p),
+                coalesce(sum(case when p.totalReviews = 0 then 1 else 0 end), 0),
+                coalesce(sum(case when p.stage >= :masteredStage then 1 else 0 end), 0),
+                coalesce(sum(case when p.nextReviewAt <= :now then 1 else 0 end), 0),
+                coalesce(sum(case when p.nextReviewAt < :endOfDay then 1 else 0 end), 0))
+            from CardProgress p
+            where p.userId = :userId
+            group by p.topicId
+            order by p.topicId""")
+    List<ProgressCounts> countByTopic(UUID userId, int masteredStage, Instant now, Instant endOfDay);
 }

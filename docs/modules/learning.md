@@ -12,12 +12,16 @@
 | `domain` | `CardRef`, `CardSnapshot` | ссылка на карточку `deck` и копия её текста |
 | `domain` | `ReviewResult` | ответ REMEMBER / FORGOT / CONTINUE |
 | `domain` | `LearningSession` | учебная сессия: карточек на старте, вспомнено, забыто |
-| `repository` | `CardProgressRepository` | прогресс по карточке, число карточек к повторению |
+| `domain` | `ProgressStats` | счётчики прогресса и процент изученных; сумма наборов |
+| `domain` | `TopicProgress`, `Dashboard` | прогресс темы; итог и прогресс тем пользователя |
+| `repository` | `CardProgressRepository` | прогресс по карточке, очередь повторения, счётчики по темам |
+| `repository` | `ProgressCounts` | счётчики темы из одного агрегатного запроса |
 | `repository` | `LearningSessionRepository` | сессии пользователя |
 | `service` | `CardProgressRegistry` | синхронизация с карточками `deck` (идемпотентно) |
 | `service` | `LearningSessionService` | начало, чтение, завершение сессий |
 | `service` | `DueReviewService` | очередь повторения темы, самые давние первыми |
 | `service` | `ReviewService`, `ReviewOutcome` | ответ по карточке + учёт в сессии той же темы |
+| `service` | `ProgressService` | прогресс темы и dashboard; «сегодня» — в поясе приложения |
 | `listener` | `FlashcardEventsListener` | `FlashcardCreated/Updated/Deleted` |
 | `exception` | `LearningSessionNotFoundException` | 404 `LEARNING_SESSION_NOT_FOUND` |
 | `exception` | `LearningSessionCompletedException` | 409 `LEARNING_SESSION_COMPLETED` |
@@ -25,8 +29,10 @@
 | `exception` | `CardProgressNotFoundException` | 404 `CARD_PROGRESS_NOT_FOUND` |
 | `mapper` | `LearningSessionMapper` | сессия → DTO |
 | `mapper` | `ReviewMapper` | карточка к повторению и итог ответа → DTO |
+| `mapper` | `ProgressMapper` | прогресс темы и dashboard → DTO |
 | `rest` | `LearningSessionRestControllerV1` | старт, чтение, завершение сессии |
 | `rest` | `ReviewRestControllerV1` | очередь повторения и ответы |
+| `rest` | `ProgressRestControllerV1` | прогресс темы и dashboard |
 
 Контракт: `openapi/learning-api.yaml`.
 
@@ -54,3 +60,5 @@
 | POST | `/api/topics/{topicId}/learning-sessions` | 201 `LearningSessionDto` |
 | GET | `/api/learning-sessions/{sessionId}` | 200 `LearningSessionDto` |
 | POST | `/api/learning-sessions/{sessionId}/complete` | 200 `LearningSessionDto` |
+| GET | `/api/topics/{topicId}/progress` | 200 `TopicProgressDto` |
+| GET | `/api/dashboard` | 200 `DashboardDto` |
