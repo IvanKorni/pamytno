@@ -1,0 +1,31 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: pamytno
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB:pamytno}
+    username: ${POSTGRES_USER:pamytno}
+    password: ${POSTGRES_PASSWORD:pamytno}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  modulith:
+    events:
+      completion-mode: delete
+      republish-outstanding-events-on-restart: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
