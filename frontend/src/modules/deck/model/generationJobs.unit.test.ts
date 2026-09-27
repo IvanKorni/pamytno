@@ -14,16 +14,19 @@ const job = (status: GenerationJob['status'], errorMessage?: string): Generation
 
 describe('задачи генерации', () => {
   it('опрашивает задачу, пока она не завершилась', () => {
+    // when / then
     expect(jobPollInterval(undefined)).toBe(JOB_POLL_INTERVAL_MS)
     expect(jobPollInterval(job('PROCESSING'))).toBe(JOB_POLL_INTERVAL_MS)
   })
 
   it('перестаёт опрашивать задачу после READY и ERROR', () => {
+    // when / then
     expect(jobPollInterval(job('READY'))).toBe(false)
     expect(jobPollInterval(job('ERROR'))).toBe(false)
   })
 
   it('берёт сообщение об ошибке из задачи, а без него — запасное', () => {
+    // when / then
     expect(jobFailure(job('ERROR', 'AI недоступен'), 'Не удалось')).toBe('AI недоступен')
     expect(jobFailure(job('ERROR'), 'Не удалось')).toBe('Не удалось')
     expect(jobFailure(job('READY'), 'Не удалось')).toBeUndefined()

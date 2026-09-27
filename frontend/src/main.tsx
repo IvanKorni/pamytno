@@ -6,6 +6,7 @@ import { App } from './app/App'
 import { createQueryClient } from './app/queryClient'
 import './app/styles.css'
 
+/** Кеш запросов приложения. */
 const queryClient = createQueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

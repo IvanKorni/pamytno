@@ -5,6 +5,7 @@ const integration = baseUrl ? describe : describe.skip
 
 integration('HTTP-путь frontend → backend', () => {
   it('регистрирует пользователя, создаёт тему и принимает текстовый источник', async () => {
+    // given
     const suffix = Date.now()
     const email = `frontend-integration-${suffix}@example.com`
     const auth = await fetch(`${baseUrl}/api/auth/register`, {
@@ -12,6 +13,7 @@ integration('HTTP-путь frontend → backend', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password: 'test-password-123' }),
     })
+    // then
     expect(auth.status).toBe(201)
     const token = (await auth.json()).accessToken as string
     const topic = await fetch(`${baseUrl}/api/topics`, {

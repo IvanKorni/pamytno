@@ -16,7 +16,12 @@ description: Порядок работы над backend и frontend «Памят
   локальный `useState` / `useReducer`.
 - Контракты фронта следуют `openapi/*.yaml`; даты и spaced repetition рассчитывает только backend.
 - Долгие операции (источники, генерация вопросов и карточек) показывают loading/success/error и опрашивают backend по id задачи.
-- Unit-тесты покрывают чистые функции, module-тесты — API-слой и границы компонентов, integration-тесты — HTTP-путь с `VITE_PAMYTNO_INTEGRATION_URL`.
+- Слои `app → pages → modules → shared`; модули `identity`, `topic`, `deck`, `learning` не импортируют друг друга
+  и открыты только через `index.ts` — это проверяют `src/architecture/*` (не отключать и не ослаблять).
+- JSDoc на русском у каждой функции, компонента, типа и константы; лимиты размера — ESLint (функция 40 строк,
+  файл 200, сложность 8). Упёрся — дроби.
+- Unit-тесты покрывают чистые функции, module-тесты — экран целиком через `renderApp` и `FakeBackend`,
+  integration-тесты — HTTP-путь с `VITE_PAMYTNO_INTEGRATION_URL`. Исправил баг — сначала тест, который его ловит.
 - `npm run check` обязателен перед коммитом; результат production-сборки не коммитится.
 
 ## Договорённости с владельцем проекта

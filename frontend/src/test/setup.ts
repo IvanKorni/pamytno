@@ -5,6 +5,7 @@ import { useAuth } from '@/modules/identity'
 import { useToast } from '@/shared'
 
 afterEach(() => {
+  if (typeof window === 'undefined') return
   cleanup()
   localStorage.clear()
   sessionStorage.clear()
