@@ -13,12 +13,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Модульный тест {@code identity}: регистрация и вход через HTTP с настоящей БД и JWT.
+ * Модульный тест {@code identity}: регистрация, вход и профиль через HTTP с настоящей БД и JWT.
  */
 @ModuleTest
 @RequiredArgsConstructor
@@ -71,6 +72,19 @@ class IdentityModuleTest {
         login(email, "wrong-password")
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("INVALID_CREDENTIALS"));
+    }
+
+    @Test
+    @DisplayName("Профиль доступен по выданному токену")
+    void currentUser_returnsProfile_forIssuedToken() throws Exception {
+        var email = uniqueEmail();
+        var body = register(email, PASSWORD).andReturn().getResponse().getContentAsString();
+        var token = objectMapper.readTree(body).get("accessToken").asText();
+
+        mockMvc.perform(get("/api/users/me").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.createdAt").isNotEmpty());
     }
 
     /**
