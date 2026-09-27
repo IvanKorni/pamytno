@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { generateCards, generateQuestions } from '../api/deckApi'
 import { deckKeys } from '../api/deckKeys'
 import { useDecideQuestion, useDecideQuestions, useQuestions } from '../api/questionQueries'
+import { useQuestionSelection } from './selection'
 import type { QuestionDecision } from './types'
 import { useGenerationRun } from './useGenerationRun'
 
@@ -14,8 +14,8 @@ import { useGenerationRun } from './useGenerationRun'
  */
 export function useQuestionsWorkflow(topicId: string, onCardsCreated: () => void) {
   const queryClient = useQueryClient()
-  const [selected, setSelected] = useState<string[]>([])
   const questions = useQuestions(topicId)
+  const [selected, setSelected] = useQuestionSelection(questions.data)
   const decideOne = useDecideQuestion(topicId)
   const decideMany = useDecideQuestions(topicId, () => setSelected([]))
   const refetch = (queryKey: readonly unknown[]) => queryClient.invalidateQueries({ queryKey })

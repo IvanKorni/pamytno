@@ -131,4 +131,21 @@ describe('Экран вопросов', () => {
     ready = true
     expect(await screen.findByText('Что такое MVCC?', {}, { timeout: 3000 })).toBeInTheDocument()
   }, 10_000)
+
+  it('не одобряет выбранный вопрос, который потом отклонили по одному', async () => {
+    // given
+    backend.on('GET', QUESTIONS, [question('q-1', 'Что такое MVCC?')])
+    backend.on('POST', '/questions/q-1/reject', question('q-1', 'Что такое MVCC?', 'REJECTED'))
+    renderApp(backend, '/topics/topic-1/questions')
+    await userEvent.click(await screen.findByRole('button', { name: 'Списком' }))
+    await userEvent.click(screen.getByRole('checkbox'))
+    await userEvent.click(screen.getByRole('button', { name: 'По одному' }))
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: 'Не изучать' }))
+
+    // then
+    await waitFor(() => expect(document.querySelector('.question-footer')).toHaveTextContent('0 вопросов к изучению'))
+    expect(screen.getByRole('button', { name: /Создать карточки/ })).toBeDisabled()
+  })
 })
