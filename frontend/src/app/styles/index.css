@@ -1,0 +1,17 @@
+/* Стили приложения: порядок файлов — порядок каскада */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+
+@import './base.css';
+@import './layout.css';
+@import './controls.css';
+@import './dashboard.css';
+@import './topic.css';
+@import './feedback.css';
+@import './questions.css';
+@import './cards.css';
+@import './progress.css';
+@import './forms.css';
+@import './learning.css';
+@import './auth.css';
+@import './loading.css';
+@import './responsive.css';

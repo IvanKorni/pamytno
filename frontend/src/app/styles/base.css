@@ -1,0 +1,93 @@
+/* Основа: переменные темы, сброс, типографика, видимый фокус */
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #202321;
+  background: #f7f7f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --ink: #202321;
+  --muted: #747a76;
+  --line: #e4e6df;
+  --surface: #fff;
+  --paper: #f7f7f4;
+  --green: #526e5c;
+  --green-dark: #3e5848;
+  --green-pale: #e8f0e7;
+  --orange: #d58145;
+  --orange-pale: #fff0e5;
+  --red: #b55e56;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--paper);
+}
+button,
+input,
+textarea {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+h1,
+h2,
+h3,
+strong {
+  font-family: 'Manrope', sans-serif;
+}
+h1 {
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.13;
+  letter-spacing: -0.04em;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 22px;
+  letter-spacing: -0.025em;
+  margin-bottom: 6px;
+}
+h3 {
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 12px;
+}
+.eyebrow,
+.question-label {
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 10px;
+  font-weight: 700;
+  color: #88908b;
+}
+.accent-text {
+  color: var(--orange) !important;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}

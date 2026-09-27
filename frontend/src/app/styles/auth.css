@@ -1,0 +1,43 @@
+/* Вход и регистрация */
+.auth-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 20px;
+  background: radial-gradient(circle at 50% 0, #eef4ec, transparent 45%), var(--paper);
+}
+.auth-card {
+  width: min(420px, 100%);
+  padding: 42px 38px 31px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 20px 60px #344d3a0d;
+}
+.brand-centered {
+  justify-content: center;
+  margin-bottom: 42px;
+}
+.auth-card .eyebrow {
+  text-align: center;
+}
+.auth-card h1 {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 27px;
+}
+.auth-card > .muted {
+  margin-bottom: 27px;
+  text-align: center;
+  font-size: 13px;
+}
+.auth-switch {
+  margin: 23px 0 0;
+  color: #818982;
+  text-align: center;
+  font-size: 12px;
+}
+.auth-switch a {
+  color: var(--green-dark);
+  font-weight: 700;
+}

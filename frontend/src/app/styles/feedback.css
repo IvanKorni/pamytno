@@ -1,0 +1,89 @@
+/* Состояния: пустое, ошибка, долгая операция */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+  padding: 32px;
+  text-align: center;
+  border: 1px dashed #d5d9d1;
+  border-radius: 14px;
+  background: #fbfbf9;
+}
+.empty-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 14px;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--green-dark);
+  background: var(--green-pale);
+}
+.empty-state h3 {
+  margin-bottom: 7px;
+}
+.empty-state p {
+  max-width: 400px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.error-state .empty-icon {
+  color: var(--red);
+  background: #f8e9e6;
+  font-weight: 800;
+  font-size: 20px;
+}
+.processing-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  overflow: hidden;
+  min-height: 98px;
+  margin-bottom: 16px;
+  padding: 19px;
+  border: 1px solid #e4e8e1;
+  border-radius: 13px;
+  background: #fff;
+}
+.processing-orb {
+  display: grid;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: var(--green-dark);
+  background: var(--green-pale);
+  border-radius: 12px;
+}
+.processing-card h3 {
+  margin: 0 0 4px;
+}
+.processing-card p {
+  margin: 0;
+  font-size: 12px;
+}
+.processing-count {
+  margin-left: auto;
+  font-size: 22px;
+  color: var(--green);
+}
+.processing-line {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--green), #d5e2d5, var(--green));
+  background-size: 200% 100%;
+  animation: loading-line 1.7s linear infinite;
+}
+.ellipsis {
+  display: inline-block;
+  width: 19px;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: blink 1.1s steps(3, end) infinite;
+}

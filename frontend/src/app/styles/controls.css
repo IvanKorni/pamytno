@@ -1,0 +1,77 @@
+/* Кнопки: основные, второстепенные, иконки, текстовые */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+.button-primary {
+  color: #fff;
+  background: var(--green);
+}
+.button-primary:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+}
+.button-dark {
+  color: #fff;
+  background: #232a26;
+}
+.button-dark:hover {
+  background: #121714;
+}
+.button-secondary {
+  color: #57615a;
+  border-color: var(--line);
+  background: #fff;
+}
+.button-secondary:hover {
+  border-color: #bdc5bc;
+  background: #f8faf7;
+}
+.button-wide {
+  width: 100%;
+}
+.icon-button {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: #79807b;
+  background: #fff;
+}
+.icon-button:hover {
+  color: var(--ink);
+  border-color: #bec6bc;
+}
+.icon-button.subtle {
+  border-color: transparent;
+  background: transparent;
+}
+.text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  color: var(--green-dark);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+}
+.text-button:hover {
+  color: var(--orange);
+}
+.text-button.danger {
+  color: var(--red);
+}
