@@ -49,3 +49,5 @@ pamytno:
     youtube:
       base-url: ${YOUTUBE_BASE_URL:https://www.youtube.com}
       preferred-languages: ${YOUTUBE_LANGUAGES:ru,en}
+  deck:
+    chunk-size: ${AI_CHUNK_SIZE:6000}
