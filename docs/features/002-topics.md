@@ -34,4 +34,4 @@
 
 - Unit: `TopicTest`, `TopicDeletionServiceTest`.
 - Модульные: `TopicModuleTest` — создание, список, изоляция пользователей, PATCH, валидация, удаление + событие;
-  `DeckCleanupModuleTest` — реакция модуля `deck` на `TopicDeleted`.
+  `DeckCleanupModuleTest`, `LearningCleanupModuleTest` — реакция модулей `deck` и `learning` на `TopicDeleted`.

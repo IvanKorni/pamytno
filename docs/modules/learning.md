@@ -22,7 +22,9 @@
 | `service` | `DueReviewService` | очередь повторения темы, самые давние первыми |
 | `service` | `ReviewService`, `ReviewOutcome` | ответ по карточке + учёт в сессии той же темы |
 | `service` | `ProgressService` | прогресс темы и dashboard; «сегодня» — в поясе приложения |
+| `service` | `LearningCleanupService` | удаляет прогресс и сессии удалённой темы |
 | `listener` | `FlashcardEventsListener` | `FlashcardCreated/Updated/Deleted` |
+| `listener` | `TopicDeletedListener` | `TopicDeleted` (бин `learningTopicDeletedListener`) |
 | `exception` | `LearningSessionNotFoundException` | 404 `LEARNING_SESSION_NOT_FOUND` |
 | `exception` | `LearningSessionCompletedException` | 409 `LEARNING_SESSION_COMPLETED` |
 | `exception` | `LearningSessionTopicMismatchException` | 409 `LEARNING_SESSION_TOPIC_MISMATCH` |
@@ -50,6 +52,7 @@
 | слушает | `FlashcardCreated` | заводит прогресс на этапе 0, к повторению сразу |
 | слушает | `FlashcardUpdated` | обновляет копию текста |
 | слушает | `FlashcardDeleted` | удаляет прогресс |
+| слушает | `TopicDeleted` | удаляет прогресс карточек и сессии темы (`deck` удаляет карточки темы пачкой, без `FlashcardDeleted`) |
 
 ## Эндпоинты
 

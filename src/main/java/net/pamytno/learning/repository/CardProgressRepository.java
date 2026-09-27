@@ -3,6 +3,7 @@ package net.pamytno.learning.repository;
 import net.pamytno.learning.domain.CardProgress;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
@@ -86,4 +87,14 @@ public interface CardProgressRepository extends JpaRepository<CardProgress, UUID
             group by p.topicId
             order by p.topicId""")
     List<ProgressCounts> countByTopic(UUID userId, int masteredStage, Instant now, Instant endOfDay);
+
+    /**
+     * Удаляет прогресс всех карточек темы.
+     *
+     * @param topicId тема
+     * @return сколько удалено
+     */
+    @Modifying
+    @Query("delete from CardProgress p where p.topicId = :topicId")
+    int deleteAllByTopic(UUID topicId);
 }
