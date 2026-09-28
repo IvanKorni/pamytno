@@ -1,0 +1,84 @@
+/* Форматированный текст карточек и вопросов: абзацы, списки, варианты ответа, код */
+.rich-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.rich-text > * {
+  margin: 0;
+}
+.rich-text > * + * {
+  margin-top: 0.8em;
+}
+.rich-text p {
+  white-space: pre-line;
+}
+.rich-text ul,
+.rich-text ol {
+  padding-left: 1.3em;
+}
+.rich-text li + li {
+  margin-top: 0.35em;
+}
+.rich-text strong {
+  color: var(--ink);
+}
+.rich-text code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: #eef1ec;
+  font:
+    0.88em/1.5 'SF Mono',
+    Menlo,
+    Consolas,
+    monospace;
+}
+.rich-text pre {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f6f7f3;
+  white-space: pre-wrap;
+}
+.rich-text pre code {
+  padding: 0;
+  background: none;
+}
+.rich-text .rich-options {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.rich-text .rich-options li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfbf9;
+}
+.rich-option-letter {
+  display: grid;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--green-dark);
+  background: var(--green-pale);
+  font:
+    700 12px/1 Manrope,
+    sans-serif;
+}
+.review-question-text {
+  width: min(640px, 100%);
+  margin: 19px 0;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.question-item-text {
+  white-space: pre-line;
+}

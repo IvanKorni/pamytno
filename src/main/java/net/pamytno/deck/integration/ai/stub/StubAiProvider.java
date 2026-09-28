@@ -23,7 +23,7 @@ public class StubAiProvider implements AiProvider {
 
     private static final Pattern SENTENCE_BREAK = Pattern.compile("(?<=[.!?…])\\s+|\\n+");
     private static final int MAX_ANSWER_SENTENCES = 10;
-    private static final int MAX_QUOTE_LENGTH = 80;
+    private static final int MAX_QUESTION_LENGTH = 80;
 
     private final AiProperties properties;
 
@@ -37,7 +37,7 @@ public class StubAiProvider implements AiProvider {
     public List<GeneratedQuestion> generateQuestions(String text) {
         return sentences(text).stream()
                 .limit(properties.questionsPerChunk())
-                .map(sentence -> new GeneratedQuestion("Что сказано в материале: «" + shorten(sentence) + "»?",
+                .map(sentence -> new GeneratedQuestion(shorten(sentence),
                         sentence))
                 .toList();
     }
@@ -66,12 +66,12 @@ public class StubAiProvider implements AiProvider {
     }
 
     /**
-     * Сокращает цитату для текста вопроса.
+     * Сокращает предложение для текста вопроса.
      *
      * @param sentence предложение
-     * @return предложение не длиннее {@value #MAX_QUOTE_LENGTH} символов
+     * @return предложение не длиннее {@value #MAX_QUESTION_LENGTH} символов
      */
     private static String shorten(String sentence) {
-        return sentence.length() <= MAX_QUOTE_LENGTH ? sentence : sentence.substring(0, MAX_QUOTE_LENGTH) + "…";
+        return sentence.length() <= MAX_QUESTION_LENGTH ? sentence : sentence.substring(0, MAX_QUESTION_LENGTH) + "…";
     }
 }

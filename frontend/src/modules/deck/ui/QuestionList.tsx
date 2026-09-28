@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { RichInline } from '@/shared'
 import { questionStatusLabel } from '../model/labels'
 import type { Question } from '../model/types'
 
@@ -49,7 +50,9 @@ function QuestionItem({ question, checked, toggle }: { question: Question; check
       <span className="checkmark">
         <Check size={13} />
       </span>
-      <span className="question-item-text">{question.text}</span>
+      <span className="question-item-text">
+        <RichInline text={question.text} />
+      </span>
       <span className={`question-status status-${question.status.toLowerCase()}`}>
         {questionStatusLabel(question.status)}
       </span>

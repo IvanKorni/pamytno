@@ -52,10 +52,14 @@ pamytno:
   deck:
     chunk-size: ${AI_CHUNK_SIZE:6000}
     ai:
-      provider: ${AI_PROVIDER:stub}
+      provider: ${AI_PROVIDER:cli}
       questions-per-chunk: ${AI_QUESTIONS_PER_CHUNK:8}
       anthropic:
         model: ${AI_MODEL:claude-opus-5}
         max-tokens: ${AI_MAX_TOKENS:16000}
         effort: ${AI_EFFORT:}
         refusal-fallback: ${AI_REFUSAL_FALLBACK:true}
+      cli:
+        command: ${AI_CLI:codex}
+        model: ${AI_CLI_MODEL:gpt-5.6-luna}
+        timeout-seconds: ${AI_CLI_TIMEOUT_SECONDS:180}

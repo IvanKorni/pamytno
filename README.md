@@ -71,6 +71,14 @@ npm run seed:demo              # демо-пользователь с темам
 пользователя `demo@pamytno.dev` / `pamytno-demo-2026` и три темы: с карточками к повторению, с вопросами на отбор
 и пустую. Повторный запуск ничего не дублирует. Учётные данные — только для локальной разработки.
 
+Для генерации через установленный Codex CLI запускайте backend на той же машине, где выполнен `codex login`:
+
+```bash
+AI_PROVIDER=cli AI_CLI=codex AI_CLI_MODEL=gpt-5.6-luna ./gradlew bootRun
+```
+
+В Docker-контейнере CLI хоста недоступен, поэтому для этого режима backend запускается из Gradle или IDE.
+
 ## Настройки
 
 Всё задаётся переменными окружения, полный список с пояснениями — [`.env.example`](.env.example).
@@ -78,9 +86,12 @@ npm run seed:demo              # демо-пользователь с темам
 | Переменная | По умолчанию | Назначение |
 |---|---|---|
 | `JWT_SECRET` | — | секрет подписи JWT, ≥ 32 символов; без него приложение не стартует |
-| `AI_PROVIDER` | `stub` | `stub` — заглушка без сети, `anthropic` — Claude |
+| `AI_PROVIDER` | `cli` | `stub` — заглушка без сети, `anthropic` — Anthropic API, `cli` — локальный `claude` или `codex` CLI |
 | `ANTHROPIC_API_KEY` | — | ключ Claude, нужен только при `AI_PROVIDER=anthropic` |
 | `AI_MODEL` | `claude-opus-5` | модель Claude |
+| `AI_CLI` | `codex` | CLI для `AI_PROVIDER=cli`: `claude` или `codex` |
+| `AI_CLI_MODEL` | `gpt-5.6-luna` | модель для выбранного CLI |
+| `AI_CLI_TIMEOUT_SECONDS` | `180` | таймаут одного вызова CLI |
 | `AI_REFUSAL_FALLBACK` | `true` | при отказе модели повторить запрос на запасной модели |
 | `APP_TIME_ZONE` | `UTC` | пояс для «сегодня» в прогрессе |
 | `STORAGE_ROOT` | `./storage` | где хранятся загруженные PDF |

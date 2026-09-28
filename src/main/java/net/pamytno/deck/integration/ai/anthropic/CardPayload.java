@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
  */
 record CardPayload(
         @JsonPropertyDescription("Вопрос на лицевой стороне карточки") String front,
-        @JsonPropertyDescription("Ответ по материалу, не длиннее 10 предложений") String back
+        @JsonPropertyDescription("Ответ по материалу с простой разметкой, не длиннее 10 предложений или пунктов")
+        String back
 ) {
 }

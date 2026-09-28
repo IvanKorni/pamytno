@@ -27,11 +27,13 @@ Frontend реализует пользовательский путь «Памя
 | `api/client.ts` | `request` с токеном и разбором JSON, `HttpError`, событие 401 |
 | `api/tokenStorage.ts` | хранение access-токена в localStorage |
 | `lib/format.ts` | проценты и склонение слов |
+| `lib/richText.ts` | разбор разметки карточек и вопросов: абзацы, списки, варианты ответа, код, выделение |
 | `lib/sessionValues.ts` | значения в sessionStorage, безопасно при недоступном хранилище |
 | `ui/Brand.tsx` | логотип |
 | `ui/Modal.tsx` | модальное окно с Esc и управлением фокусом |
 | `ui/EmptyState.tsx`, `ui/ErrorState.tsx`, `ui/InlineError.tsx`, `ui/Loading.tsx` | пустое состояние, ошибка, загрузка |
 | `ui/ProcessingCard.tsx` | карточка долгой операции backend |
+| `ui/RichText.tsx` | `RichText` и `RichInline`: текст с разметкой из React-элементов, без HTML |
 | `ui/Stat.tsx` | показатели в строке и в карточке |
 | `ui/toast.ts`, `ui/ToastContainer.tsx` | всплывающие уведомления |
 

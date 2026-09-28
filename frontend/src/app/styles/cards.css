@@ -38,19 +38,31 @@
 }
 .flashcard-main {
   position: relative;
-  display: block;
   flex: 1;
-  padding: 18px;
+  min-width: 0;
+}
+.flashcard-toggle {
+  display: block;
+  width: 100%;
+  padding: 18px 38px 18px 18px;
   border: 0;
+  border-radius: 12px;
+  color: inherit;
   text-align: left;
   background: transparent;
 }
 .flashcard-front {
   display: block;
-  padding-right: 20px;
   font:
-    700 14px Manrope,
+    700 14px/1.45 Manrope,
     sans-serif;
+}
+.flashcard-front.is-clamped {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 .flashcard-chevron {
   position: absolute;
@@ -60,15 +72,19 @@
   font-size: 20px;
   font-weight: 300;
 }
-.flashcard-back {
-  display: block;
-  margin-top: 15px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+.flashcard-details {
+  padding: 0 18px 18px;
   color: #636b65;
   font-size: 13px;
   line-height: 1.65;
-  white-space: pre-wrap;
+}
+.flashcard-question {
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+.flashcard-back {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
 }
 .row-actions {
   display: flex;

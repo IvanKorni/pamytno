@@ -26,6 +26,16 @@ export function dueCard(cardId: string, front: string, topicId = 'topic-1') {
   return { cardId, topicId, front, back: `Ответ: ${front}`, stage: 0, totalReviews: 0 }
 }
 
+/** Задача с вариантами ответа: длинная карточка с разметкой — варианты, выделение, список и схема в коде. */
+export const CHOICE_TASK = {
+  front:
+    'Система держит 100 000 RPS, PostgreSQL упирается в блокировки.\n\n' +
+    'Как дойти до 500 000 RPS?\nA. CQRS и Event Sourcing\nB. 500 реплик PostgreSQL',
+  back:
+    '**A — CQRS и Event Sourcing.**\n\n- запись — событием в Kafka\n- чтение — из Redis\n\n' +
+    '```\nКлиент -> Kafka -> PostgreSQL\n```',
+}
+
 /** Вопрос в тестах экранов. */
 export function question(id: string, text: string, status = 'GENERATED', topicId = 'topic-1') {
   return { id, topicId, text, status, createdAt: AT }

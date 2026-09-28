@@ -1,5 +1,5 @@
 import { Check, ChevronRight, X } from 'lucide-react'
-import { InlineError } from '@/shared'
+import { InlineError, isShortText, RichInline, RichText } from '@/shared'
 import type { DueCard } from '../model/types'
 
 /** Число этапов повторения: на этапах 0–5 карточка учится, после шестого считается изученной. */
@@ -27,7 +27,7 @@ export function LearningCard({ card, revealed, reveal, answer, answering, error 
       </div>
       <div className="learning-card-body">
         <div className="question-label">ВОПРОС</div>
-        <h1>{card.front}</h1>
+        <Question text={card.front} />
         {revealed && <Answer text={card.back} />}
       </div>
       {error && <InlineError message={`Ответ не сохранён: ${error}`} />}
@@ -49,13 +49,25 @@ export function LearningCard({ card, revealed, reveal, answer, answering, error 
   )
 }
 
+/** Вопрос карточки: короткий — крупным заголовком, длинный (задача с вариантами) — обычным текстом для чтения. */
+function Question({ text }: { text: string }) {
+  if (isShortText(text)) {
+    return (
+      <h1 className="learning-front">
+        <RichInline text={text} />
+      </h1>
+    )
+  }
+  return <RichText text={text} className="learning-front is-long" />
+}
+
 /** Открытый ответ карточки. */
 function Answer({ text }: { text: string }) {
   return (
     <div className="answer">
       <div className="answer-line" />
       <div className="question-label">ОТВЕТ</div>
-      <p>{text}</p>
+      <RichText text={text} className="answer-text" />
     </div>
   )
 }

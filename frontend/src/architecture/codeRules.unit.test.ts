@@ -32,6 +32,9 @@ const isCurrentTime = (node: ts.Node) =>
   (ts.isNewExpression(node) && node.expression.getText() === 'Date' && !node.arguments?.length) ||
   (ts.isPropertyAccessExpression(node) && node.getText() === 'Date.now')
 
+/** Вставка строки как HTML: `dangerouslySetInnerHTML={...}`. */
+const isRawHtml = (node: ts.Node) => ts.isJsxAttribute(node) && node.name.getText() === 'dangerouslySetInnerHTML'
+
 describe('правила кода', () => {
   it('HTTP-запросы идут только через shared/api/client.ts', () => {
     // when / then
@@ -47,6 +50,11 @@ describe('правила кода', () => {
   it('фронт не берёт текущее время: сроки повторения считает backend', () => {
     // when / then
     expect(filesWith(isCurrentTime)).toEqual([])
+  })
+
+  it('текст с backend не вставляется как HTML: разметку карточек строит RichText', () => {
+    // when / then
+    expect(filesWith(isRawHtml)).toEqual([])
   })
 
   it(`у файла не больше ${MAX_IMPORTS} импортов`, () => {

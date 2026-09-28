@@ -44,14 +44,20 @@
   padding: 50px 20px 45px;
   text-align: center;
 }
-.learning-card-body h1 {
+.learning-front {
   max-width: 640px;
   margin: 18px auto 0;
   font-size: clamp(25px, 4vw, 38px);
   line-height: 1.25;
 }
+.learning-front.is-long {
+  color: var(--ink);
+  text-align: left;
+  font-size: 16px;
+  line-height: 1.65;
+}
 .answer {
-  max-width: 600px;
+  max-width: 640px;
   margin: 45px auto 0;
   text-align: left;
 }
@@ -60,12 +66,11 @@
   margin-bottom: 25px;
   background: var(--line);
 }
-.answer p {
-  margin: 10px 0 0;
+.answer-text {
+  margin-top: 10px;
   color: #59625c;
   font-size: 15px;
   line-height: 1.7;
-  white-space: pre-wrap;
 }
 .reveal-button {
   align-self: center;

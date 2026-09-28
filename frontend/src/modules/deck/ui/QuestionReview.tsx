@@ -1,5 +1,5 @@
 import { Check, X } from 'lucide-react'
-import { EmptyState } from '@/shared'
+import { EmptyState, isShortText, RichInline, RichText } from '@/shared'
 import type { Question, QuestionDecision } from '../model/types'
 
 /** Свойства просмотра вопросов по одному. */
@@ -29,7 +29,7 @@ export function QuestionReview({ current, position, total, onDecide, deciding }:
       </div>
       <div className="review-question">
         <div className="question-label">ВОПРОС</div>
-        <h3>{current.text}</h3>
+        <QuestionText text={current.text} />
         {current.sourceFragment && (
           <details>
             <summary>Источник</summary>
@@ -47,4 +47,16 @@ export function QuestionReview({ current, position, total, onDecide, deciding }:
       </div>
     </div>
   )
+}
+
+/** Текст вопроса: короткий — крупно, длинный (задача с вариантами ответа) — обычным текстом с разметкой. */
+function QuestionText({ text }: { text: string }) {
+  if (isShortText(text)) {
+    return (
+      <h3>
+        <RichInline text={text} />
+      </h3>
+    )
+  }
+  return <RichText text={text} className="review-question-text" />
 }

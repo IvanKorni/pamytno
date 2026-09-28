@@ -3,6 +3,7 @@ package net.pamytno.deck.integration.ai.anthropic;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import net.pamytno.deck.config.AiProperties;
+import net.pamytno.deck.integration.ai.AiFormatRules;
 import net.pamytno.deck.integration.ai.AiGenerationException;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
@@ -52,7 +54,8 @@ class AnthropicAiProviderTest {
                 .maxRetries(0)
                 .build();
         var properties = new AiProperties("anthropic", 5,
-                new AiProperties.Anthropic("claude-opus-5", 16000, "medium", true));
+                new AiProperties.Anthropic("claude-opus-5", 16000, "medium", true),
+                new AiProperties.Cli("codex", "gpt-5.6-luna", 180));
         provider = new AnthropicAiProvider(client, properties);
     }
 
@@ -72,18 +75,21 @@ class AnthropicAiProviderTest {
                 .withRequestBody(matchingJsonPath("$.fallbacks", equalTo("default")))
                 .withRequestBody(matchingJsonPath("$.output_config.effort", equalTo("medium")))
                 .withRequestBody(matchingJsonPath("$.output_config.format.type", equalTo("json_schema")))
+                .withRequestBody(matchingJsonPath("$.system", containing(AiFormatRules.QUESTIONS)))
                 .withRequestBody(matchingJsonPath("$.messages[0].content",
                         equalTo("<material>\nJVM выполняет байткод.\n</material>"))));
     }
 
     @Test
-    @DisplayName("Карточка разбирается из JSON-ответа модели")
+    @DisplayName("Карточка запрашивается с правилами оформления и разбирается из JSON-ответа модели")
     void generateCard_parsesAnswer() {
         stubAnswer("end_turn", "{\\\"front\\\":\\\"Что такое JVM?\\\",\\\"back\\\":\\\"Виртуальная машина Java.\\\"}");
 
         var card = provider.generateCard("Что такое JVM?", "JVM — виртуальная машина Java.");
 
         assertThat(card).isEqualTo(new GeneratedCard("Что такое JVM?", "Виртуальная машина Java."));
+        ANTHROPIC.verify(postRequestedFor(urlEqualTo("/v1/messages"))
+                .withRequestBody(matchingJsonPath("$.system", containing(AiFormatRules.CARD))));
     }
 
     @Test

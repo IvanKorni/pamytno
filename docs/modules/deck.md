@@ -52,14 +52,17 @@
 | `rest` | `CardGenerationRestControllerV1` | `POST /api/topics/{id}/cards/generate` |
 | `rest` | `FlashcardRestControllerV1` | список, карточка, правка, удаление |
 | `config` | `DeckProperties` | `pamytno.deck.chunk-size` |
-| `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude |
+| `config` | `AiProperties` | провайдер AI, вопросов на фрагмент, настройки Claude и CLI |
 | `integration.ai` | `AiProvider` | интерфейс модели из ТЗ: `generateQuestions`, `generateCard` |
 | `integration.ai` | `GeneratedQuestion`, `GeneratedCard` | ответы модели |
 | `integration.ai` | `AiGenerationException` | модель не справилась |
+| `integration.ai` | `AiFormatRules` | общие правила оформления для промптов: вопрос-задача с вариантами, разметка карточки |
 | `integration.ai.stub` | `StubAiProvider` | детерминированная заглушка без сети (`AI_PROVIDER=stub`) |
 | `integration.ai.anthropic` | `AnthropicAiProvider` | Claude через Anthropic Java SDK, structured outputs, проверка `stop_reason` |
 | `integration.ai.anthropic` | `AnthropicPrompts` | инструкции; материал в XML-тегах |
 | `integration.ai.anthropic` | `QuestionsPayload`, `CardPayload` | JSON-схемы ответа модели |
+| `integration.ai.cli` | `CliAiProvider` | генерация через локальный `claude` или `codex` CLI (`AI_PROVIDER=cli`), разбор JSON из ответа |
+| `integration.ai.cli` | `CliProcessRunner` | запуск CLI без shell с таймаутом, возврат ответа модели |
 | `config` | `AnthropicConfig` | `AnthropicClient` из `ANTHROPIC_API_KEY` (только при `AI_PROVIDER=anthropic`) |
 
 Контракт: `openapi/deck-api.yaml`.

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { errorReply, FakeBackend, Reply } from '@/test/fakeBackend'
-import { dueCard, progress, session, topic } from '@/test/fixtures'
+import { CHOICE_TASK, dueCard, progress, session, topic } from '@/test/fixtures'
 import { renderApp } from '@/test/renderApp'
 
 const DUE = '/topics/topic-1/reviews/due?limit=500'
@@ -42,6 +42,23 @@ describe('Режим обучения', () => {
     // then
     expect(await screen.findByText('Что такое MVCC?')).toBeInTheDocument()
     expect(backend.count('POST', SESSIONS)).toBe(1)
+  })
+
+  it('показывает задачу с вариантами ответа обычным текстом и оформленный ответ', async () => {
+    // given
+    backend.on('GET', DUE, [{ ...dueCard('c-1', CHOICE_TASK.front), back: CHOICE_TASK.back }])
+    renderApp(backend, '/topics/topic-1/learn')
+    const option = await screen.findByText('CQRS и Event Sourcing')
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: /Показать ответ/ }))
+
+    // then
+    expect(option.closest('li')).toHaveTextContent('ACQRS и Event Sourcing')
+    expect(screen.queryByRole('heading', { level: 1, name: /RPS/ })).not.toBeInTheDocument()
+    expect(screen.getByText('A — CQRS и Event Sourcing.').tagName).toBe('STRONG')
+    expect(screen.getByText('запись — событием в Kafka').tagName).toBe('LI')
+    expect(screen.getByText('Клиент -> Kafka -> PostgreSQL').closest('pre')).not.toBeNull()
   })
 
   it('после ухода с экрана и возврата снова показывает свежие карточки', async () => {

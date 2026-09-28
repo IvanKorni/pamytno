@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { errorReply, FakeBackend, Reply } from '@/test/fakeBackend'
-import { progress, topic } from '@/test/fixtures'
+import { CHOICE_TASK, progress, topic } from '@/test/fixtures'
 import { renderApp } from '@/test/renderApp'
 
 const card = {
@@ -51,5 +51,22 @@ describe('Экран карточек', () => {
 
     // then
     expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось удалить карточку: Карточка не найдена')
+  })
+
+  it('свёрнутая карточка показывает первую строку вопроса, раскрытая — варианты и оформленный ответ', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1/cards', [{ ...card, ...CHOICE_TASK }])
+    renderApp(backend, '/topics/topic-1/cards')
+    const toggle = await screen.findByRole('button', { name: /Система держит 100 000 RPS/ })
+    expect(screen.queryByText('CQRS и Event Sourcing')).not.toBeInTheDocument()
+
+    // when
+    await userEvent.click(toggle)
+
+    // then
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByText('CQRS и Event Sourcing').closest('li')).toHaveTextContent('ACQRS и Event Sourcing')
+    expect(screen.getByText('A — CQRS и Event Sourcing.').tagName).toBe('STRONG')
+    expect(screen.getByText('Клиент -> Kafka -> PostgreSQL').closest('pre')).not.toBeNull()
   })
 })

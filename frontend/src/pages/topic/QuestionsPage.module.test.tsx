@@ -54,6 +54,23 @@ describe('Экран вопросов', () => {
     expect(backend.count('POST', `${QUESTIONS}/generate`)).toBe(1)
   })
 
+  it('показывает вопрос-задачу с вариантами без сырой разметки — по одному и списком', async () => {
+    // given
+    backend.on('GET', QUESTIONS, [question('q-1', 'Условие.\n**Какой подход?**\nA. CQRS\nB. Шардирование')])
+    renderApp(backend, '/topics/topic-1/questions')
+    expect((await screen.findByText('CQRS')).closest('li')).toHaveTextContent('ACQRS')
+    expect(screen.getByText('Какой подход?').tagName).toBe('STRONG')
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: 'Списком' }))
+
+    // then
+    const item = screen.getByRole('checkbox').closest('label')
+    expect(item).toHaveTextContent('Условие. Какой подход? A. CQRS B. Шардирование')
+    expect(item).not.toHaveTextContent('**')
+    expect(item?.querySelector('strong')).toHaveTextContent('Какой подход?')
+  })
+
   it('снимает выбор без запросов к backend', async () => {
     // given
     backend.on('GET', QUESTIONS, [question('q-1', 'Что такое MVCC?')])

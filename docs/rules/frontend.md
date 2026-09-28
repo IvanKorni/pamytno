@@ -26,6 +26,8 @@ Frontend находится в `frontend/`: React + TypeScript + Vite. Стру�
 - Долгие операции backend опрашиваются до `READY` или `ERROR` и перестают опрашиваться после; идущая задача
   переживает уход с экрана.
 - Асинхронные операции обязаны иметь loading, success, error и empty state; ошибка мутации не теряется молча.
+- Текст с backend (карточки, вопросы) выводится через `RichText` / `RichInline` из `shared`, никогда как HTML:
+  `dangerouslySetInnerHTML` запрещён (`codeRules`).
 - Выход очищает кеш запросов.
 
 ## Архитектурные тесты
@@ -33,7 +35,7 @@ Frontend находится в `frontend/`: React + TypeScript + Vite. Стру�
 | Тест | Что проверяет |
 |---|---|
 | `moduleIsolation` | модули не импортируют друг друга; `shared` ни от кого не зависит; вход в модуль — только `index.ts` через `@/` |
-| `codeRules` | `fetch` — только в `shared/api/client.ts`; `localStorage` — только токен, `sessionStorage` — только `sessionValues`; нет `Date.now()` / `new Date()`; не больше 15 импортов в файле |
+| `codeRules` | `fetch` — только в `shared/api/client.ts`; `localStorage` — только токен, `sessionStorage` — только `sessionValues`; нет `Date.now()` / `new Date()`; нет `dangerouslySetInnerHTML`; не больше 15 импортов в файле |
 | `jsdocLanguage` | у каждой функции, компонента, класса, типа и константы — JSDoc на русском |
 | `testConventions` | уровень теста в имени файла, описания на русском, блок `// then` в каждом тесте, unit-тесты без фейкового backend |
 
