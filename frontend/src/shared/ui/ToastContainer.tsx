@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { AlertCircle, Check } from 'lucide-react'
 import { useToast } from './toast'
 
 /** Время показа уведомления, мс. */
@@ -17,7 +16,7 @@ export function ToastContainer() {
   const isError = toast.tone === 'error'
   return (
     <div className={`toast toast-${toast.tone}`} role={isError ? 'alert' : 'status'}>
-      {isError ? <AlertCircle size={16} /> : <Check size={16} />} {toast.message}
+      {toast.message}
     </div>
   )
 }

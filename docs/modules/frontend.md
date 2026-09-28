@@ -1,6 +1,6 @@
 # Frontend
 
-Frontend реализует пользовательский путь «Памятно»: авторизация → тема → материалы → вопросы → карточки →
+Frontend реализует пользовательский путь «Памятно» (в интерфейсе — «Напоминатор», `APP_NAME`): авторизация → тема → материалы → вопросы → карточки →
 обучение → прогресс. React + TypeScript + Vite, server state — TanStack Query, пользователь и уведомления — Zustand,
 состояние одного экрана — локальный `useState` / `useReducer`.
 
@@ -29,12 +29,13 @@ Frontend реализует пользовательский путь «Памя
 | `lib/format.ts` | проценты и склонение слов |
 | `lib/richText.ts` | разбор разметки карточек и вопросов: абзацы, списки, варианты ответа, код, выделение |
 | `lib/sessionValues.ts` | значения в sessionStorage, безопасно при недоступном хранилище |
-| `ui/Brand.tsx` | логотип |
+| `lib/useKeyboardShortcuts.ts` | горячие клавиши экрана; не срабатывают в полях, на кнопках и в окнах |
+| `ui/Brand.tsx` | название приложения `APP_NAME` («Напоминатор») и логотип |
 | `ui/Modal.tsx` | модальное окно с Esc и управлением фокусом |
-| `ui/EmptyState.tsx`, `ui/ErrorState.tsx`, `ui/InlineError.tsx`, `ui/Loading.tsx` | пустое состояние, ошибка, загрузка |
-| `ui/ProcessingCard.tsx` | карточка долгой операции backend |
+| `ui/EmptyState.tsx`, `ui/ErrorState.tsx`, `ui/Loading.tsx` | пустое состояние, ошибка загрузки и строка ошибки `InlineError`, загрузка |
+| `ui/ProcessingCard.tsx` | долгая операция backend крупным текстом |
 | `ui/RichText.tsx` | `RichText` и `RichInline`: текст с разметкой из React-элементов, без HTML |
-| `ui/Stat.tsx` | показатели в строке и в карточке |
+| `ui/Segmented.tsx` | переключатель режимов экрана (`aria-pressed`) |
 | `ui/toast.ts`, `ui/ToastContainer.tsx` | всплывающие уведомления |
 
 ## modules/identity
@@ -60,7 +61,8 @@ Frontend реализует пользовательский путь «Памя
 | `model/labels.ts` | подписи статусов и типов |
 | `ui/SourceRow.tsx` | строка источника |
 | `ui/AddMaterialModal.tsx`, `ui/MaterialTypePicker.tsx`, `ui/MaterialFields.tsx` | добавление материала |
-| `ui/TopicContentModal.tsx` | единый текст темы |
+| `ui/TopicContentPanel.tsx` | единый текст темы под материалами, только чтение |
+| `ui/CreateTopicModal.tsx` | окно новой темы |
 | `ui/EditTopicModal.tsx` | настройки и удаление темы |
 
 ## modules/deck
@@ -73,11 +75,14 @@ Frontend реализует пользовательский путь «Памя
 | `api/cardQueries.ts` | карточки, изменение и удаление |
 | `model/generationJobs.ts` | интервал опроса, ошибка задачи и запоминание идущих задач |
 | `model/selection.ts` | выбор вопросов: только новые, без уже решённых |
-| `model/useGenerationRun.ts` | запуск генерации и опрос задачи до `READY` / `ERROR` |
+| `model/useGenerationRun.ts` | запуск генерации и опрос задачи до `READY` / `ERROR`; `launchThen` — переход после старта |
+| `model/useQuestionGeneration.ts` | генерация вопросов темы — со вкладки вопросов и со вкладки материалов |
 | `model/useQuestionsWorkflow.ts` | сценарий отбора вопросов и генерации карточек |
 | `model/labels.ts` | подписи статусов вопроса |
-| `ui/QuestionReview.tsx`, `ui/QuestionList.tsx` | отбор по одному и списком |
-| `ui/FlashcardRow.tsx`, `ui/EditCardModal.tsx` | карточка в списке и её изменение |
+| `ui/QuestionReview.tsx`, `ui/QuestionList.tsx` | отбор по одному (в том числе стрелками) и списком |
+| `ui/FlashcardTile.tsx` | карточка для просмотра: вопрос, по нажатию — ответ |
+| `ui/CardViewer.tsx` | `CardViewer` — карточки по одной с «Назад» / «Далее», `CardGrid` — все сеткой |
+| `ui/EditCardModal.tsx` | изменение и удаление карточки |
 
 ## modules/learning
 
@@ -88,25 +93,27 @@ Frontend реализует пользовательский путь «Памя
 | `api/learningQueries.ts` | dashboard, прогресс темы и его перечитывание после изменения карточек |
 | `model/learningSession.ts` | состояние учебной сессии: очередь, ответы, возврат забытых карточек |
 | `model/useLearningSession.ts` | старт сессии без кеша, ответы и завершение на backend |
-| `ui/LearningCard.tsx` | карточка в режиме обучения |
+| `ui/LearningCard.tsx` | карточка в режиме обучения; пробел — ответ, ← / → — «Не помню» / «Помню» |
 | `ui/LearningComplete.tsx` | итоги сессии |
-| `ui/ProgressOverview.tsx` | кольцо и полосы прогресса |
+| `ui/ProgressOverview.tsx` | крупный процент, показатели и распределение карточек |
 
 ## pages и app
 
 | Файл | Ответственность |
 |---|---|
 | `pages/AuthPage.tsx` | вход и регистрация |
-| `pages/CreateTopicPage.tsx` | создание темы |
-| `pages/dashboard/*` | обзор: «Сегодня» и карточки тем с прогрессом |
-| `pages/topic/TopicLayout.tsx` | шапка темы, статистика, вкладки |
-| `pages/topic/MaterialsPage.tsx`, `QuestionsPage.tsx`, `CardsPage.tsx`, `ProgressPage.tsx` | экраны темы |
-| `pages/learning/LearningPage.tsx` | режим обучения — отдельный экран без шапки темы |
-| `pages/topic/QuestionsFooter.tsx` | действия под вопросами и баннер созданных карточек |
+| `pages/dashboard/*` | обзор: плитки тем, строка «Сегодня», создание темы в окне |
+| `pages/topic/TopicLayout.tsx`, `TopicHeader.tsx` | путь, шапка темы с прогрессом и действиями, вкладки, окна темы |
+| `pages/topic/topicActions.ts` | действия шапки темы для вкладок (`useOutletContext`) |
+| `pages/topic/MaterialsPage.tsx`, `MaterialActions.tsx` | материалы, «Создать вопросы» или «К вопросам», исходный текст |
+| `pages/topic/QuestionsPage.tsx`, `QuestionsFooter.tsx` | отбор вопросов, действия под ними, итог генерации карточек |
+| `pages/topic/CardsPage.tsx`, `CardsBrowser.tsx` | карточки по одной или все, поиск, изменение и удаление |
+| `pages/topic/ProgressPage.tsx` | прогресс темы |
+| `pages/learning/LearningPage.tsx`, `LearningTopBar.tsx` | режим обучения на весь экран: тема, номер карточки, полоса пройденного |
 | `pages/topic/useTopicId.ts` | идентификатор темы из адреса |
 | `app/App.tsx` | маршруты, восстановление входа, возврат на исходный адрес после входа |
 | `app/queryClient.ts` | кеш запросов: свежесть и повтор только сетевых ошибок и 5xx |
-| `app/AppShell.tsx` | боковое меню и каркас |
+| `app/AppShell.tsx`, `app/useScrolled.ts` | каркас: шапка (прозрачная до прокрутки), без шапки — режим обучения |
 | `app/styles/*.css` | стили по областям экрана; `index.css` задаёт порядок каскада |
 
 ## Тесты и архитектурные проверки

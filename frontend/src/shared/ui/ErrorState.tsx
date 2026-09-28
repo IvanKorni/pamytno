@@ -17,9 +17,8 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div className="empty-state error-state">
-      <div className="empty-icon">!</div>
-      <h3>{title}</h3>
-      <p className="muted">{message}</p>
+      <h2>{title}</h2>
+      <p>{message}</p>
       {onRetry && (
         <button className="button button-secondary" onClick={onRetry}>
           Попробовать снова
@@ -28,4 +27,9 @@ export function ErrorState({
       {action}
     </div>
   )
+}
+
+/** Строка с ошибкой внутри формы или блока. */
+export function InlineError({ message }: { message: string }) {
+  return <div className="inline-error">{message}</div>
 }

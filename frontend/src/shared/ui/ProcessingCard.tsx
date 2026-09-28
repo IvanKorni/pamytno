@@ -1,28 +1,24 @@
-import { Sparkles } from 'lucide-react'
-
-/** Свойства карточки долгой операции. */
+/** Свойства блока долгой операции. */
 interface ProcessingCardProps {
   title: string
   subtitle: string
   count?: number
 }
 
-/** Карточка долгой операции на backend (генерация) со счётчиком уже созданного. */
+/**
+ * Долгая операция на backend (генерация) крупным текстом: что происходит, пояснение и сколько уже готово.
+ * Счётчик появляется, только когда backend что-то уже создал.
+ */
 export function ProcessingCard({ title, subtitle, count }: ProcessingCardProps) {
   return (
-    <div className="processing-card">
-      <div className="processing-orb">
-        <Sparkles size={21} />
+    <div className="processing" role="status">
+      <div className="processing-title">
+        {title}
+        <span className="ellipsis">…</span>
       </div>
-      <div>
-        <h3>
-          {title}
-          <span className="ellipsis">…</span>
-        </h3>
-        <p className="muted">{subtitle}</p>
-      </div>
-      {typeof count === 'number' && <strong className="processing-count">{count}</strong>}
+      {Boolean(count) && <div className="processing-count">готово: {count}</div>}
       <div className="processing-line" />
+      <span className="mono">{subtitle}</span>
     </div>
   )
 }

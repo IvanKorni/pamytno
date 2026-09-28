@@ -1,26 +1,19 @@
-import type { ReactNode } from 'react'
-import { BookOpen, FileText, Upload, Youtube } from 'lucide-react'
 import type { SourceType } from '../model/types'
 
-/** Типы материалов в порядке показа: значение, подпись и иконка. */
-const MATERIAL_TYPES: [SourceType, string, ReactNode][] = [
-  ['TEXT', 'Текст', <FileText key="text" size={18} />],
-  ['WORD_LIST', 'Слова', <BookOpen key="words" size={18} />],
-  ['YOUTUBE', 'YouTube', <Youtube key="youtube" size={18} />],
-  ['PDF', 'PDF', <Upload key="pdf" size={18} />],
+/** Типы материалов в порядке показа: значение и подпись вкладки. */
+const MATERIAL_TYPES: [SourceType, string][] = [
+  ['TEXT', 'Текст'],
+  ['WORD_LIST', 'Слова'],
+  ['YOUTUBE', 'YouTube'],
+  ['PDF', 'PDF'],
 ]
 
-/** Переключатель типа добавляемого материала. */
+/** Вкладки типа добавляемого материала. */
 export function MaterialTypePicker({ kind, onChange }: { kind: SourceType; onChange: (kind: SourceType) => void }) {
   return (
-    <div className="material-types">
-      {MATERIAL_TYPES.map(([value, label, icon]) => (
-        <button
-          key={value}
-          className={kind === value ? 'material-type active' : 'material-type'}
-          onClick={() => onChange(value)}
-        >
-          {icon}
+    <div className="material-types" role="group" aria-label="Тип материала">
+      {MATERIAL_TYPES.map(([value, label]) => (
+        <button key={value} className="material-type" aria-pressed={kind === value} onClick={() => onChange(value)}>
           {label}
         </button>
       ))}

@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react'
-import { X } from 'lucide-react'
 
 /** Свойства модального окна. */
 interface ModalProps {
@@ -10,7 +9,7 @@ interface ModalProps {
 }
 
 /**
- * Модальное окно с заголовком. Закрывается крестиком, клавишей Esc и кликом по подложке;
+ * Модальное окно с заголовком. Закрывается кнопкой «Закрыть», клавишей Esc и кликом по подложке;
  * при открытии забирает фокус, при закрытии возвращает его туда, где он был.
  */
 export function Modal({ title, close, children, wide = false }: ModalProps) {
@@ -41,8 +40,8 @@ export function Modal({ title, close, children, wide = false }: ModalProps) {
       >
         <div className="modal-header">
           <h2 id={titleId}>{title}</h2>
-          <button className="icon-button" onClick={close} aria-label="Закрыть">
-            <X size={19} />
+          <button className="link-button" onClick={close}>
+            Закрыть
           </button>
         </div>
         {children}

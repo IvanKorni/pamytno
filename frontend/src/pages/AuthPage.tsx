@@ -36,10 +36,9 @@ export function AuthPage({ mode }: { mode: Mode }) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <Brand centered />
-        <div className="eyebrow">Личные знания, без шума</div>
+        <Brand />
         <h1>{texts.title}</h1>
-        <p className="muted">{texts.lead}</p>
+        <p className="auth-lead">{texts.lead}</p>
         <CredentialsForm key={mode} mode={mode} submitLabel={texts.submit} />
         <p className="auth-switch">
           {texts.switchText}{' '}

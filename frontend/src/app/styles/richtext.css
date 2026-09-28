@@ -19,24 +19,17 @@
 .rich-text li + li {
   margin-top: 0.35em;
 }
-.rich-text strong {
-  color: var(--ink);
-}
 .rich-text code {
   padding: 1px 5px;
-  border-radius: 5px;
-  background: #eef1ec;
-  font:
-    0.88em/1.5 'SF Mono',
-    Menlo,
-    Consolas,
-    monospace;
+  border-radius: var(--radius);
+  background: var(--track);
+  font: 0.88em/1.5 var(--mono);
 }
 .rich-text pre {
-  padding: 12px 14px;
+  padding: 12px 16px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #f6f7f3;
+  border-radius: var(--radius);
+  background: var(--soft);
   white-space: pre-wrap;
 }
 .rich-text pre code {
@@ -52,32 +45,22 @@
 .rich-text .rich-options li {
   display: flex;
   align-items: flex-start;
-  gap: 11px;
+  gap: 12px;
   margin: 0;
-  padding: 10px 13px;
+  padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fbfbf9;
+  border-radius: var(--radius);
 }
 .rich-option-letter {
   display: grid;
   flex: none;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   place-items: center;
-  border-radius: 7px;
-  color: var(--green-dark);
-  background: var(--green-pale);
-  font:
-    700 12px/1 Manrope,
-    sans-serif;
-}
-.review-question-text {
-  width: min(640px, 100%);
-  margin: 19px 0;
-  text-align: left;
-  font-size: 15px;
-  line-height: 1.6;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--ink);
+  font: 500 12px/1 var(--mono);
 }
 .question-item-text {
   white-space: pre-line;

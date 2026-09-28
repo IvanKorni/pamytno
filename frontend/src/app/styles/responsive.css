@@ -1,174 +1,94 @@
-/* Адаптивная вёрстка: планшет и телефон */
-@media (max-width: 1000px) {
-  .topic-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .progress-overview {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-}
+/* Адаптивная вёрстка: телефон и узкий планшет */
 @media (max-width: 720px) {
-  .sidebar {
-    position: fixed;
-    z-index: 12;
-    inset: 0 auto 0 0;
-    width: 250px;
-    transform: translateX(-102%);
-    transition: transform 0.2s;
+  .header-inner {
+    gap: 16px;
+    padding: 0 16px;
   }
-  .sidebar.is-open {
-    transform: translateX(0);
+  .header-nav {
+    gap: 20px;
   }
-  .mobile-backdrop {
-    position: fixed;
-    z-index: 11;
-    inset: 0;
-    border: 0;
-    background: #1f27225c;
+  .header-side {
+    gap: 12px;
   }
-  .main-content {
-    width: 100%;
-    padding: 23px 17px 40px;
+  .header-user {
+    display: none;
   }
-  .mobile-menu {
-    display: inline-grid;
-    margin-bottom: 21px;
-  }
-  .page-header {
-    display: block;
-    margin-bottom: 27px;
-  }
-  .page-header .button {
-    margin-top: 18px;
-  }
-  .today-card {
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 18px;
-  }
-  .today-card .button {
-    width: 100%;
+  .page {
+    padding: 88px 16px 64px;
   }
   .topic-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
   }
-  .topic-header {
-    align-items: flex-start;
+  .topic-tile-face {
+    padding: 16px;
   }
-  .topic-header-actions {
-    flex-direction: column-reverse;
-    align-items: flex-end;
-  }
-  .topic-header-actions .button {
-    width: max-content;
-  }
-  .topic-stats {
-    width: 100%;
+  .topic-tile-title {
+    font-size: 17px;
   }
   .topic-tabs {
-    gap: 14px;
-    overflow-x: auto;
+    gap: 24px;
   }
-  .topic-tabs a {
-    flex: 0 0 auto;
-    font-size: 12px;
+  .source-type {
+    flex-basis: 100%;
   }
-  .section-heading {
-    align-items: flex-start;
-    flex-direction: column;
-    margin-top: 30px;
+  .content-panel {
+    padding: 24px;
   }
-  .heading-actions {
-    width: 100%;
+  .flashcard.is-large {
+    min-height: 280px;
+    padding: 24px;
   }
-  .heading-actions .segmented {
-    flex: 1;
+  .cards-search {
+    flex-basis: 100%;
   }
-  .source-row {
-    align-items: flex-start;
-    flex-wrap: wrap;
+  .cards-count {
+    margin-left: 0;
   }
-  .source-status {
-    margin-left: 54px;
-    order: 4;
+  .card-viewer-edit {
+    margin-left: 0;
   }
-  .source-row > .icon-button {
-    margin-left: auto;
-  }
-  .master-text-card {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .master-text-card .button {
-    width: 100%;
-  }
-  .question-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .footer-actions {
-    width: 100%;
-  }
-  .footer-actions .button {
-    flex: 1;
-  }
-  .success-banner {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .success-banner .button {
-    width: 100%;
-  }
-  .success-icon {
-    flex: 0 0 34px;
-  }
-  .row-actions {
-    padding-right: 9px;
-  }
-  .row-actions .text-button {
-    font-size: 11px;
-  }
-  .form-page {
-    padding: 22px 18px;
+  .progress-label {
+    flex-basis: 104px;
   }
   .modal-backdrop {
-    padding: 12px;
+    padding: 56px 12px 12px;
   }
-  .modal {
-    padding: 18px;
+  .learning-top {
+    padding: 0 16px;
   }
-  .material-types {
-    grid-template-columns: repeat(2, 1fr);
+  .learning-body {
+    padding: 32px 16px 24px;
   }
-  .learning-card {
-    min-height: calc(100vh - 150px);
-    padding: 17px;
-  }
-  .learning-card-body {
-    padding: 35px 8px;
-  }
-  .learning-card-meta {
-    font-size: 10px;
-  }
-  .learning-actions {
+  .learning-controls {
     position: sticky;
     bottom: 0;
-    grid-template-columns: 1fr 1fr;
-    padding: 10px 0 12px;
-    background: #fff;
+    padding: 12px 16px 20px;
+    border-top: 1px solid var(--track);
   }
-  .progress-grid {
-    grid-template-columns: 1fr;
+  .learning-message,
+  .learning-page > .empty-state,
+  .complete {
+    padding-right: 16px;
+    padding-left: 16px;
   }
-  .big-progress {
-    align-items: flex-start;
-    flex-direction: column;
+}
+@media (max-width: 480px) {
+  .header-link {
+    display: none;
   }
-  .ring {
-    align-self: center;
+  .brand {
+    font-size: 16px;
   }
-  .auth-card {
-    padding: 32px 22px 24px;
+  .topic-stats {
+    gap: 4px 20px;
+  }
+  .topic-actions .button {
+    flex: 1 1 auto;
+  }
+}
+@media (hover: none) {
+  .key-hint {
+    display: none;
   }
 }

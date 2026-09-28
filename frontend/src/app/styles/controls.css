@@ -1,77 +1,93 @@
-/* Кнопки: основные, второстепенные, иконки, текстовые */
+/* Кнопки: основная, второстепенная, ссылка; переключатель режимов */
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 42px;
-  padding: 0 17px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  font-size: 13px;
-  font-weight: 700;
-  transition: 0.2s ease;
+  min-height: 48px;
+  padding: 12px 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--ink);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  transition:
+    background 150ms,
+    border-color 150ms;
 }
 .button-primary {
+  border-color: var(--ink);
   color: #fff;
-  background: var(--green);
+  background: var(--ink);
 }
-.button-primary:hover {
-  background: var(--green-dark);
-  transform: translateY(-1px);
+.button-primary:hover:not(:disabled) {
+  border-color: var(--hover);
+  background: var(--hover);
 }
-.button-dark {
-  color: #fff;
-  background: #232a26;
+.button-secondary:hover:not(:disabled) {
+  border-color: var(--ink);
 }
-.button-dark:hover {
-  background: #121714;
+.button-small {
+  min-height: 44px;
+  padding: 10px 20px;
+  font-size: 14px;
 }
-.button-secondary {
-  color: #57615a;
-  border-color: var(--line);
-  background: #fff;
-}
-.button-secondary:hover {
-  border-color: #bdc5bc;
-  background: #f8faf7;
+.button-compact {
+  min-height: 36px;
+  padding: 8px 16px;
+  font-size: 14px;
 }
 .button-wide {
   width: 100%;
 }
-.icon-button {
-  display: inline-grid;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  color: #79807b;
-  background: #fff;
-}
-.icon-button:hover {
-  color: var(--ink);
-  border-color: #bec6bc;
-}
-.icon-button.subtle {
-  border-color: transparent;
-  background: transparent;
-}
-.text-button {
+.link-button {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  min-height: 32px;
   padding: 0;
   border: 0;
-  color: var(--green-dark);
+  color: var(--ink);
+  background: none;
+  font-size: 14px;
+  text-decoration: underline;
+  text-decoration-color: var(--faint);
+  text-underline-offset: 3px;
+}
+.link-button:hover:not(:disabled) {
+  text-decoration-color: var(--ink);
+}
+.link-button.is-muted {
+  color: var(--muted);
+}
+.link-button.is-muted:hover {
+  color: var(--ink);
+}
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.segmented button {
+  min-height: 38px;
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 2px;
+  color: var(--ink);
   background: transparent;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 500;
 }
-.text-button:hover {
-  color: var(--orange);
-}
-.text-button.danger {
-  color: var(--red);
+.segmented button[aria-pressed='true'] {
+  color: #fff;
+  background: var(--ink);
 }

@@ -23,7 +23,7 @@ describe('Приложение', () => {
     renderApp(backend, '/')
 
     // then
-    expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Темы' })).toBeInTheDocument()
     expect(screen.getByText('Транзакции PostgreSQL')).toBeInTheDocument()
     expect(screen.getByText(TEST_USER.email)).toBeInTheDocument()
   })
@@ -52,7 +52,7 @@ describe('Приложение', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Войти' }))
 
     // then
-    expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Темы' })).toBeInTheDocument()
     expect(localStorage.getItem('pamytno-token')).toBe('new-token')
     expect(backend.calls.find((call) => call.path === '/api/auth/login')?.body).toEqual({
       email: TEST_USER.email,
@@ -104,7 +104,7 @@ describe('Приложение', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Войти' }))
 
     // then
-    expect(await screen.findByText('Карточек пока нет')).toBeInTheDocument()
+    expect(await screen.findByText('Здесь пока нет карточек.')).toBeInTheDocument()
   })
 
   it('после «Выйти» следующий пользователь попадает на обзор, а не на страницу предыдущего', async () => {
@@ -119,7 +119,7 @@ describe('Приложение', () => {
       userId: 'u2',
     })
     renderApp(backend, '/topics/topic-1/cards')
-    await screen.findByText('Карточек пока нет')
+    await screen.findByText('Здесь пока нет карточек.')
 
     // when
     await userEvent.click(screen.getByRole('button', { name: /Выйти/ }))
@@ -128,7 +128,7 @@ describe('Приложение', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Войти' }))
 
     // then
-    expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Темы' })).toBeInTheDocument()
   })
 
   it('при недоступном сервере на старте не выходит, а предлагает повторить', async () => {
@@ -141,7 +141,7 @@ describe('Приложение', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Попробовать снова' }))
 
     // then
-    expect(await screen.findByText('Что изучим сегодня?')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Темы' })).toBeInTheDocument()
     expect(localStorage.getItem('pamytno-token')).toBe('test-token')
   })
 })

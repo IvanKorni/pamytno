@@ -76,8 +76,8 @@ describe('Режим обучения', () => {
     backend.on('GET', DUE, [dueCard('c-2', 'Что такое xmin?')])
 
     // when
-    await userEvent.click(screen.getByRole('link', { name: /К теме/ }))
-    await userEvent.click(await screen.findByRole('link', { name: /Учить/ }))
+    await userEvent.click(screen.getByRole('link', { name: 'Закончить' }))
+    await userEvent.click(await screen.findByRole('link', { name: 'Продолжить обучение' }))
 
     // then
     expect(await screen.findByText('Что такое xmin?')).toBeInTheDocument()
@@ -120,6 +120,32 @@ describe('Режим обучения', () => {
 
     // then
     expect(await screen.findByText('Что такое MVCC?')).toBeInTheDocument()
+  })
+
+  it('открывает ответ пробелом и отвечает «Помню» стрелкой вправо', async () => {
+    // given
+    backend.on('GET', DUE, [dueCard('c-1', 'Что такое MVCC?')])
+    backend.on('POST', '/cards/c-1/review', {
+      cardId: 'c-1',
+      result: 'REMEMBER',
+      stage: 1,
+      mastered: false,
+      returnToSession: false,
+    })
+    renderApp(backend, '/topics/topic-1/learn')
+    expect(await screen.findByText('1 / 1')).toBeInTheDocument()
+
+    // when
+    await userEvent.keyboard(' ')
+    expect(screen.getByText('Ответ: Что такое MVCC?')).toBeInTheDocument()
+    await userEvent.keyboard('{ArrowRight}')
+
+    // then
+    expect(await screen.findByText('Сессия завершена')).toBeInTheDocument()
+    expect(backend.calls.find((call) => call.path === '/api/cards/c-1/review')?.body).toEqual({
+      result: 'REMEMBER',
+      sessionId: 'session-1',
+    })
   })
 })
 

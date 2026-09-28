@@ -21,7 +21,7 @@ describe('Экран темы', () => {
     renderApp(backend, '/topics/topic-1')
 
     // then
-    expect(await screen.findByText('Добавьте первый материал')).toBeInTheDocument()
+    expect(await screen.findByText('Здесь пока нет материалов.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Материалы/ })).toHaveAttribute('aria-current', 'page')
   })
 

@@ -3,41 +3,22 @@
   display: grid;
   min-height: 100vh;
   place-items: center;
-  padding: 20px;
-  background: radial-gradient(circle at 50% 0, #eef4ec, transparent 45%), var(--paper);
+  padding: 24px 16px;
 }
 .auth-card {
   width: min(420px, 100%);
-  padding: 42px 38px 31px;
-  border: 1px solid var(--line);
-  border-radius: 17px;
-  background: #fff;
-  box-shadow: 0 20px 60px #344d3a0d;
-}
-.brand-centered {
-  justify-content: center;
-  margin-bottom: 42px;
-}
-.auth-card .eyebrow {
-  text-align: center;
 }
 .auth-card h1 {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 27px;
+  margin-top: 48px;
+  font-size: clamp(32px, 4vw, 40px);
+  letter-spacing: -0.02em;
 }
-.auth-card > .muted {
-  margin-bottom: 27px;
-  text-align: center;
-  font-size: 13px;
+.auth-lead {
+  margin: 12px 0 32px;
+  color: var(--muted);
 }
 .auth-switch {
-  margin: 23px 0 0;
-  color: #818982;
-  text-align: center;
-  font-size: 12px;
-}
-.auth-switch a {
-  color: var(--green-dark);
-  font-weight: 700;
+  margin-top: 24px;
+  color: var(--muted);
+  font-size: 14px;
 }

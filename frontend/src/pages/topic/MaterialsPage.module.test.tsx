@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { errorReply, FakeBackend, Reply } from '@/test/fakeBackend'
-import { progress, topic } from '@/test/fixtures'
+import { job, progress, question, topic } from '@/test/fixtures'
 import { renderApp } from '@/test/renderApp'
 
 const source = (status: string) => ({
@@ -30,7 +30,7 @@ describe('Экран материалов', () => {
     backend.on('GET', '/topics/topic-1/sources', [])
     backend.on('POST', '/topics/topic-1/sources/text', new Reply(202, source('UPLOADED')))
     renderApp(backend, '/topics/topic-1')
-    await userEvent.click(await screen.findByRole('button', { name: /Добавить материал/ }))
+    await userEvent.click(await addMaterialButton())
     backend.on('GET', '/topics/topic-1/sources', [source('READY')])
 
     // when
@@ -53,7 +53,7 @@ describe('Экран материалов', () => {
     renderApp(backend, '/topics/topic-1')
 
     // when
-    await userEvent.click(await screen.findByTitle('Удалить материал'))
+    await userEvent.click(await screen.findByRole('button', { name: 'Удалить материал' }))
 
     // then
     expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось удалить материал: Сервис недоступен')
@@ -64,7 +64,7 @@ describe('Экран материалов', () => {
     // given
     backend.on('GET', '/topics/topic-1/sources', [])
     renderApp(backend, '/topics/topic-1')
-    const open = await screen.findByRole('button', { name: /Добавить материал/ })
+    const open = await addMaterialButton()
     await userEvent.click(open)
     expect(screen.getByRole('dialog', { name: 'Добавить материал' })).toBeInTheDocument()
 
@@ -81,7 +81,7 @@ describe('Экран материалов', () => {
     backend.on('GET', '/topics/topic-1/sources', [])
     backend.on('POST', '/topics/topic-1/sources/youtube', new Reply(202, source('UPLOADED')))
     renderApp(backend, '/topics/topic-1')
-    await userEvent.click(await screen.findByRole('button', { name: /Добавить материал/ }))
+    await userEvent.click(await addMaterialButton())
     await userEvent.click(screen.getByRole('button', { name: /YouTube/ }))
 
     // when
@@ -109,4 +109,40 @@ describe('Экран материалов', () => {
     expect(await screen.findByText('Готово', {}, { timeout: 3000 })).toBeInTheDocument()
     await waitFor(() => expect(backend.count('GET', '/topics/topic-1')).toBe(topicLoads + 1))
   })
+
+  it('создаёт вопросы из готовых материалов и показывает генерацию на вкладке вопросов', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1/sources', [source('READY')])
+    backend.on('GET', '/topics/topic-1/questions', [])
+    backend.on('POST', '/topics/topic-1/questions/generate', new Reply(202, job('job-1', 'PROCESSING')))
+    backend.on('GET', '/generation-jobs/job-1', job('job-1', 'PROCESSING'))
+    renderApp(backend, '/topics/topic-1')
+
+    // when
+    await userEvent.click(await screen.findByRole('button', { name: 'Создать вопросы' }))
+
+    // then
+    expect(await screen.findByText(/Анализируем материалы/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Вопросы' })).toHaveAttribute('aria-current', 'page')
+    expect(backend.count('POST', '/topics/topic-1/questions/generate')).toBe(1)
+  })
+
+  it('не предлагает создать вопросы повторно, когда они уже есть', async () => {
+    // given
+    backend.on('GET', '/topics/topic-1/sources', [source('READY')])
+    backend.on('GET', '/topics/topic-1/questions', [question('q-1', 'Что такое MVCC?')])
+
+    // when
+    renderApp(backend, '/topics/topic-1')
+
+    // then
+    expect(await screen.findByRole('link', { name: 'К вопросам' })).toHaveAttribute('href', '/topics/topic-1/questions')
+    expect(screen.queryByRole('button', { name: 'Создать вопросы' })).not.toBeInTheDocument()
+  })
 })
+
+/** Кнопка «Добавить материал» в шапке темы — первая из двух, когда материалов ещё нет. */
+async function addMaterialButton() {
+  await screen.findByText('Здесь пока нет материалов.')
+  return screen.getAllByRole('button', { name: 'Добавить материал' })[0]
+}

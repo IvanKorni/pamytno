@@ -1,5 +1,4 @@
-import { Check, X } from 'lucide-react'
-import { EmptyState, isShortText, RichInline, RichText } from '@/shared'
+import { EmptyState, isShortText, RichInline, RichText, useKeyboardShortcuts } from '@/shared'
 import type { Question, QuestionDecision } from '../model/types'
 
 /** Свойства просмотра вопросов по одному. */
@@ -11,40 +10,39 @@ interface QuestionReviewProps {
   deciding: boolean
 }
 
-/** Просмотр новых вопросов по одному: «Хочу изучить» или «Не изучать». */
+/** Просмотр новых вопросов по одному: «Хочу изучить» или «Не изучать», в том числе стрелками. */
 export function QuestionReview({ current, position, total, onDecide, deciding }: QuestionReviewProps) {
+  const decide = (decision: QuestionDecision) => current && !deciding && onDecide(decision)
+  useKeyboardShortcuts({ ArrowLeft: () => decide('REJECT'), ArrowRight: () => decide('APPROVE') })
   if (!current) {
     return (
       <EmptyState
-        icon={<Check size={24} />}
-        title="Все вопросы просмотрены"
-        text="Создайте карточки из выбранных вопросов или вернитесь к списку."
+        title="Все вопросы просмотрены."
+        text="Создайте карточки из выбранных вопросов или переключитесь на список."
       />
     )
   }
   return (
     <div className="review-panel">
-      <div className="review-count">
-        {position} <span>/ {total}</span>
+      <div className="mono review-count">
+        {position} / {total}
       </div>
-      <div className="review-question">
-        <div className="question-label">ВОПРОС</div>
-        <QuestionText text={current.text} />
-        {current.sourceFragment && (
-          <details>
-            <summary>Источник</summary>
-            <p>{current.sourceFragment}</p>
-          </details>
-        )}
-      </div>
+      <QuestionText text={current.text} />
+      {current.sourceFragment && (
+        <details className="review-source">
+          <summary>Источник</summary>
+          <p>{current.sourceFragment}</p>
+        </details>
+      )}
       <div className="review-actions">
-        <button className="decision-button reject" disabled={deciding} onClick={() => onDecide('REJECT')}>
-          <X size={19} /> Не изучать
+        <button className="button button-secondary" disabled={deciding} onClick={() => onDecide('REJECT')}>
+          Не изучать
         </button>
-        <button className="decision-button approve" disabled={deciding} onClick={() => onDecide('APPROVE')}>
-          Хочу изучить <Check size={19} />
+        <button className="button button-primary" disabled={deciding} onClick={() => onDecide('APPROVE')}>
+          Хочу изучить
         </button>
       </div>
+      <div className="mono key-hint">← не изучать · изучить →</div>
     </div>
   )
 }
@@ -53,9 +51,9 @@ export function QuestionReview({ current, position, total, onDecide, deciding }:
 function QuestionText({ text }: { text: string }) {
   if (isShortText(text)) {
     return (
-      <h3>
+      <h2 className="review-question">
         <RichInline text={text} />
-      </h3>
+      </h2>
     )
   }
   return <RichText text={text} className="review-question-text" />

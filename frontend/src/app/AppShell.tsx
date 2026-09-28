@@ -1,21 +1,19 @@
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, LogOut, Menu, Plus } from 'lucide-react'
+import { Link, NavLink, Outlet, useMatch } from 'react-router-dom'
 import { useAuth, useLogout } from '@/modules/identity'
+import { useDashboard } from '@/modules/learning'
 import { Brand, ToastContainer } from '@/shared'
+import { useScrolled } from './useScrolled'
 
-/** Каркас приложения для вошедшего пользователя: боковое меню, экран и уведомления. */
+/**
+ * Каркас приложения для вошедшего пользователя: шапка, экран и уведомления.
+ * Режим обучения занимает весь экран — без шапки, чтобы ничто не отвлекало от карточки.
+ */
 export function AppShell() {
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const closeMenu = () => setMobileOpen(false)
+  const learning = useMatch('/topics/:topicId/learn')
   return (
     <div className="app-shell">
-      <Sidebar open={mobileOpen} onNavigate={closeMenu} />
-      {mobileOpen && <button className="mobile-backdrop" aria-label="Закрыть меню" onClick={closeMenu} />}
-      <main className="main-content">
-        <button className="mobile-menu" aria-label="Открыть меню" onClick={() => setMobileOpen(true)}>
-          <Menu size={22} />
-        </button>
+      {!learning && <AppHeader />}
+      <main className={learning ? 'learning-main' : 'page'}>
         <Outlet />
       </main>
       <ToastContainer />
@@ -23,30 +21,37 @@ export function AppShell() {
   )
 }
 
-/** Боковое меню: разделы, пользователь и выход; на мобильном выезжает поверх экрана. */
-function Sidebar({ open, onNavigate }: { open: boolean; onNavigate: () => void }) {
+/** Шапка: логотип, раздел «Темы», сколько повторить сегодня, пользователь и выход. */
+function AppHeader() {
+  const scrolled = useScrolled()
   const user = useAuth((state) => state.user)
   const logout = useLogout()
   return (
-    <aside className={`sidebar ${open ? 'is-open' : ''}`}>
-      <Brand />
-      <nav className="main-nav">
-        <NavLink to="/" end onClick={onNavigate}>
-          <LayoutDashboard size={18} /> Обзор
-        </NavLink>
-        <NavLink to="/topics/new" onClick={onNavigate}>
-          <Plus size={18} /> Новая тема
-        </NavLink>
-      </nav>
-      <div className="sidebar-bottom">
-        <div className="user-chip">
-          <span className="avatar">{user?.email.slice(0, 1).toUpperCase()}</span>
-          <span className="user-email">{user?.email}</span>
+    <header className={scrolled ? 'app-header is-scrolled' : 'app-header'}>
+      <div className="header-inner">
+        <nav className="header-nav" aria-label="Разделы">
+          <Link to="/" className="brand-link">
+            <Brand />
+          </Link>
+          <NavLink to="/" end className="header-link">
+            Темы
+          </NavLink>
+        </nav>
+        <div className="header-side">
+          <DueToday />
+          <span className="header-user">{user?.email}</span>
+          <button className="button button-secondary button-compact" onClick={() => logout('signOut')}>
+            Выйти
+          </button>
         </div>
-        <button className="sidebar-logout" onClick={() => logout('signOut')}>
-          <LogOut size={16} /> Выйти
-        </button>
       </div>
-    </aside>
+    </header>
   )
+}
+
+/** Сколько карточек подойдёт к повторению до конца дня по всем темам. */
+function DueToday() {
+  const dashboard = useDashboard()
+  if (!dashboard.data) return null
+  return <span className="mono header-due">{dashboard.data.dueToday} на сегодня</span>
 }

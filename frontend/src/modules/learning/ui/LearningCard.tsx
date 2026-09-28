@@ -1,5 +1,4 @@
-import { Check, ChevronRight, X } from 'lucide-react'
-import { InlineError, isShortText, RichInline, RichText } from '@/shared'
+import { InlineError, isShortText, RichInline, RichText, useKeyboardShortcuts } from '@/shared'
 import type { DueCard } from '../model/types'
 
 /** Число этапов повторения: на этапах 0–5 карточка учится, после шестого считается изученной. */
@@ -15,37 +14,66 @@ interface LearningCardProps {
   error?: string
 }
 
-/** Карточка в режиме обучения: вопрос, ответ по запросу и оценка «Помню» / «Не помню». */
+/**
+ * Карточка в режиме обучения: вопрос, ответ по запросу и оценка «Помню» / «Не помню».
+ * Пробел открывает ответ, стрелки влево и вправо — «Не помню» и «Помню».
+ */
 export function LearningCard({ card, revealed, reveal, answer, answering, error }: LearningCardProps) {
+  const rate = (result: 'REMEMBER' | 'FORGOT') => revealed && !answering && answer(result)
+  useKeyboardShortcuts({
+    ' ': () => !revealed && reveal(),
+    ArrowLeft: () => rate('FORGOT'),
+    ArrowRight: () => rate('REMEMBER'),
+  })
   return (
     <div className="learning-card">
-      <div className="learning-card-meta">
-        <span>
-          Этап {Math.min(card.stage + 1, STAGES)} из {STAGES}
-        </span>
-        <span>{card.totalReviews ? `${card.totalReviews} повторений` : 'Новая карточка'}</span>
-      </div>
-      <div className="learning-card-body">
-        <div className="question-label">ВОПРОС</div>
+      <div className="learning-body">
+        <div className="mono">{cardHint(card)}</div>
         <Question text={card.front} />
-        {revealed && <Answer text={card.back} />}
+        {revealed && <RichText text={card.back} className="learning-answer" />}
       </div>
-      {error && <InlineError message={`Ответ не сохранён: ${error}`} />}
-      {revealed ? (
-        <div className="learning-actions">
-          <button className="decision-button reject" disabled={answering} onClick={() => answer('FORGOT')}>
-            <X size={19} /> Не помню
-          </button>
-          <button className="decision-button approve" disabled={answering} onClick={() => answer('REMEMBER')}>
-            Помню <Check size={19} />
-          </button>
-        </div>
-      ) : (
-        <button className="button button-dark reveal-button" onClick={reveal}>
-          Показать ответ <ChevronRight size={17} />
-        </button>
-      )}
+      <div className="learning-controls">
+        {error && <InlineError message={`Ответ не сохранён: ${error}`} />}
+        {revealed ? <AnswerButtons answering={answering} answer={answer} /> : <RevealButton reveal={reveal} />}
+      </div>
     </div>
+  )
+}
+
+/** Кнопка «Показать ответ» с подсказкой про пробел. */
+function RevealButton({ reveal }: { reveal: () => void }) {
+  return (
+    <>
+      <button className="button button-primary button-wide learning-button" onClick={reveal}>
+        Показать ответ
+      </button>
+      <div className="mono key-hint">пробел</div>
+    </>
+  )
+}
+
+/** Кнопки оценки ответа с подсказкой про стрелки. */
+function AnswerButtons({ answering, answer }: Pick<LearningCardProps, 'answering' | 'answer'>) {
+  return (
+    <>
+      <div className="learning-actions">
+        <button
+          className="button button-secondary learning-button"
+          disabled={answering}
+          onClick={() => answer('FORGOT')}
+        >
+          Не помню
+        </button>
+        <button
+          className="button button-primary learning-button"
+          disabled={answering}
+          onClick={() => answer('REMEMBER')}
+        >
+          Помню
+        </button>
+      </div>
+      <div className="mono key-hint">← не помню · помню →</div>
+    </>
   )
 }
 
@@ -61,13 +89,8 @@ function Question({ text }: { text: string }) {
   return <RichText text={text} className="learning-front is-long" />
 }
 
-/** Открытый ответ карточки. */
-function Answer({ text }: { text: string }) {
-  return (
-    <div className="answer">
-      <div className="answer-line" />
-      <div className="question-label">ОТВЕТ</div>
-      <RichText text={text} className="answer-text" />
-    </div>
-  )
+/** Подпись над вопросом: новая карточка или этап повторения и сколько раз её уже повторяли. */
+function cardHint(card: DueCard): string {
+  if (!card.totalReviews) return 'новая карточка'
+  return `этап ${Math.min(card.stage + 1, STAGES)} из ${STAGES} · повторений: ${card.totalReviews}`
 }

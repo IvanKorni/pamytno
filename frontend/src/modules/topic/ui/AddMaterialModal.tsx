@@ -20,9 +20,6 @@ export function AddMaterialModal({ topicId, close }: { topicId: string; close: (
       {mutation.error && <InlineError message={mutation.error.message} />}
       <MaterialFields draft={draft} update={update} />
       <div className="modal-actions">
-        <button className="button button-secondary" onClick={close}>
-          Отмена
-        </button>
         <button
           className="button button-primary"
           disabled={mutation.isPending || !isDraftReady(draft)}

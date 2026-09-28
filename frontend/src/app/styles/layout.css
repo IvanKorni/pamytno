@@ -1,152 +1,88 @@
-/* Каркас приложения: боковое меню, контейнеры страниц, заголовки разделов */
-.app-shell {
-  min-height: 100vh;
-  display: flex;
+/* Каркас приложения: шапка, контейнер страницы, заголовки разделов */
+.app-header {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 56px;
+  border-bottom: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.92);
+  transition:
+    background 150ms,
+    border-color 150ms;
 }
-.sidebar {
-  width: 250px;
-  flex: 0 0 250px;
-  padding: 28px 20px 22px;
-  display: flex;
-  flex-direction: column;
-  background: #efeee8;
-  border-right: 1px solid #e3e3dc;
+.app-header.is-scrolled {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+  background: var(--paper);
 }
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--ink);
-  font:
-    800 19px Manrope,
-    sans-serif;
-  letter-spacing: -0.04em;
-}
-.brand-mark {
-  display: inline-grid;
-  width: 27px;
-  height: 27px;
-  place-items: center;
-  border-radius: 9px;
-  color: #fff;
-  font:
-    800 17px Manrope,
-    sans-serif;
-  background: var(--green);
-}
-.main-nav {
-  display: grid;
-  gap: 6px;
-  margin-top: 62px;
-}
-.main-nav a {
+.header-inner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 13px;
-  border-radius: 10px;
-  color: #737974;
-  font-size: 14px;
-  font-weight: 600;
-  transition: 0.2s;
-}
-.main-nav a:hover,
-.main-nav a.active {
-  color: var(--green-dark);
-  background: #e3e8e0;
-}
-.sidebar-bottom {
-  margin-top: auto;
-  display: grid;
-  gap: 15px;
-}
-.user-chip {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-width: 0;
-  padding-top: 17px;
-  border-top: 1px solid #dfe0d9;
-}
-.avatar {
-  display: grid;
-  flex: 0 0 29px;
-  width: 29px;
-  height: 29px;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--green-dark);
-  background: #d3dfd2;
-  font:
-    700 12px Manrope,
-    sans-serif;
-}
-.user-email {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #777d78;
-  font-size: 12px;
-}
-.sidebar-logout {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: max-content;
-  padding: 0;
-  border: 0;
-  color: #858984;
-  background: transparent;
-  font-size: 13px;
-}
-.sidebar-logout:hover {
-  color: var(--red);
-}
-.main-content {
-  width: calc(100% - 250px);
-  min-height: 100vh;
-  padding: 54px clamp(24px, 5vw, 78px);
-}
-.content-wrap {
-  width: min(1100px, 100%);
-  margin: 0 auto;
-}
-.content-wrap.narrow {
-  max-width: 700px;
-  margin-left: max(0px, calc((100% - 1100px) / 2));
-}
-.page-header,
-.section-heading,
-.topic-header {
-  display: flex;
-  align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
+  max-width: var(--page-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
 }
-.page-header {
-  margin-bottom: 37px;
-}
-.page-header p {
-  margin-bottom: 0;
-}
-.section-heading {
-  margin: 44px 0 20px;
+.header-nav,
+.header-side {
+  display: flex;
   align-items: center;
+  min-width: 0;
 }
-.section-heading h2 {
-  margin: 0;
+.header-nav {
+  gap: 32px;
 }
-.section-heading p {
-  margin: 5px 0 0;
+.header-side {
+  gap: 16px;
+}
+.brand {
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.brand-link,
+.header-link {
+  padding: 8px 0;
+  text-decoration: none;
+}
+.header-link {
+  color: var(--muted);
   font-size: 14px;
 }
-.heading-actions {
-  display: flex;
-}
-.mobile-menu {
-  display: none;
-  border: 0;
-  padding: 0;
+.header-link:hover,
+.header-link.active {
   color: var(--ink);
-  background: transparent;
+}
+.header-user {
+  overflow: hidden;
+  max-width: 220px;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.header-due {
+  white-space: nowrap;
+}
+.page {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 104px 24px 96px;
+}
+.section-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.section-title h1 {
+  font-size: clamp(28px, 3.4vw, 40px);
+  letter-spacing: -0.02em;
 }

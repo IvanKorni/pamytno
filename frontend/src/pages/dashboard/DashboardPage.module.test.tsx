@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FakeBackend } from '@/test/fakeBackend'
+import { FakeBackend, Reply } from '@/test/fakeBackend'
 import { dueCard, progress, session, topic } from '@/test/fixtures'
 import { renderApp } from '@/test/renderApp'
 
@@ -46,5 +46,26 @@ describe('Обзор', () => {
     expect(screen.queryByRole('button', { name: /Начать/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Повторить/ })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Позже сегодня' })).toHaveAttribute('href', '/topics/topic-1')
+  })
+
+  it('создаёт тему в окне и открывает её', async () => {
+    // given
+    backend.on('GET', '/dashboard', { ...progress('', { dueCards: 0, dueToday: 0 }), topics: [] })
+    backend.on('POST', '/topics', new Reply(201, topic('topic-3', 'Kafka')))
+    backend.on('GET', '/topics/topic-3', topic('topic-3', 'Kafka'))
+    backend.on('GET', '/topics/topic-3/progress', progress('topic-3', { totalCards: 0 }))
+    backend.on('GET', '/topics/topic-3/sources', [])
+    renderApp(backend, '/')
+    await userEvent.click(await screen.findByRole('button', { name: '+ Новая тема' }))
+
+    // when
+    await userEvent.type(screen.getByLabelText('Название'), 'Kafka')
+    await userEvent.click(screen.getByRole('button', { name: 'Создать тему' }))
+
+    // then
+    expect(await screen.findByRole('heading', { level: 1, name: 'Kafka' })).toBeInTheDocument()
+    expect(backend.calls.find((call) => call.method === 'POST' && call.path === '/api/topics')?.body).toEqual({
+      title: 'Kafka',
+    })
   })
 })

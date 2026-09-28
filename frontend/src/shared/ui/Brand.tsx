@@ -1,9 +1,7 @@
-/** Логотип «памятно». */
-export function Brand({ centered = false }: { centered?: boolean }) {
-  return (
-    <div className={centered ? 'brand brand-centered' : 'brand'}>
-      <span className="brand-mark">п</span>
-      <span>памятно</span>
-    </div>
-  )
+/** Название приложения, которое показывается в шапке и на экране входа. */
+export const APP_NAME = 'Напоминатор'
+
+/** Логотип «Напоминатор» — название без значка, как в макете. */
+export function Brand() {
+  return <span className="brand">{APP_NAME}</span>
 }

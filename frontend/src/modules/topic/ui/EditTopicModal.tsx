@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
 import { InlineError, Modal } from '@/shared'
 import { useDeleteTopic, useUpdateTopic } from '../api/topicQueries'
 import type { Topic } from '../model/types'
@@ -21,8 +20,9 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
     close()
   })
   const error = update.error ?? remove.error
+  const confirmRemove = () => window.confirm('Удалить тему вместе с материалами и карточками?') && remove.mutate()
   return (
-    <Modal title="Настройки темы" close={close}>
+    <Modal title="Тема" close={close}>
       {error && <InlineError message={error.message} />}
       <div className="form-stack">
         <label>
@@ -31,14 +31,10 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
         </label>
         <label>
           Описание
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={2000} />
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={2000} />
         </label>
       </div>
-      <DangerZone removing={remove.isPending} onRemove={() => remove.mutate()} />
       <div className="modal-actions">
-        <button className="button button-secondary" onClick={close}>
-          Отмена
-        </button>
         <button
           className="button button-primary"
           disabled={update.isPending || !title.trim()}
@@ -46,19 +42,10 @@ export function EditTopicModal({ topic, close, onDeleted }: EditTopicModalProps)
         >
           {update.isPending ? 'Сохраняем…' : 'Сохранить'}
         </button>
+        <button className="button button-secondary" disabled={remove.isPending} onClick={confirmRemove}>
+          Удалить тему
+        </button>
       </div>
     </Modal>
-  )
-}
-
-/** Удаление темы с подтверждением. */
-function DangerZone({ removing, onRemove }: { removing: boolean; onRemove: () => void }) {
-  const confirmRemove = () => window.confirm('Удалить тему вместе с материалами и карточками?') && onRemove()
-  return (
-    <div className="modal-danger">
-      <button className="text-button danger" disabled={removing} onClick={confirmRemove}>
-        <Trash2 size={15} /> Удалить тему
-      </button>
-    </div>
   )
 }

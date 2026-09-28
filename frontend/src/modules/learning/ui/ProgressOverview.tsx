@@ -1,52 +1,83 @@
-import type { CSSProperties } from 'react'
 import { formatPercent } from '@/shared'
 import type { TopicProgress } from '../model/types'
 
-/** Общий прогресс темы: кольцо и распределение карточек по состояниям. */
+/** Сколько делений в текстовой полосе прогресса. */
+const BLOCKS = 20
+
+/** Прогресс темы: крупный процент, показатели карточек и распределение по состояниям. */
 export function ProgressOverview({ progress }: { progress: TopicProgress }) {
-  const ring = { '--progress': `${progress.progress}%` } as CSSProperties
+  const rows: [string, number][] = [
+    ['Всего карточек', progress.totalCards],
+    ['Изучено', progress.masteredCards],
+    ['На изучении', progress.learningCards],
+    ['Новых', progress.newCards],
+    ['Повторить сейчас', progress.dueCards],
+    ['До конца сегодня', progress.dueToday],
+  ]
   return (
-    <div className="progress-overview">
-      <div className="big-progress">
-        <div className="ring" style={ring}>
-          <strong>{formatPercent(progress.progress)}</strong>
-        </div>
-        <div>
-          <div className="eyebrow">Общий прогресс</div>
-          <h3>
-            {progress.masteredCards} из {progress.totalCards} карточек изучено
-          </h3>
-          <p className="muted">Изученной считается карточка, которая прошла все этапы повторения.</p>
+    <div className="progress-view">
+      <div className="progress-summary">
+        <div className="progress-big">{formatPercent(progress.progress)}</div>
+        <div className="progress-caption">
+          <span className="label-caps">Изучено</span>
+          <span className="progress-blocks" aria-hidden="true">
+            {blocks(progress.progress)}
+          </span>
         </div>
       </div>
-      <div className="progress-bars">
-        <ProgressLine label="Изучено" value={progress.masteredCards} total={progress.totalCards} color="green" />
-        <ProgressLine label="На изучении" value={progress.learningCards} total={progress.totalCards} color="orange" />
-        <ProgressLine label="Новые" value={progress.newCards} total={progress.totalCards} color="gray" />
+      <div className="progress-columns">
+        <ProgressTable title="Карточки" rows={rows} />
+        <Distribution progress={progress} />
       </div>
     </div>
   )
 }
 
-/** Свойства полосы прогресса. */
-interface ProgressLineProps {
-  label: string
-  value: number
-  total: number
-  color: string
-}
-
-/** Полоса с долей карточек в одном состоянии. */
-function ProgressLine({ label, value, total, color }: ProgressLineProps) {
+/** Таблица показателей: подпись и значение в строке. */
+function ProgressTable({ title, rows }: { title: string; rows: [string, number][] }) {
   return (
-    <div className="progress-line">
-      <div>
-        <span>{label}</span>
-        <strong>{value}</strong>
-      </div>
-      <div className="progress-track">
-        <span className={`bar-${color}`} style={{ width: `${total ? (value / total) * 100 : 0}%` }} />
+    <div>
+      <div className="label-caps">{title}</div>
+      <div className="progress-rows">
+        {rows.map(([label, value]) => (
+          <div key={label} className="progress-row">
+            <span>{label}</span>
+            <span className="progress-value">{value}</span>
+          </div>
+        ))}
       </div>
     </div>
   )
+}
+
+/** Доли карточек по состояниям полосами; изученной считается карточка, прошедшая все этапы. */
+function Distribution({ progress }: { progress: TopicProgress }) {
+  const parts: [string, number][] = [
+    ['Изучено', progress.masteredCards],
+    ['На изучении', progress.learningCards],
+    ['Новые', progress.newCards],
+  ]
+  const share = (value: number) => (progress.totalCards ? (value / progress.totalCards) * 100 : 0)
+  return (
+    <div>
+      <div className="label-caps">Распределение</div>
+      <div className="progress-rows">
+        {parts.map(([label, value]) => (
+          <div key={label} className="progress-row">
+            <span className="progress-label">{label}</span>
+            <span className="progress-track">
+              <span style={{ width: `${share(value)}%` }} />
+            </span>
+            <span className="progress-value">{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Текстовая полоса прогресса из закрашенных и пустых делений. */
+function blocks(percent: number): string {
+  const filled = Math.round((Math.min(Math.max(percent, 0), 100) / 100) * BLOCKS)
+  return '█'.repeat(filled) + '░'.repeat(BLOCKS - filled)
 }

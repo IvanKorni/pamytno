@@ -1,66 +1,53 @@
 import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
 import { QuestionList, QuestionReview, useQuestionsWorkflow, type QuestionsWorkflow } from '@/modules/deck'
 import { useRefreshProgress } from '@/modules/learning'
-import { EmptyState, ErrorState, InlineError, InlineLoading, ProcessingCard } from '@/shared'
-import { CardsReadyBanner, QuestionsFooter } from './QuestionsFooter'
+import { EmptyState, ErrorState, InlineError, InlineLoading, ProcessingCard, Segmented } from '@/shared'
+import { CardsReady, QuestionsFooter } from './QuestionsFooter'
 import { useTopicId } from './useTopicId'
 
 /** Режим отбора вопросов: по одному или списком. */
 type View = 'review' | 'list'
 
-/** Экран вопросов: генерация, отбор по одному или списком и создание карточек. */
+/** Варианты переключателя режима отбора. */
+const VIEWS = [
+  { value: 'review' as const, label: 'По одному' },
+  { value: 'list' as const, label: 'Списком' },
+]
+
+/** Экран вопросов: загрузка, ход генерации карточек и её итог или отбор вопросов. */
 export function QuestionsPage() {
   const topicId = useTopicId()
-  const [view, setView] = useState<View>('review')
   const refreshProgress = useRefreshProgress(topicId)
   const workflow = useQuestionsWorkflow(topicId, refreshProgress)
-  const { questions, questionRun, cardRun } = workflow
+  const [seenJob, setSeenJob] = useState<string>()
+  const { questions, cardRun } = workflow
   if (questions.isLoading) return <InlineLoading />
   if (questions.isError) return <ErrorState onRetry={() => questions.refetch()} />
-  const hasQuestions = Boolean(questions.data?.length)
-  return (
-    <section className="topic-section">
-      <div className="section-heading">
-        <div>
-          <h2>Вопросы</h2>
-          <p className="muted">Оставьте только то, что действительно хотите помнить.</p>
-        </div>
-        <ViewSwitch view={view} setView={setView} />
-      </div>
-      {workflow.error && <InlineError message={workflow.error} />}
-      <QuestionsBody workflow={workflow} view={view} />
-      {hasQuestions && !questionRun.running && <QuestionsFooter workflow={workflow} />}
-      <CardGenerationStatus topicId={topicId} run={cardRun} />
-    </section>
-  )
-}
-
-/** Ход генерации карточек или баннер с созданными карточками. */
-function CardGenerationStatus({ topicId, run }: { topicId: string; run: QuestionsWorkflow['cardRun'] }) {
-  if (run.running) {
-    return (
-      <ProcessingCard
-        title="Создаём карточки"
-        subtitle="Превращаем выбранные вопросы в карточки…"
-        count={run.itemsCreated}
-      />
-    )
+  if (cardRun.running) {
+    return <ProcessingCard title="Создаём карточки" subtitle="можно уйти с экрана — карточки создадутся" />
   }
-  return run.readyJob ? <CardsReadyBanner topicId={topicId} count={run.readyJob.itemsCreated} /> : null
+  const readyJob = cardRun.readyJob
+  if (readyJob && readyJob.id !== seenJob) {
+    return <CardsReady topicId={topicId} count={readyJob.itemsCreated} onBack={() => setSeenJob(readyJob.id)} />
+  }
+  return <QuestionsSection workflow={workflow} />
 }
 
-/** Переключатель режима отбора. */
-function ViewSwitch({ view, setView }: { view: View; setView: (view: View) => void }) {
+/** Отбор вопросов: переключатель режима, генерация или вопросы и панель действий под ними. */
+function QuestionsSection({ workflow }: { workflow: QuestionsWorkflow }) {
+  const [view, setView] = useState<View>('review')
+  const ready = Boolean(workflow.questions.data?.length) && !workflow.questionRun.running
   return (
-    <div className="heading-actions">
-      <button className={view === 'review' ? 'segmented active' : 'segmented'} onClick={() => setView('review')}>
-        По одному
-      </button>
-      <button className={view === 'list' ? 'segmented active' : 'segmented'} onClick={() => setView('list')}>
-        Списком
-      </button>
-    </div>
+    <section>
+      {workflow.error && <InlineError message={workflow.error} />}
+      {ready && (
+        <div className="questions-toolbar">
+          <Segmented label="Режим отбора" options={VIEWS} value={view} onChange={setView} />
+        </div>
+      )}
+      <QuestionsBody workflow={workflow} view={view} />
+      {ready && <QuestionsFooter workflow={workflow} />}
+    </section>
   )
 }
 
@@ -71,7 +58,7 @@ function QuestionsBody({ workflow, view }: { workflow: QuestionsWorkflow; view: 
     return (
       <ProcessingCard
         title="Анализируем материалы"
-        subtitle="Создаём вопросы по единому тексту…"
+        subtitle="обычно меньше минуты · можно уйти с экрана"
         count={workflow.questionRun.itemsCreated}
       />
     )
@@ -79,12 +66,11 @@ function QuestionsBody({ workflow, view }: { workflow: QuestionsWorkflow; view: 
   if (!all.length) {
     return (
       <EmptyState
-        icon={<Sparkles size={24} />}
-        title="Вопросов пока нет"
-        text="Когда материалы будут готовы, запустите генерацию вопросов."
+        title="Вопросов пока нет."
+        text="Когда материалы будут готовы, создайте по ним вопросы."
         action={
-          <button className="button button-primary" onClick={workflow.questionRun.launch}>
-            <Sparkles size={17} /> Создать вопросы
+          <button className="button button-primary" onClick={() => workflow.questionRun.launch()}>
+            Создать вопросы
           </button>
         }
       />

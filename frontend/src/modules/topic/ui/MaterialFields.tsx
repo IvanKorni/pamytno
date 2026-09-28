@@ -1,4 +1,3 @@
-import { Check, Upload } from 'lucide-react'
 import type { MaterialDraft } from '../model/materialDraft'
 
 /** Свойства полей черновика материала. */
@@ -62,6 +61,7 @@ function TextFields({ draft, update }: MaterialFieldsProps) {
           rows={9}
           placeholder={words ? 'optimistic locking\nMVCC\npessimistic locking' : 'Вставьте сюда материал…'}
           maxLength={1_000_000}
+          className={words ? 'words-field' : undefined}
           required
         />
       </label>
@@ -74,7 +74,9 @@ function TextFields({ draft, update }: MaterialFieldsProps) {
 function NameField({ draft, update, placeholder }: MaterialFieldsProps & { placeholder: string }) {
   return (
     <label>
-      Название <span className="optional">необязательно</span>
+      <span>
+        Название <span className="optional">— необязательно</span>
+      </span>
       <input
         value={draft.name}
         onChange={(e) => update({ name: e.target.value })}
@@ -89,9 +91,8 @@ function NameField({ draft, update, placeholder }: MaterialFieldsProps & { place
 function PickedFile({ name }: { name: string }) {
   return (
     <>
-      <Check size={24} />
-      <strong>{name}</strong>
-      <span className="muted">Файл выбран</span>
+      <span className="mono">{name}</span>
+      <span>Файл выбран — можно добавить</span>
     </>
   )
 }
@@ -100,9 +101,8 @@ function PickedFile({ name }: { name: string }) {
 function FilePrompt() {
   return (
     <>
-      <Upload size={24} />
       <strong>Перетащите PDF сюда</strong>
-      <span className="muted">или выберите файл</span>
+      <span>или нажмите, чтобы выбрать файл</span>
     </>
   )
 }

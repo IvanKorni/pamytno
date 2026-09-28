@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Check, ChevronRight, Play } from 'lucide-react'
 import type { QuestionsWorkflow } from '@/modules/deck'
 import { plural } from '@/shared'
 
@@ -13,44 +12,52 @@ export function QuestionsFooter({ workflow }: { workflow: QuestionsWorkflow }) {
   const toStudy = approved + selected.length
   return (
     <div className="question-footer">
-      <div>
-        <strong>{toStudy}</strong> {plural(toStudy, 'вопрос', 'вопроса', 'вопросов')} к изучению
-      </div>
-      <div className="footer-actions">
-        {selected.length > 0 && (
-          <>
-            <button className="button button-secondary" onClick={() => workflow.setSelected([])}>
-              Снять выбор
-            </button>
-            <button className="button button-secondary" disabled={deciding} onClick={workflow.rejectSelected}>
-              Не изучать выбранные
-            </button>
-          </>
-        )}
-        <button className="button button-primary" disabled={!toStudy || cardRun.running} onClick={cardRun.launch}>
-          {cardRun.running ? 'Создаём карточки…' : 'Создать карточки'} <ChevronRight size={16} />
-        </button>
-      </div>
+      <button className="button button-primary" disabled={!toStudy || cardRun.running} onClick={() => cardRun.launch()}>
+        Создать карточки · {toStudy}
+      </button>
+      <span className="mono">
+        {toStudy} {plural(toStudy, 'вопрос', 'вопроса', 'вопросов')} к изучению
+      </span>
+      {selected.length > 0 && (
+        <div className="footer-links">
+          <button className="link-button" onClick={() => workflow.setSelected([])}>
+            Снять выбор
+          </button>
+          <button className="link-button" disabled={deciding} onClick={workflow.rejectSelected}>
+            Не изучать выбранные
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
-/** Баннер после генерации карточек с переходом к обучению. */
-export function CardsReadyBanner({ topicId, count }: { topicId: string; count: number }) {
+/** Свойства итога генерации карточек. */
+interface CardsReadyProps {
+  topicId: string
+  count: number
+  onBack: () => void
+}
+
+/** Итог генерации карточек крупным текстом: к обучению, к карточкам или обратно к оставшимся вопросам. */
+export function CardsReady({ topicId, count, onBack }: CardsReadyProps) {
   return (
-    <div className="success-banner">
-      <div className="success-icon">
-        <Check size={18} />
+    <div className="processing">
+      <h2 className="processing-title">
+        {count} {plural(count, 'карточка готова', 'карточки готовы', 'карточек готовы')}
+      </h2>
+      <p className="muted">Первое повторение — сразу. Дальше интервалы подберутся сами.</p>
+      <div className="button-row cards-ready-actions">
+        <Link className="button button-primary" to={`/topics/${topicId}/learn`}>
+          Начать обучение
+        </Link>
+        <Link className="button button-secondary" to={`/topics/${topicId}/cards`}>
+          Посмотреть карточки
+        </Link>
+        <button className="link-button is-muted" onClick={onBack}>
+          К вопросам
+        </button>
       </div>
-      <div>
-        <strong>
-          {count} {plural(count, 'карточка создана', 'карточки созданы', 'карточек создано')}
-        </strong>
-        <p className="muted">Можно начать обучение прямо сейчас.</p>
-      </div>
-      <Link className="button button-dark" to={`/topics/${topicId}/learn`}>
-        Начать обучение <Play size={15} fill="currentColor" />
-      </Link>
     </div>
   )
 }

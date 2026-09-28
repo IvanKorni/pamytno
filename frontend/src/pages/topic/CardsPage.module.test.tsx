@@ -33,10 +33,12 @@ describe('Экран карточек', () => {
     backend.on('GET', '/topics/topic-1/cards', [])
 
     // when
-    await userEvent.click(screen.getByTitle('Удалить'))
+    await userEvent.click(screen.getByRole('button', { name: 'Изменить' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Удалить' }))
 
     // then
-    expect(await screen.findByText('Карточек пока нет')).toBeInTheDocument()
+    expect(await screen.findByText('Здесь пока нет карточек.')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     await waitFor(() => expect(backend.count('GET', '/topics/topic-1/progress')).toBe(2))
   })
 
@@ -47,7 +49,8 @@ describe('Экран карточек', () => {
     await screen.findByText('Что такое MVCC?')
 
     // when
-    await userEvent.click(screen.getByTitle('Удалить'))
+    await userEvent.click(screen.getByRole('button', { name: 'Изменить' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Удалить' }))
 
     // then
     expect(await screen.findByRole('alert')).toHaveTextContent('Не удалось удалить карточку: Карточка не найдена')
@@ -68,5 +71,24 @@ describe('Экран карточек', () => {
     expect(screen.getByText('CQRS и Event Sourcing').closest('li')).toHaveTextContent('ACQRS и Event Sourcing')
     expect(screen.getByText('A — CQRS и Event Sourcing.').tagName).toBe('STRONG')
     expect(screen.getByText('Клиент -> Kafka -> PostgreSQL').closest('pre')).not.toBeNull()
+  })
+
+  it('листает карточки по одной и показывает все сразу', async () => {
+    // given
+    const second = { ...card, id: 'card-2', front: 'Что такое xmin?', back: 'Транзакция-создатель строки' }
+    backend.on('GET', '/topics/topic-1/cards', [card, second])
+    renderApp(backend, '/topics/topic-1/cards')
+    expect(await screen.findByText('1 / 2')).toBeInTheDocument()
+    expect(screen.queryByText('Что такое xmin?')).not.toBeInTheDocument()
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: 'Далее →' }))
+    expect(screen.getByText('2 / 2')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Все' }))
+
+    // then
+    expect(screen.getByText('Что такое MVCC?')).toBeInTheDocument()
+    expect(screen.getByText('Что такое xmin?')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Изменить' })).toHaveLength(2)
   })
 })

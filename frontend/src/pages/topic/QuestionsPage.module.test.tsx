@@ -120,7 +120,7 @@ describe('Экран вопросов', () => {
     await userEvent.click(screen.getByRole('button', { name: /Создать карточки/ }))
 
     // then
-    expect(await screen.findByText('1 карточка создана')).toBeInTheDocument()
+    expect(await screen.findByText('1 карточка готова')).toBeInTheDocument()
     await waitFor(() => expect(backend.count('GET', '/topics/topic-1/progress')).toBe(2))
   })
 

@@ -6,6 +6,7 @@ export { useCreateTopic, useDeleteTopic, useTopic, useTopics, useUpdateTopic } f
 export { topicStatusLabel } from './model/labels'
 export type { Source, Topic, TopicStatus } from './model/types'
 export { AddMaterialModal } from './ui/AddMaterialModal'
+export { CreateTopicModal } from './ui/CreateTopicModal'
 export { EditTopicModal } from './ui/EditTopicModal'
 export { SourceRow } from './ui/SourceRow'
-export { TopicContentModal } from './ui/TopicContentModal'
+export { TopicContentPanel } from './ui/TopicContentPanel'

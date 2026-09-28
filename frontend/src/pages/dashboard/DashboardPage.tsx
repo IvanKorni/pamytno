@@ -1,8 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Plus } from 'lucide-react'
 import { useDashboard, type Dashboard, type TopicProgress } from '@/modules/learning'
-import { useTopics, type Topic } from '@/modules/topic'
-import { EmptyState, ErrorState, PageLoading, plural } from '@/shared'
+import { CreateTopicModal, useTopics, type Topic } from '@/modules/topic'
+import { APP_NAME, EmptyState, ErrorState, PageLoading, plural } from '@/shared'
 import { TodayCard } from './TodayCard'
 import { TopicCard } from './TopicCard'
 
@@ -24,47 +24,51 @@ export function DashboardPage() {
   return <DashboardContent dashboard={dashboard.data} topics={topics.data} />
 }
 
-/** Обзор: сколько карточек ждут повторения сейчас и темы пользователя с прогрессом. */
+/** Обзор: темы пользователя с прогрессом и сколько карточек ждут повторения сейчас. */
 function DashboardContent({ dashboard, topics }: { dashboard: Dashboard; topics: Topic[] }) {
   const navigate = useNavigate()
+  const [creating, setCreating] = useState(false)
   const progressById = new Map(dashboard.topics.map((item) => [item.topicId, item]))
   const startLearning = () => {
     const first = topics.find((topic) => (progressById.get(topic.id)?.dueCards ?? 0) > 0)
     if (first) navigate(`/topics/${first.id}/learn`)
   }
   return (
-    <div className="content-wrap">
-      <header className="page-header">
-        <div>
-          <div className="eyebrow">Твой обзор</div>
-          <h1>Что изучим сегодня?</h1>
-          <p className="muted">Небольшие шаги складываются в устойчивые знания.</p>
-        </div>
-        <NewTopicButton />
-      </header>
-      <TodayCard dueNow={dashboard.dueCards} dueToday={dashboard.dueToday} onStart={startLearning} />
-      <div className="section-heading">
-        <div>
-          <h2>Мои темы</h2>
-          <p className="muted">
-            {topics.length} {plural(topics.length, 'тема', 'темы', 'тем')}
-          </p>
-        </div>
+    <section>
+      <div className="section-title">
+        <h1>Темы</h1>
+        <span className="mono">{summary(topics.length, dashboard.totalCards)}</span>
       </div>
-      <TopicGrid topics={topics} progressById={progressById} />
-    </div>
+      {topics.length > 0 && (
+        <TodayCard dueNow={dashboard.dueCards} dueToday={dashboard.dueToday} onStart={startLearning} />
+      )}
+      <TopicGrid topics={topics} progressById={progressById} onCreate={() => setCreating(true)} />
+      {creating && (
+        <CreateTopicModal close={() => setCreating(false)} onCreated={(topicId) => navigate(`/topics/${topicId}`)} />
+      )}
+    </section>
   )
 }
 
-/** Сетка тем или приглашение создать первую. */
-function TopicGrid({ topics, progressById }: { topics: Topic[]; progressById: Map<string, TopicProgress> }) {
+/** Свойства сетки тем. */
+interface TopicGridProps {
+  topics: Topic[]
+  progressById: Map<string, TopicProgress>
+  onCreate: () => void
+}
+
+/** Сетка тем с плиткой «Новая тема» или приглашение создать первую. */
+function TopicGrid({ topics, progressById, onCreate }: TopicGridProps) {
   if (!topics.length) {
     return (
       <EmptyState
-        icon={<BookOpen size={24} />}
         title="Здесь пока пусто"
-        text="Создайте первую тему — добавьте материал, а Памятно поможет выделить главное."
-        action={<NewTopicButton label="Создать тему" />}
+        text={`Создайте первую тему — добавьте материал, а ${APP_NAME} поможет выделить главное.`}
+        action={
+          <button className="button button-primary" onClick={onCreate}>
+            Создать тему
+          </button>
+        }
       />
     )
   }
@@ -73,16 +77,14 @@ function TopicGrid({ topics, progressById }: { topics: Topic[]; progressById: Ma
       {topics.map((topic) => (
         <TopicCard key={topic.id} topic={topic} progress={progressById.get(topic.id)} />
       ))}
+      <button className="topic-new" onClick={onCreate}>
+        + Новая тема
+      </button>
     </div>
   )
 }
 
-/** Кнопка перехода к созданию темы. */
-function NewTopicButton({ label = 'Новая тема' }: { label?: string }) {
-  const navigate = useNavigate()
-  return (
-    <button className="button button-primary" onClick={() => navigate('/topics/new')}>
-      <Plus size={17} /> {label}
-    </button>
-  )
+/** Сводка над сеткой: «4 темы · 422 карточки». */
+function summary(topics: number, cards: number): string {
+  return `${topics} ${plural(topics, 'тема', 'темы', 'тем')} · ${cards} ${plural(cards, 'карточка', 'карточки', 'карточек')}`
 }

@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth, useAuthBootstrap } from '@/modules/identity'
 import { AuthPage } from '@/pages/AuthPage'
-import { CreateTopicPage } from '@/pages/CreateTopicPage'
 import { DashboardPage } from '@/pages/dashboard/DashboardPage'
 import { LearningPage } from '@/pages/learning/LearningPage'
 import { CardsPage } from '@/pages/topic/CardsPage'
@@ -20,7 +19,7 @@ interface ReturnState {
 /** Корень приложения: восстанавливает вход и раздаёт экраны по адресам. */
 export function App() {
   const boot = useAuthBootstrap()
-  if (boot.status === 'booting') return <PageLoading text="Загружаем Памятно…" />
+  if (boot.status === 'booting') return <PageLoading />
   if (boot.status === 'failed') {
     return (
       <ErrorState
@@ -36,7 +35,6 @@ export function App() {
       <Route path="/register" element={<GuestOnly page={<AuthPage mode="register" />} />} />
       <Route element={<RequireAuth />}>
         <Route path="/" element={<DashboardPage />} />
-        <Route path="/topics/new" element={<CreateTopicPage />} />
         <Route path="/topics/:topicId/learn" element={<LearningPage />} />
         <Route path="/topics/:topicId" element={<TopicLayout />}>
           <Route index element={<Navigate to="materials" replace />} />

@@ -1,4 +1,3 @@
-import { Check } from 'lucide-react'
 import { RichInline } from '@/shared'
 import { questionStatusLabel } from '../model/labels'
 import type { Question } from '../model/types'
@@ -14,22 +13,24 @@ interface QuestionListProps {
 export function QuestionList({ questions, selected, setSelected }: QuestionListProps) {
   const selectable = questions.filter((question) => question.status === 'GENERATED')
   const allSelected = selectable.length > 0 && selectable.every((question) => selected.includes(question.id))
+  const visible = questions.filter((question) => question.status !== 'CARD_CREATED')
   const toggle = (id: string) =>
     setSelected(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id])
   return (
     <div className="question-list">
       <div className="list-toolbar">
         <button
-          className="text-button"
+          className="link-button"
           onClick={() => setSelected(allSelected ? [] : selectable.map((item) => item.id))}
         >
           {allSelected ? 'Снять всё' : 'Выбрать всё'}
         </button>
-        <span className="muted">{selected.length} выбрано</span>
+        <span className="mono">
+          выбрано {selected.length} из {selectable.length}
+        </span>
       </div>
-      {questions
-        .filter((question) => question.status !== 'CARD_CREATED')
-        .map((question) => (
+      <div className="question-rows">
+        {visible.map((question) => (
           <QuestionItem
             key={question.id}
             question={question}
@@ -37,6 +38,8 @@ export function QuestionList({ questions, selected, setSelected }: QuestionListP
             toggle={() => toggle(question.id)}
           />
         ))}
+        {!visible.length && <p className="question-empty">Все вопросы уже превращены в карточки.</p>}
+      </div>
     </div>
   )
 }
@@ -47,15 +50,13 @@ function QuestionItem({ question, checked, toggle }: { question: Question; check
   return (
     <label className={`question-item ${selectable ? '' : 'is-disabled'}`}>
       <input type="checkbox" disabled={!selectable} checked={checked} onChange={toggle} />
-      <span className="checkmark">
-        <Check size={13} />
+      <span className="checkmark" aria-hidden="true">
+        ✓
       </span>
       <span className="question-item-text">
         <RichInline text={question.text} />
       </span>
-      <span className={`question-status status-${question.status.toLowerCase()}`}>
-        {questionStatusLabel(question.status)}
-      </span>
+      <span className="question-status">{questionStatusLabel(question.status)}</span>
     </label>
   )
 }

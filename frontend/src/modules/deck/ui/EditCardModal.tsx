@@ -3,8 +3,16 @@ import { InlineError, Modal, useToast } from '@/shared'
 import { useUpdateCard } from '../api/cardQueries'
 import type { Flashcard } from '../model/types'
 
-/** Окно изменения вопроса и ответа карточки. */
-export function EditCardModal({ card, close }: { card: Flashcard; close: () => void }) {
+/** Свойства окна карточки. */
+interface EditCardModalProps {
+  card: Flashcard
+  close: () => void
+  onDelete: () => void
+  deleting: boolean
+}
+
+/** Окно карточки: изменение вопроса и ответа и удаление; как удалять, решает страница. */
+export function EditCardModal({ card, close, onDelete, deleting }: EditCardModalProps) {
   const showToast = useToast((state) => state.show)
   const [front, setFront] = useState(card.front)
   const [back, setBack] = useState(card.back)
@@ -13,12 +21,12 @@ export function EditCardModal({ card, close }: { card: Flashcard; close: () => v
     close()
   })
   return (
-    <Modal title="Изменить карточку" close={close}>
+    <Modal title="Карточка" close={close}>
       {mutation.error && <InlineError message={mutation.error.message} />}
       <div className="form-stack">
         <label>
           Вопрос
-          <textarea value={front} onChange={(e) => setFront(e.target.value)} rows={4} maxLength={2000} />
+          <textarea value={front} onChange={(e) => setFront(e.target.value)} rows={3} maxLength={2000} />
         </label>
         <label>
           Ответ
@@ -26,15 +34,15 @@ export function EditCardModal({ card, close }: { card: Flashcard; close: () => v
         </label>
       </div>
       <div className="modal-actions">
-        <button className="button button-secondary" onClick={close}>
-          Отмена
-        </button>
         <button
           className="button button-primary"
           disabled={mutation.isPending || !front.trim() || !back.trim()}
           onClick={() => mutation.mutate({ front: front.trim(), back: back.trim() })}
         >
           {mutation.isPending ? 'Сохраняем…' : 'Сохранить'}
+        </button>
+        <button className="button button-secondary" disabled={deleting} onClick={onDelete}>
+          Удалить
         </button>
       </div>
     </Modal>
