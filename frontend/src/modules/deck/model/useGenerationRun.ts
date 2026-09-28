@@ -36,6 +36,8 @@ export function useGenerationRun({ topicId, kind, start, onReady, failureText }:
   const current = job.data
   return {
     launch: () => launch.mutate(),
+    /** Запускает генерацию и, когда backend принял задачу, выполняет `onStarted` — например, переход на экран. */
+    launchThen: (onStarted: () => void) => launch.mutate(undefined, { onSuccess: () => onStarted() }),
     running: launch.isPending || isJobPolling({ jobId, job: current, lost: isJobGone(job.error) }),
     itemsCreated: current?.itemsCreated,
     readyJob: current?.status === 'READY' ? current : undefined,

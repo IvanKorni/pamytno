@@ -1,10 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { generateCards, generateQuestions } from '../api/deckApi'
+import { generateCards } from '../api/deckApi'
 import { deckKeys } from '../api/deckKeys'
 import { useDecideQuestion, useDecideQuestions, useQuestions } from '../api/questionQueries'
 import { useQuestionSelection } from './selection'
 import type { QuestionDecision } from './types'
 import { useGenerationRun } from './useGenerationRun'
+import { useQuestionGeneration } from './useQuestionGeneration'
 
 /**
  * Сценарий отбора вопросов: генерация вопросов, решения по одному и списком, генерация карточек.
@@ -19,13 +20,7 @@ export function useQuestionsWorkflow(topicId: string, onCardsCreated: () => void
   const decideOne = useDecideQuestion(topicId)
   const decideMany = useDecideQuestions(topicId, () => setSelected([]))
   const refetch = (queryKey: readonly unknown[]) => queryClient.invalidateQueries({ queryKey })
-  const questionRun = useGenerationRun({
-    topicId,
-    kind: 'QUESTIONS',
-    start: () => generateQuestions(topicId),
-    onReady: () => refetch(deckKeys.questions(topicId)),
-    failureText: 'Не удалось создать вопросы.',
-  })
+  const questionRun = useQuestionGeneration(topicId)
   const cardRun = useGenerationRun({
     topicId,
     kind: 'CARDS',
