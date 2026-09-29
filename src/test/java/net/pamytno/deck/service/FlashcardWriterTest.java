@@ -6,6 +6,7 @@ import net.pamytno.deck.domain.Flashcard;
 import net.pamytno.deck.domain.Question;
 import net.pamytno.deck.domain.QuestionStatus;
 import net.pamytno.deck.domain.WordCard;
+import net.pamytno.deck.domain.WordEntry;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.repository.FlashcardRepository;
 import net.pamytno.deck.repository.QuestionRepository;
@@ -97,8 +98,8 @@ class FlashcardWriterTest {
     void createWord_savesCardWithoutQuestion() {
         // given
         var topic = DeckFixtures.topic();
-        var word = WordCard.of("contract", "договор", "A formal agreement.", "We signed a _____.",
-                "Мы подписали договор.").orElseThrow();
+        var word = WordCard.from(new WordEntry("contract", "договор", "A formal agreement.", "We signed a contract.",
+                "contract", "Мы подписали договор.")).orElseThrow();
         when(flashcardRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // when

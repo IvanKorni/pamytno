@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.pamytno.deck.domain.TopicRef;
 import net.pamytno.deck.domain.WordCard;
+import net.pamytno.deck.domain.WordEntry;
 import net.pamytno.deck.integration.ai.AiGenerationException;
 import net.pamytno.deck.integration.ai.AiProvider;
 import net.pamytno.deck.integration.ai.GeneratedWord;
@@ -16,7 +17,8 @@ import java.util.Optional;
 
 /**
  * Выполняет задачу составления карточек слов: один вызов модели на весь текст, затем карточка на каждое
- * выражение. Работает вне транзакции — вызов AI долгий. Неполные ответы модели пропускаются.
+ * выражение. Работает вне транзакции — вызов AI долгий. Неполные ответы и выражения, которых нет
+ * в предложении, пропускаются.
  */
 @Slf4j
 @Service
@@ -75,7 +77,7 @@ public class VocabularyGenerationWorker {
      * @return карточка слова или пустое значение, если ответ неполный
      */
     private static Optional<WordCard> toCard(GeneratedWord word) {
-        return WordCard.of(word.word(), word.translation(), word.definition(), word.example(),
-                word.exampleTranslation());
+        return WordCard.from(new WordEntry(word.word(), word.translation(), word.definition(), word.example(),
+                word.answer(), word.exampleTranslation()));
     }
 }

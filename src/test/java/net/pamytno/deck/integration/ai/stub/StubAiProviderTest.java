@@ -57,6 +57,7 @@ class StubAiProviderTest {
         // then
         assertThat(bold).extracting(GeneratedWord::word).containsExactly("contract", "reliable");
         assertThat(list).extracting(GeneratedWord::word).containsExactly("contract", "reliable");
-        assertThat(list.getFirst().example()).contains("_____");
+        assertThat(list.getFirst().example()).contains("contract");
+        assertThat(list.getFirst().answer()).isEqualTo("contract");
     }
 }

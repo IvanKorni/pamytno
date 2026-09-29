@@ -75,7 +75,7 @@ public class StubAiProvider implements AiProvider {
         return words.stream().map(String::strip).filter(word -> !word.isEmpty()).distinct()
                 .limit(VocabularyRules.MAX_WORDS)
                 .map(word -> new GeneratedWord(word, "перевод: " + word, "The meaning of this word.",
-                        "I often use _____ in class.", "Я часто использую «" + word + "» на уроке."))
+                        "I often use " + word + " in class.", word, "Я часто использую «" + word + "» на уроке."))
                 .toList();
     }
 

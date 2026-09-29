@@ -60,9 +60,10 @@ class VocabularyGenerationWorkerTest {
     void generate_createsCardPerCompleteWord() {
         // given
         when(aiProvider.generateVocabulary(request.instruction(), request.text())).thenReturn(List.of(
-                new GeneratedWord("contract", "договор", "A formal agreement.", "We signed a _____.",
-                        "Мы подписали договор."),
-                new GeneratedWord("reliable", "", "You can trust it.", "A _____ car.", "Надёжная машина.")));
+                new GeneratedWord("contract", "договор", "A formal agreement.", "We signed a contract.",
+                        "contract", "Мы подписали договор."),
+                new GeneratedWord("reliable", "", "You can trust it.", "A reliable car.", "reliable",
+                        "Надёжная машина.")));
 
         // when
         worker.generate(request);
@@ -71,6 +72,7 @@ class VocabularyGenerationWorkerTest {
         var card = ArgumentCaptor.forClass(WordCard.class);
         verify(flashcardWriter).createWord(eq(topic), card.capture());
         assertThat(card.getValue().word()).isEqualTo("contract");
+        assertThat(card.getValue().example()).isEqualTo("We signed a co_____.");
         verify(jobService).complete(request.jobId(), 1);
     }
 
@@ -93,7 +95,7 @@ class VocabularyGenerationWorkerTest {
     void generate_failsJob_whenWriterFails() {
         // given
         when(aiProvider.generateVocabulary(any(), any())).thenReturn(List.of(new GeneratedWord("contract",
-                "договор", "A formal agreement.", "We signed a _____.", "Мы подписали договор.")));
+                "договор", "A formal agreement.", "We signed a contract.", "contract", "Мы подписали договор.")));
         doThrow(new IllegalStateException("БД недоступна"))
                 .when(flashcardWriter).createWord(any(), any());
 

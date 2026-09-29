@@ -64,7 +64,8 @@ public class CliAiProvider implements AiProvider {
     private static final String VOCABULARY_PROMPT = """
             %s
             Верни ТОЛЬКО JSON без обёртки ```json и пояснений:
-            {"cards":[{"word":"…","translation":"…","definition":"…","example":"… _____ …","exampleTranslation":"…"}]}
+            {"cards":[{"word":"…","translation":"…","definition":"…","example":"…","answer":"…",
+            "exampleTranslation":"…"}]}
 
             %s
             """;
@@ -133,7 +134,8 @@ public class CliAiProvider implements AiProvider {
         var words = new ArrayList<GeneratedWord>();
         items.forEach(item -> words.add(new GeneratedWord(item.path("word").asText(""),
                 item.path("translation").asText(""), item.path("definition").asText(""),
-                item.path("example").asText(""), item.path("exampleTranslation").asText(""))));
+                item.path("example").asText(""), item.path("answer").asText(""),
+                item.path("exampleTranslation").asText(""))));
         return words;
     }
 

@@ -100,7 +100,7 @@ class AnthropicAiProviderTest {
         // given
         stubAnswer("end_turn", "{\\\"cards\\\":[{\\\"word\\\":\\\"contract\\\","
                 + "\\\"translation\\\":\\\"договор\\\",\\\"definition\\\":\\\"A formal agreement.\\\","
-                + "\\\"example\\\":\\\"We signed a _____.\\\","
+                + "\\\"example\\\":\\\"We signed a contract.\\\",\\\"answer\\\":\\\"contract\\\","
                 + "\\\"exampleTranslation\\\":\\\"Мы подписали договор.\\\"}]}");
 
         // when
@@ -108,7 +108,7 @@ class AnthropicAiProviderTest {
 
         // then
         assertThat(words).containsExactly(new GeneratedWord("contract", "договор", "A formal agreement.",
-                "We signed a _____.", "Мы подписали договор."));
+                "We signed a contract.", "contract", "Мы подписали договор."));
         ANTHROPIC.verify(postRequestedFor(urlEqualTo("/v1/messages"))
                 .withRequestBody(matchingJsonPath("$.system", equalTo(VocabularyRules.RULES)))
                 .withRequestBody(matchingJsonPath("$.messages[0].content",

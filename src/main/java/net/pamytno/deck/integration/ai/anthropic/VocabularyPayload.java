@@ -18,7 +18,8 @@ record VocabularyPayload(@JsonPropertyDescription("Карточки слов в 
      * @param word               выражение в словарной форме
      * @param translation        русский перевод
      * @param definition         объяснение на простом английском
-     * @param example            предложение с пропуском
+     * @param example            предложение с выражением
+     * @param answer             выражение в том виде, в каком оно стоит в предложении
      * @param exampleTranslation перевод предложения
      */
     record Item(
@@ -26,7 +27,8 @@ record VocabularyPayload(@JsonPropertyDescription("Карточки слов в 
             @JsonPropertyDescription("Короткий русский перевод") String translation,
             @JsonPropertyDescription("Объяснение значения простым английским (B1) без самого выражения")
             String definition,
-            @JsonPropertyDescription("Английское предложение с пропуском _____ на месте выражения") String example,
+            @JsonPropertyDescription("Английское предложение с выражением, без пропусков") String example,
+            @JsonPropertyDescription("Выражение ровно в том виде, в каком оно стоит в example") String answer,
             @JsonPropertyDescription("Перевод предложения на русский") String exampleTranslation
     ) {
     }

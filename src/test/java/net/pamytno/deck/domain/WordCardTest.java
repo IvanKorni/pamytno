@@ -11,55 +11,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WordCardTest {
 
     @Test
-    @DisplayName("Лицевая сторона — объяснение и предложение с пропуском, оборотная — слово, перевод и перевод примера")
+    @DisplayName("Спереди — объяснение и предложение с подсказкой, сзади — слово, перевод и перевод примера")
     void sides_followVocabularyLayout() {
         // given
-        var card = WordCard.of("contract", "договор, контракт", "A formal written agreement.",
-                "They signed a _____ to buy the house.", "Они подписали договор о покупке дома.").orElseThrow();
+        var card = WordCard.from(new WordEntry("contract", "договор, контракт", "A formal written agreement.",
+                "They signed a contract to buy the house.", "contract", "Они подписали договор о покупке дома."))
+                .orElseThrow();
 
         // when
         var front = card.front();
         var back = card.back();
 
         // then
-        assertThat(front).isEqualTo("A formal written agreement.\n\nThey signed a _____ to buy the house.");
+        assertThat(front).isEqualTo("A formal written agreement.\n\nThey signed a co_____ to buy the house.");
         assertThat(back).isEqualTo("**contract**\nдоговор, контракт\n\nОни подписали договор о покупке дома.");
     }
 
     @Test
-    @DisplayName("Пропуск любой длины приводится к одному виду, лишние пробелы убираются")
-    void of_normalizesGap() {
+    @DisplayName("Пустое поле или выражение, которого нет в предложении, не дают карточки; форма необязательна")
+    void from_rejectsIncompleteAnswer() {
         // when
-        var card = WordCard.of(" make a decision ", "принять решение", "To choose what to do.",
-                "She ___ quickly. ", "Она быстро приняла решение.");
+        var noTranslation = WordCard.from(new WordEntry("reliable", " ", "You can trust it.", "A reliable car.",
+                "reliable", "Надёжная машина."));
+        var notInSentence = WordCard.from(new WordEntry("reliable", "надёжный", "You can trust it.",
+                "Good friends help.", "reliable", "Перевод."));
+        var withoutAnswer = WordCard.from(new WordEntry(" reliable ", "надёжный", "You can trust it.",
+                "Reliable friends help. ", null, "Надёжные друзья помогают."));
 
         // then
-        assertThat(card).get().satisfies(found -> {
-            assertThat(found.word()).isEqualTo("make a decision");
-            assertThat(found.example()).isEqualTo("She _____ quickly.");
-        });
-    }
-
-    @Test
-    @DisplayName("Выражение, вписанное вместо пропуска, заменяется пропуском без учёта регистра")
-    void of_replacesWordWithGap() {
-        // when
-        var card = WordCard.of("reliable", "надёжный", "You can trust it.", "Reliable friends help.",
-                "Надёжные друзья помогают.");
-
-        // then
-        assertThat(card).get().extracting(WordCard::example).isEqualTo("_____ friends help.");
-    }
-
-    @Test
-    @DisplayName("Без пропуска и без выражения в предложении, как и с пустым полем, карточки нет")
-    void of_rejectsIncompleteAnswer() {
-        // when
-        var noGap = WordCard.of("reliable", "надёжный", "You can trust it.", "Good friends help.", "Перевод.");
-        var noTranslation = WordCard.of("reliable", " ", "You can trust it.", "A _____ car.", "Надёжная машина.");
-
-        // then
-        assertThat(noGap).isEmpty();
         assertThat(noTranslation).isEmpty();
+        assertThat(notInSentence).isEmpty();
+        assertThat(withoutAnswer).get().satisfies(card -> {
+            assertThat(card.word()).isEqualTo("reliable");
+            assertThat(card.example()).isEqualTo("Re_____ friends help.");
+        });
     }
 }

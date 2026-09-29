@@ -72,7 +72,7 @@ class VocabularyGenerationModuleTest {
         assertThat(api.awaitJob(userId, jobId).get("itemsCreated").asInt()).isEqualTo(2);
         var cards = api.getJson(userId, "/api/topics/{id}/cards", topicId);
         assertThat(cards).hasSize(2);
-        assertThat(cards.get(0).get("front").asText()).endsWith("I often use _____ in class.");
+        assertThat(cards.get(0).get("front").asText()).endsWith("I often use co_____ in class.");
         assertThat(cards.get(0).get("back").asText()).startsWith("**contract**\nперевод: contract\n\n");
         assertThat(cards.get(0).get("questionId").isNull()).isTrue();
         var event = events.await(FlashcardCreated.class, created -> created.topicId().equals(topicId));

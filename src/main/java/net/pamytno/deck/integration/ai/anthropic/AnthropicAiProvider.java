@@ -81,7 +81,7 @@ public class AnthropicAiProvider implements AiProvider {
                 VocabularyPayload.class));
         return payload.cards() == null ? List.of() : payload.cards().stream()
                 .map(item -> new GeneratedWord(item.word(), item.translation(), item.definition(), item.example(),
-                        item.exampleTranslation()))
+                        item.answer(), item.exampleTranslation()))
                 .toList();
     }
 

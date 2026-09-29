@@ -100,14 +100,15 @@ class CliAiProviderTest {
         // given
         when(processRunner.run(eq(PROPERTIES.cli()), anyString())).thenReturn("""
                 {"cards":[{"word":"contract","translation":"договор","definition":"A formal agreement.",
-                  "example":"We signed a _____.","exampleTranslation":"Мы подписали договор."}]}""");
+                  "example":"We signed a contract.","answer":"contract",
+                  "exampleTranslation":"Мы подписали договор."}]}""");
 
         // when
         var words = provider.generateVocabulary("слова, выделенные жирным", "We signed a **contract**.");
 
         // then
         assertThat(words).containsExactly(new GeneratedWord("contract", "договор", "A formal agreement.",
-                "We signed a _____.", "Мы подписали договор."));
+                "We signed a contract.", "contract", "Мы подписали договор."));
         assertThat(sentPrompt()).contains(VocabularyRules.RULES,
                 "<instruction>\nслова, выделенные жирным\n</instruction>",
                 "<material>\nWe signed a **contract**.\n</material>");
