@@ -99,6 +99,7 @@ textarea {
   background: none;
   font-size: 15px;
   font-weight: 500;
+  white-space: nowrap;
 }
 .material-type:hover,
 .material-type[aria-pressed='true'] {
@@ -140,4 +141,9 @@ textarea {
 .dropzone .mono {
   color: var(--ink);
   font-size: 15px;
+}
+.field-hint {
+  margin: -16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }

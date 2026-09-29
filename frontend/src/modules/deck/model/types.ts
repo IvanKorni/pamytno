@@ -12,11 +12,14 @@ export type QuestionStatus = Schemas['QuestionStatus']
 /** Решение пользователя по вопросу. */
 export type QuestionDecision = Schemas['QuestionDecision']
 
-/** Асинхронная задача генерации вопросов или карточек. */
+/** Асинхронная задача генерации вопросов, карточек или карточек слов. */
 export type GenerationJob = Schemas['GenerationJobDto']
 
 /** Карточка. */
 export type Flashcard = Schemas['FlashcardDto']
+
+/** Текст и инструкция для карточек английских слов. */
+export type VocabularyRequest = Schemas['GenerateVocabularyRequest']
 
 /** Изменяемые поля карточки. */
 export type CardChanges = Schemas['UpdateCardRequest']

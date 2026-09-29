@@ -1,7 +1,7 @@
 import { HttpError, sessionValues } from '@/shared'
 import type { GenerationJob } from './types'
 
-/** Вид задачи генерации: вопросы или карточки. */
+/** Вид задачи генерации: вопросы, карточки по вопросам или карточки слов. */
 export type JobKind = GenerationJob['type']
 
 /** Как часто опрашивать задачу, пока она выполняется, мс. */

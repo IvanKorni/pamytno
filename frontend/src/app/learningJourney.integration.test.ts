@@ -63,6 +63,32 @@ integration('путь обучения через API-слой фронта и �
     expect(completed.completedAt).toBeTruthy()
     expect(progress).toMatchObject({ totalCards: cards.length, newCards: cards.length - 2, learningCards: 2 })
   })
+
+  it(
+    'карточки слов: новая тема без материалов → список слов → карточки к повторению',
+    { timeout: 90_000 },
+    async () => {
+      // given
+      const token = await identityApi.register(`frontend-words-${Date.now()}@example.com`, 'journey-password-123')
+      tokenStorage.save(token.accessToken)
+      const topic = await topicApi.createTopic('English Unit 5', 'Интеграционный путь карточек слов')
+
+      // when
+      const job = await startVocabulary(topic.id, 'contract — договор\nreliable — надёжный')
+      await finished(job)
+      const cards = await deckApi.listCards(topic.id)
+      const due = await eventually(
+        () => learningApi.getDueCards(topic.id),
+        (list) => list.length === cards.length,
+      )
+
+      // then
+      expect(cards.length).toBeGreaterThan(0)
+      expect(cards[0].front).toContain('_____')
+      expect(cards[0].back).toMatch(/^\*\*contract\*\*\n/)
+      expect(due).toHaveLength(cards.length)
+    },
+  )
 })
 
 /** Все источники темы обработаны. */
@@ -80,6 +106,11 @@ function eventually<T>(load: () => Promise<T>, ready: (value: T) => boolean): Pr
     },
     { timeout: TIMEOUT_MS, interval: 500 },
   )
+}
+
+/** Запускает карточки слов; сразу после создания темы backend может ещё не знать её владельца — повторяет. */
+function startVocabulary(topicId: string, text: string): Promise<GenerationJob> {
+  return vi.waitFor(() => deckApi.generateVocabulary(topicId, { text }), { timeout: TIMEOUT_MS, interval: 500 })
 }
 
 /** Ждёт завершения задачи генерации и проверяет, что она прошла успешно. */

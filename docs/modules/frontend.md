@@ -69,20 +69,24 @@ Frontend реализует пользовательский путь «Памя
 
 | Файл | Ответственность |
 |---|---|
-| `api/deckApi.ts` | вопросы, решения, генерация, карточки |
+| `api/deckApi.ts` | вопросы, решения, генерация, карточки слов, карточки |
 | `api/deckKeys.ts` | ключи кеша модуля |
 | `api/questionQueries.ts` | вопросы, решения с подменой в кеше, опрос задачи генерации |
 | `api/cardQueries.ts` | карточки, изменение и удаление |
 | `model/generationJobs.ts` | интервал опроса, ошибка задачи и запоминание идущих задач |
 | `model/selection.ts` | выбор вопросов: только новые, без уже решённых |
-| `model/useGenerationRun.ts` | запуск генерации и опрос задачи до `READY` / `ERROR`; `launchThen` — переход после старта |
+| `model/useGenerationRun.ts` | запуск генерации (с данными или без) и опрос задачи до `READY` / `ERROR`; `launchThen` — переход после старта; ошибка запуска отдельно от ошибки задачи |
 | `model/useQuestionGeneration.ts` | генерация вопросов темы — со вкладки вопросов и со вкладки материалов |
 | `model/useQuestionsWorkflow.ts` | сценарий отбора вопросов и генерации карточек |
+| `model/useVocabularyGeneration.ts` | составление карточек слов: запуск по тексту, опрос, перечитывание карточек и уведомление с итогом |
+| `model/wordsDraft.ts` | черновик окна слов: режимы «все / жирные / коллокации / своя», инструкция для AI, запрос |
+| `model/pastedText.ts` | вставка из HTML: жирное (теги и `font-weight`, кроме обёртки Google Docs) → `**слово**`, абзацы → переносы |
 | `model/labels.ts` | подписи статусов вопроса |
 | `ui/QuestionReview.tsx`, `ui/QuestionList.tsx` | отбор по одному (в том числе стрелками) и списком |
 | `ui/FlashcardTile.tsx` | карточка для просмотра: вопрос, по нажатию — ответ |
 | `ui/CardViewer.tsx` | `CardViewer` — карточки по одной с «Назад» / «Далее», `CardGrid` — все сеткой |
 | `ui/EditCardModal.tsx` | изменение и удаление карточки |
+| `ui/AddWordsModal.tsx`, `ui/WordsFields.tsx` | окно карточек слов: вкладки режима, своя инструкция, текст со вставкой жирного |
 
 ## modules/learning
 
@@ -103,11 +107,11 @@ Frontend реализует пользовательский путь «Памя
 |---|---|
 | `pages/AuthPage.tsx` | вход и регистрация |
 | `pages/dashboard/*` | обзор: плитки тем, строка «Сегодня», создание темы в окне |
-| `pages/topic/TopicLayout.tsx`, `TopicHeader.tsx` | путь, шапка темы с прогрессом и действиями, вкладки, окна темы |
-| `pages/topic/topicActions.ts` | действия шапки темы для вкладок (`useOutletContext`) |
+| `pages/topic/TopicLayout.tsx`, `TopicHeader.tsx` | путь, шапка темы с прогрессом и действиями, вкладки, окна темы; составление карточек слов живёт здесь и видно всем вкладкам |
+| `pages/topic/topicActions.ts` | действия шапки темы и составление карточек слов для вкладок (`useOutletContext`) |
 | `pages/topic/MaterialsPage.tsx`, `MaterialActions.tsx` | материалы, «Создать вопросы» или «К вопросам», исходный текст |
 | `pages/topic/QuestionsPage.tsx`, `QuestionsFooter.tsx` | отбор вопросов, действия под ними, итог генерации карточек |
-| `pages/topic/CardsPage.tsx`, `CardsBrowser.tsx` | карточки по одной или все, поиск, изменение и удаление |
+| `pages/topic/CardsPage.tsx`, `CardsBrowser.tsx` | ход составления карточек слов, карточки по одной или все, поиск, изменение и удаление |
 | `pages/topic/ProgressPage.tsx` | прогресс темы |
 | `pages/learning/LearningPage.tsx`, `LearningTopBar.tsx` | режим обучения на весь экран: тема, номер карточки, полоса пройденного |
 | `pages/topic/useTopicId.ts` | идентификатор темы из адреса |

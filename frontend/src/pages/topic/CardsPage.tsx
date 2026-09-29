@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { EditCardModal, useCards, useDeleteCard, type Flashcard } from '@/modules/deck'
 import { useRefreshProgress } from '@/modules/learning'
-import { EmptyState, ErrorState, InlineLoading } from '@/shared'
+import { EmptyState, ErrorState, InlineError, InlineLoading, ProcessingCard } from '@/shared'
 import { CardsBrowser } from './CardsBrowser'
+import { useTopicActions } from './topicActions'
 import { useTopicId } from './useTopicId'
 
-/** Экран карточек темы: просмотр по одной или все сразу, поиск, изменение и удаление. */
+/** Экран карточек темы: ход составления карточек слов, просмотр по одной или все сразу, поиск, изменение и удаление. */
 export function CardsPage() {
   const topicId = useTopicId()
   const [editing, setEditing] = useState<Flashcard>()
@@ -20,19 +21,8 @@ export function CardsPage() {
     window.confirm('Удалить карточку?') && remove.mutate(card.id, { onSuccess: () => setEditing(undefined) })
   return (
     <section>
-      {list.length ? (
-        <CardsBrowser cards={list} onEdit={setEditing} />
-      ) : (
-        <EmptyState
-          title="Здесь пока нет карточек."
-          text="Отберите вопросы — из них получатся карточки."
-          action={
-            <Link className="button button-secondary" to={`/topics/${topicId}/questions`}>
-              К вопросам
-            </Link>
-          }
-        />
-      )}
+      <WordsStatus />
+      {list.length ? <CardsBrowser cards={list} onEdit={setEditing} /> : <NoCards topicId={topicId} />}
       {editing && (
         <EditCardModal
           card={editing}
@@ -42,5 +32,34 @@ export function CardsPage() {
         />
       )}
     </section>
+  )
+}
+
+/** Ход составления карточек слов или ошибка последней задачи. */
+function WordsStatus() {
+  const { words } = useTopicActions()
+  if (words.running) return <ProcessingCard title="Составляем карточки слов" subtitle="можно уйти с экрана" />
+  return words.jobError ? <InlineError message={words.jobError} /> : null
+}
+
+/** Карточек пока нет: их дают отобранные вопросы или английские слова. Пока слова составляются — пусто. */
+function NoCards({ topicId }: { topicId: string }) {
+  const { addWords, words } = useTopicActions()
+  if (words.running) return null
+  return (
+    <EmptyState
+      title="Здесь пока нет карточек."
+      text="Отберите вопросы или добавьте английские слова — из них получатся карточки."
+      action={
+        <div className="button-row">
+          <button className="button button-primary" onClick={addWords}>
+            Добавить слова
+          </button>
+          <Link className="button button-secondary" to={`/topics/${topicId}/questions`}>
+            К вопросам
+          </Link>
+        </div>
+      }
+    />
   )
 }

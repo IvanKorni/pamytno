@@ -7,11 +7,12 @@ import { formatPercent, plural } from '@/shared'
 interface TopicHeaderProps {
   topic: Topic
   onAddMaterial: () => void
+  onAddWords: () => void
   onEdit: () => void
 }
 
 /** Шапка темы: крупное название, описание, прогресс одной строкой и главные действия. */
-export function TopicHeader({ topic, onAddMaterial, onEdit }: TopicHeaderProps) {
+export function TopicHeader({ topic, onAddMaterial, onAddWords, onEdit }: TopicHeaderProps) {
   const progress = useTopicProgress(topic.id).data
   return (
     <header className="topic-header">
@@ -31,6 +32,9 @@ export function TopicHeader({ topic, onAddMaterial, onEdit }: TopicHeaderProps) 
         )}
         <button className="button button-secondary" onClick={onAddMaterial}>
           Добавить материал
+        </button>
+        <button className="button button-secondary" onClick={onAddWords}>
+          Добавить слова
         </button>
         <button className="link-button is-muted" onClick={onEdit}>
           Изменить тему

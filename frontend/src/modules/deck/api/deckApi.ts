@@ -1,5 +1,12 @@
 import { json, request } from '@/shared'
-import type { CardChanges, Flashcard, GenerationJob, Question, QuestionDecision } from '../model/types'
+import type {
+  CardChanges,
+  Flashcard,
+  GenerationJob,
+  Question,
+  QuestionDecision,
+  VocabularyRequest,
+} from '../model/types'
 
 /** Вопросы темы в порядке появления. */
 export const listQuestions = (topicId: string) => request<Question[]>(`/topics/${topicId}/questions`)
@@ -22,6 +29,10 @@ export const decideQuestions = (questionIds: string[], decision: QuestionDecisio
 /** Запускает генерацию карточек по одобренным вопросам. */
 export const generateCards = (topicId: string) =>
   request<GenerationJob>(`/topics/${topicId}/cards/generate`, { method: 'POST' })
+
+/** Запускает составление карточек английских слов по вставленному тексту. */
+export const generateVocabulary = (topicId: string, vocabulary: VocabularyRequest) =>
+  request<GenerationJob>(`/topics/${topicId}/vocabulary/generate`, json('POST', vocabulary))
 
 /** Карточки темы в порядке создания. */
 export const listCards = (topicId: string) => request<Flashcard[]>(`/topics/${topicId}/cards`)

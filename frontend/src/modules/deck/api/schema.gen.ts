@@ -138,6 +138,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/topics/{topicId}/vocabulary/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicId: components["parameters"]["TopicId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Составить карточки английских слов по тексту
+         * @description AI выбирает из текста слова или выражения по инструкции («слова, выделенные жирным», «коллокации»)
+         *     и сразу составляет карточки: на лицевой стороне — объяснение на простом английском (B1) и предложение
+         *     с пропуском, на оборотной — само выражение, русский перевод и перевод предложения.
+         *     Работает и для темы без материалов. Выполняется асинхронно.
+         */
+        post: operations["generateVocabulary"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/topics/{topicId}/cards": {
         parameters: {
             query?: never;
@@ -206,7 +231,7 @@ export interface components {
         /** @enum {string} */
         QuestionDecision: "APPROVE" | "REJECT";
         /** @enum {string} */
-        GenerationJobType: "QUESTIONS" | "CARDS";
+        GenerationJobType: "QUESTIONS" | "CARDS" | "VOCABULARY";
         /** @enum {string} */
         GenerationJobStatus: "PROCESSING" | "READY" | "ERROR";
         GenerationJobDto: {
@@ -262,6 +287,12 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        GenerateVocabularyRequest: {
+            /** @description Слова, список или текст; выделение жирным — `**слово**` */
+            text: string;
+            /** @description Что взять из текста, например «слова, выделенные жирным» или «коллокации»; пусто — все слова */
+            instruction?: string;
         };
         /** @description Передаются только изменяемые поля */
         UpdateCardRequest: {
@@ -511,6 +542,52 @@ export interface operations {
             };
             401: components["responses"]["Unauthorized"];
             /** @description Нет одобренных вопросов (NO_APPROVED_QUESTIONS) или генерация уже идёт (GENERATION_IN_PROGRESS) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    generateVocabulary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                topicId: components["parameters"]["TopicId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateVocabularyRequest"];
+            };
+        };
+        responses: {
+            /** @description Задача генерации запущена */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerationJobDto"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthorized"];
+            /** @description Темы нет или она чужая (TOPIC_NOT_FOUND) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Составление карточек слов по теме уже идёт (GENERATION_IN_PROGRESS) */
             409: {
                 headers: {
                     [name: string]: unknown;
