@@ -2,6 +2,9 @@ package net.pamytno.deck;
 
 import lombok.RequiredArgsConstructor;
 import net.pamytno.common.event.topic.TopicContentPrepared;
+import net.pamytno.common.event.topic.TopicCreated;
+import net.pamytno.deck.domain.TopicMaterial;
+import net.pamytno.deck.repository.TopicMaterialRepository;
 import net.pamytno.deck.domain.TextChunk;
 import net.pamytno.deck.service.TopicMaterialService;
 import net.pamytno.support.ModuleTest;
@@ -17,8 +20,8 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Модульный тест {@code deck}: фрагменты строятся по событию {@link TopicContentPrepared}
- * без участия модуля {@code topic}.
+ * Модульный тест {@code deck}: тема регистрируется по {@link TopicCreated}, фрагменты строятся по событию
+ * {@link TopicContentPrepared} без участия модуля {@code topic}.
  */
 @ModuleTest
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TopicMaterialModuleTest {
 
     private final TopicMaterialService topicMaterialService;
+    private final TopicMaterialRepository topicMaterialRepository;
 
     @Test
     @DisplayName("Событие о тексте темы превращается во фрагменты последней версии")
@@ -56,5 +60,26 @@ class TopicMaterialModuleTest {
                 .andWaitForStateChange(chunks, list -> !list.isEmpty());
 
         assertThat(topicMaterialService.latestChunks(topicId, UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Созданная тема известна модулю до текста, а пришедший текст делится на фрагменты")
+    void topicCreated_registersTopicBeforeContent(Scenario scenario) {
+        // given
+        var topicId = UUID.randomUUID();
+        var userId = UUID.randomUUID();
+
+        // when
+        scenario.publish(new TopicCreated(topicId, userId))
+                .andWaitForStateChange(() -> topicMaterialRepository.findByIdAndUserId(topicId, userId),
+                        found -> found.isPresent());
+
+        // then
+        assertThat(topicMaterialRepository.findByIdAndUserId(topicId, userId)).get()
+                .extracting(TopicMaterial::getContentVersion).isEqualTo(TopicMaterial.NO_CONTENT);
+        assertThat(topicMaterialService.latestChunks(topicId, userId)).isEmpty();
+        scenario.publish(new TopicContentPrepared(topicId, userId, 1, "Первый текст."))
+                .andWaitForStateChange(() -> topicMaterialService.latestChunks(topicId, userId),
+                        list -> !list.isEmpty());
     }
 }

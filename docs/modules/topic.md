@@ -18,7 +18,7 @@
 | `repository` | `SourceRepository` | источники темы и пользователя |
 | `repository` | `TopicContentRepository` | последняя версия единого текста |
 | `service` | `TopicQueryService` | список тем, тема владельца (чужая = 404) |
-| `service` | `TopicCommandService` | создание и частичное изменение темы |
+| `service` | `TopicCommandService` | создание (+ событие `TopicCreated`) и частичное изменение темы |
 | `service` | `TopicDeletionService` | удаление темы + событие `TopicDeleted` |
 | `service` | `SourceRegistrar`, `SourceSubmitted` | общий шаг приёма: сохранить, тема → PROCESSING, внутреннее событие на обработку |
 | `service` | `TextSourceSubmissionService` | приём текста и списка слов |
@@ -74,6 +74,7 @@
 
 | Направление | Событие | Когда |
 |---|---|---|
+| публикует | `TopicCreated(topicId, userId)` | тема создана |
 | публикует | `TopicDeleted(topicId, userId)` | тема удалена |
 | публикует | `TopicContentPrepared(topicId, userId, version, content)` | собрана новая версия единого текста |
 

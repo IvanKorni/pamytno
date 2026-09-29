@@ -1,6 +1,7 @@
 package net.pamytno.topic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.pamytno.common.event.topic.TopicCreated;
 import net.pamytno.common.event.topic.TopicDeleted;
 import net.pamytno.support.ModuleTest;
 import net.pamytno.support.TestJwt;
@@ -56,6 +57,21 @@ class TopicModuleTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(topicId.toString()));
+    }
+
+    @Test
+    @DisplayName("Создание темы публикует TopicCreated с владельцем")
+    void createTopic_publishesTopicCreated(AssertablePublishedEvents events) throws Exception {
+        // given
+        var userId = UUID.randomUUID();
+
+        // when
+        var topicId = api.createTopic(userId, "English Unit 5");
+
+        // then
+        assertThat(events).contains(TopicCreated.class)
+                .matching(TopicCreated::topicId, topicId)
+                .matching(TopicCreated::userId, userId);
     }
 
     @Test

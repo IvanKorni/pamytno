@@ -11,12 +11,16 @@ import java.util.UUID;
 
 /**
  * Последняя известная модулю {@code deck} версия единого текста темы. Идентификатор равен
- * идентификатору темы. Нужна, чтобы отличить «текста нет» от «текст стал пустым».
+ * идентификатору темы. Нужна, чтобы отличить «текста нет» от «текст стал пустым» и знать владельца темы:
+ * тема регистрируется при создании с версией {@link #NO_CONTENT}.
  */
 @Getter
 @Entity
 @Table(name = "topic_materials", schema = "deck")
 public class TopicMaterial extends BaseEntity {
+
+    /** Версия темы, у которой ещё не было текста: настоящие версии начинаются с 1. */
+    public static final int NO_CONTENT = 0;
 
     @Column(name = "user_id", nullable = false, updatable = false)
     private UUID userId;

@@ -9,7 +9,7 @@
 | Пакет | Класс | Ответственность |
 |---|---|---|
 | `domain` | `TopicRef` | тема и владелец — всё, что `deck` знает о теме |
-| `domain` | `TopicMaterial` | проекция: последняя известная версия единого текста темы |
+| `domain` | `TopicMaterial` | проекция: владелец темы и последняя известная версия её текста (`NO_CONTENT` — текста ещё не было) |
 | `domain` | `TextChunk`, `ChunkSpan` | неизменяемый фрагмент версии текста со смещениями |
 | `domain` | `TextChunker` | деление текста: абзац → строка → предложение → жёсткий разрез |
 | `domain` | `GenerationJob`, `GenerationJobType`, `GenerationJobStatus` | асинхронная задача генерации |
@@ -18,7 +18,7 @@
 | `domain` | `Flashcard` | карточка; цитата-источник переходит от вопроса; редактируема |
 | `repository` | `TopicMaterialRepository`, `TextChunkRepository` | проекция и фрагменты |
 | `repository` | `GenerationJobRepository`, `QuestionRepository`, `FlashcardRepository` | задачи, вопросы, карточки |
-| `service` | `TopicMaterialService` | приём новой версии текста (идемпотентно), фрагменты актуальной версии |
+| `service` | `TopicMaterialService` | регистрация темы, приём новой версии текста (идемпотентно), фрагменты актуальной версии |
 | `service` | `GenerationJobService` | запуск (одна задача вида на тему), завершение, чтение задач |
 | `service` | `QuestionGenerationService`, `QuestionGenerationRequested` | проверка текста и постановка задачи |
 | `service` | `QuestionGenerationWorker` | вызовы AI по фрагментам вне транзакции, логи старта/финиша/длительности |
@@ -32,6 +32,7 @@
 | `service` | `FlashcardQueryService` | карточки темы, карточка владельца |
 | `service` | `FlashcardCommandService` | правка (`FlashcardUpdated`) и удаление (`FlashcardDeleted`) |
 | `service` | `DeckCleanupService` | удаление всех данных темы (идемпотентно) |
+| `listener` | `TopicCreatedListener` | `@ApplicationModuleListener` на `TopicCreated` |
 | `listener` | `TopicContentPreparedListener` | `@ApplicationModuleListener` на `TopicContentPrepared` |
 | `listener` | `QuestionGenerationRequestedListener` | `@Async` после коммита запускает воркер вопросов |
 | `listener` | `CardGenerationRequestedListener` | `@Async` после коммита запускает воркер карточек |
@@ -71,7 +72,7 @@
 
 | Таблица | Назначение |
 |---|---|
-| `topic_materials` | `id` = id темы, владелец и последняя версия текста |
+| `topic_materials` | `id` = id темы, владелец и последняя версия текста (`0` — тема создана, текста ещё нет) |
 | `text_chunks` | фрагменты по версиям; старые версии хранятся — на них ссылаются вопросы |
 | `generation_jobs` | задачи генерации вопросов и карточек |
 | `questions` | вопросы; `chunk_id` → `text_chunks`; порядок — `seq` |
@@ -81,6 +82,7 @@
 
 | Направление | Событие | Реакция |
 |---|---|---|
+| слушает | `TopicCreated` | запоминает владельца темы без текста |
 | слушает | `TopicContentPrepared` | строит фрагменты новой версии |
 | слушает | `TopicDeleted` | удаляет карточки, вопросы, задачи, фрагменты и проекцию темы |
 | публикует | `FlashcardCreated(cardId, topicId, userId, front, back)` | карточка создана |

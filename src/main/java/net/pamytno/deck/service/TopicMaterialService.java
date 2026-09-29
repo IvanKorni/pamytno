@@ -3,6 +3,7 @@ package net.pamytno.deck.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.pamytno.common.event.topic.TopicContentPrepared;
+import net.pamytno.common.event.topic.TopicCreated;
 import net.pamytno.deck.config.DeckProperties;
 import net.pamytno.deck.domain.TextChunk;
 import net.pamytno.deck.domain.TextChunker;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Хранит фрагменты последней версии единого текста темы. Повторные и устаревшие версии
+ * Хранит владельцев тем и фрагменты последней версии единого текста темы. Повторные и устаревшие версии
  * (доставка событий «как минимум один раз») пропускаются.
  */
 @Slf4j
@@ -30,6 +31,22 @@ public class TopicMaterialService {
     private final TextChunkRepository chunkRepository;
     private final DeckProperties properties;
     private final Clock clock;
+
+    /**
+     * Запоминает новую тему без текста; уже известная тема (событие повторилось или текст пришёл раньше)
+     * не меняется.
+     *
+     * @param event событие модуля {@code topic}
+     */
+    @Transactional
+    public void register(TopicCreated event) {
+        if (materialRepository.findByIdForUpdate(event.topicId()).isPresent()) {
+            return;
+        }
+        var topic = new TopicRef(event.topicId(), event.userId());
+        materialRepository.save(new TopicMaterial(topic, TopicMaterial.NO_CONTENT, clock.instant()));
+        log.info("Тема [{}] пользователя [{}] зарегистрирована", event.topicId(), event.userId());
+    }
 
     /**
      * Принимает новую версию единого текста темы.

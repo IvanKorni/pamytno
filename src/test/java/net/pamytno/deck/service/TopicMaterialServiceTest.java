@@ -1,6 +1,7 @@
 package net.pamytno.deck.service;
 
 import net.pamytno.common.event.topic.TopicContentPrepared;
+import net.pamytno.common.event.topic.TopicCreated;
 import net.pamytno.deck.config.DeckProperties;
 import net.pamytno.deck.domain.TextChunk;
 import net.pamytno.deck.domain.TopicMaterial;
@@ -87,5 +88,36 @@ class TopicMaterialServiceTest {
 
         assertThat(material.getContentVersion()).isEqualTo(2);
         verify(chunkRepository).saveAll(List.of());
+    }
+
+    @Test
+    @DisplayName("Новая тема регистрируется без текста")
+    void register_storesTopicWithoutContent() {
+        // given
+        when(materialRepository.findByIdForUpdate(TOPIC.topicId())).thenReturn(Optional.empty());
+
+        // when
+        service.register(new TopicCreated(TOPIC.topicId(), TOPIC.userId()));
+
+        // then
+        var saved = ArgumentCaptor.forClass(TopicMaterial.class);
+        verify(materialRepository).save(saved.capture());
+        assertThat(saved.getValue().topic()).isEqualTo(TOPIC);
+        assertThat(saved.getValue().getContentVersion()).isEqualTo(TopicMaterial.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("Повторная регистрация не откатывает уже пришедший текст")
+    void register_keepsKnownTopic() {
+        // given
+        var material = new TopicMaterial(TOPIC, 2, Instant.EPOCH);
+        when(materialRepository.findByIdForUpdate(TOPIC.topicId())).thenReturn(Optional.of(material));
+
+        // when
+        service.register(new TopicCreated(TOPIC.topicId(), TOPIC.userId()));
+
+        // then
+        verify(materialRepository, never()).save(any());
+        assertThat(material.getContentVersion()).isEqualTo(2);
     }
 }
