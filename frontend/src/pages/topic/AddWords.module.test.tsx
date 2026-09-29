@@ -9,7 +9,7 @@ import { renderApp } from '@/test/renderApp'
 const wordCard = {
   id: 'card-1',
   topicId: 'topic-1',
-  front: 'A formal written agreement.\n\nWe signed a _____ yesterday.',
+  front: 'A formal written agreement.\n\nWe signed a co_____ yesterday.',
   back: '**contract**\nконтракт, договор\n\nМы вчера подписали контракт.',
   createdAt: '2026-09-27T10:00:00Z',
   updatedAt: '2026-09-27T10:00:00Z',

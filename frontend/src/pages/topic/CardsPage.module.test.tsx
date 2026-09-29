@@ -73,6 +73,28 @@ describe('Экран карточек', () => {
     expect(screen.getByText('Клиент -> Kafka -> PostgreSQL').closest('pre')).not.toBeNull()
   })
 
+  it('у свёрнутой карточки слова видно объяснение и предложение с подсказкой, у раскрытой — слово и перевод', async () => {
+    // given
+    const word = {
+      ...card,
+      front: 'Giving help and encouragement to someone.\n\nMy manager was very su_____ at first.',
+      back: '**supportive**\nподдерживающий\n\nМой менеджер сначала очень меня поддерживал.',
+    }
+    backend.on('GET', '/topics/topic-1/cards', [word])
+    renderApp(backend, '/topics/topic-1/cards')
+    const toggle = await screen.findByRole('button', { name: /Giving help and encouragement/ })
+    expect(toggle).toHaveTextContent('My manager was very su_____ at first.')
+    expect(screen.queryByText('supportive')).not.toBeInTheDocument()
+
+    // when
+    await userEvent.click(toggle)
+
+    // then
+    expect(screen.getByText('supportive').tagName).toBe('STRONG')
+    expect(screen.getByText(/Мой менеджер сначала/)).toBeInTheDocument()
+    expect(screen.getAllByText(/su_____/)).toHaveLength(1)
+  })
+
   it('листает карточки по одной и показывает все сразу', async () => {
     // given
     const second = { ...card, id: 'card-2', front: 'Что такое xmin?', back: 'Транзакция-создатель строки' }

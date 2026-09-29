@@ -66,6 +66,13 @@
   -webkit-line-clamp: 4;
   line-clamp: 4;
 }
+.flashcard-subtitle {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.is-large .flashcard-subtitle {
+  font-size: 20px;
+}
 .flashcard-hint {
   margin-top: auto;
   color: var(--muted);
