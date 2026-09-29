@@ -2,6 +2,10 @@ pamytno:
   security:
     jwt:
       secret: test-secret-for-automated-tests-only-0123456789
+  deck:
+    ai:
+      # Тесты не ходят в настоящую модель: детерминированная заглушка без сети
+      provider: stub
 
 logging:
   level:
