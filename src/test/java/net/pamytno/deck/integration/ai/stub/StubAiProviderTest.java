@@ -2,6 +2,7 @@ package net.pamytno.deck.integration.ai.stub;
 
 import net.pamytno.deck.config.AiProperties;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import net.pamytno.deck.integration.ai.GeneratedWord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -44,5 +45,18 @@ class StubAiProviderTest {
 
         assertThat(card.front()).isEqualTo("Что такое JVM?");
         assertThat(card.back()).isEqualTo("JVM — виртуальная машина. Она выполняет байткод.");
+    }
+
+    @Test
+    @DisplayName("Слова: выделенные жирным, а без выделений — строки списка без перевода")
+    void generateVocabulary_takesBoldWordsOrLines() {
+        // when
+        var bold = provider.generateVocabulary(null, "We signed a **contract**. It was **reliable**.");
+        var list = provider.generateVocabulary("", "contract — договор\n\nreliable\tнадёжный\ncontract");
+
+        // then
+        assertThat(bold).extracting(GeneratedWord::word).containsExactly("contract", "reliable");
+        assertThat(list).extracting(GeneratedWord::word).containsExactly("contract", "reliable");
+        assertThat(list.getFirst().example()).contains("_____");
     }
 }

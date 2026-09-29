@@ -6,6 +6,7 @@ import net.pamytno.deck.config.DeckProperties;
 import net.pamytno.deck.domain.TextChunk;
 import net.pamytno.deck.domain.TopicMaterial;
 import net.pamytno.deck.domain.TopicRef;
+import net.pamytno.deck.exception.TopicNotFoundException;
 import net.pamytno.deck.repository.TextChunkRepository;
 import net.pamytno.deck.repository.TopicMaterialRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -119,5 +121,23 @@ class TopicMaterialServiceTest {
         // then
         verify(materialRepository, never()).save(any());
         assertThat(material.getContentVersion()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Тема владельца находится и без текста, чужая — TopicNotFoundException")
+    void requireTopic_findsOnlyOwnedTopic() {
+        // given
+        var stranger = UUID.randomUUID();
+        when(materialRepository.findByIdAndUserId(TOPIC.topicId(), TOPIC.userId()))
+                .thenReturn(Optional.of(new TopicMaterial(TOPIC, TopicMaterial.NO_CONTENT, Instant.EPOCH)));
+        when(materialRepository.findByIdAndUserId(TOPIC.topicId(), stranger)).thenReturn(Optional.empty());
+
+        // when
+        var found = service.requireTopic(TOPIC.topicId(), TOPIC.userId());
+
+        // then
+        assertThat(found).isEqualTo(TOPIC);
+        assertThatThrownBy(() -> service.requireTopic(TOPIC.topicId(), stranger))
+                .isInstanceOf(TopicNotFoundException.class);
     }
 }

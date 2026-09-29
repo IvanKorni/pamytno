@@ -6,6 +6,8 @@ import net.pamytno.deck.integration.ai.AiFormatRules;
 import net.pamytno.deck.integration.ai.AiGenerationException;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import net.pamytno.deck.integration.ai.GeneratedWord;
+import net.pamytno.deck.integration.ai.VocabularyRules;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -90,6 +92,36 @@ class CliAiProviderTest {
                 .isInstanceOf(AiGenerationException.class).hasMessageContaining("невалидный JSON");
         assertThatThrownBy(() -> provider.generateCard("Вопрос?", "Материал"))
                 .isInstanceOf(AiGenerationException.class).hasMessageContaining("неполную карточку");
+    }
+
+    @Test
+    @DisplayName("Промпт слов несёт правила, инструкцию и текст; ответ разбирается в GeneratedWord")
+    void generateVocabulary_sendsRulesAndParsesAnswer() throws Exception {
+        // given
+        when(processRunner.run(eq(PROPERTIES.cli()), anyString())).thenReturn("""
+                {"cards":[{"word":"contract","translation":"договор","definition":"A formal agreement.",
+                  "example":"We signed a _____.","exampleTranslation":"Мы подписали договор."}]}""");
+
+        // when
+        var words = provider.generateVocabulary("слова, выделенные жирным", "We signed a **contract**.");
+
+        // then
+        assertThat(words).containsExactly(new GeneratedWord("contract", "договор", "A formal agreement.",
+                "We signed a _____.", "Мы подписали договор."));
+        assertThat(sentPrompt()).contains(VocabularyRules.RULES,
+                "<instruction>\nслова, выделенные жирным\n</instruction>",
+                "<material>\nWe signed a **contract**.\n</material>");
+    }
+
+    @Test
+    @DisplayName("Ответ без массива cards превращается в AiGenerationException")
+    void generateVocabulary_rejectsAnswerWithoutCards() throws Exception {
+        // given
+        when(processRunner.run(eq(PROPERTIES.cli()), anyString())).thenReturn("{\"words\":1}");
+
+        // when / then
+        assertThatThrownBy(() -> provider.generateVocabulary(null, "contract"))
+                .isInstanceOf(AiGenerationException.class).hasMessageContaining("cards");
     }
 
     /**

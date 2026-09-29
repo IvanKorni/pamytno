@@ -9,6 +9,7 @@ import net.pamytno.deck.domain.TextChunk;
 import net.pamytno.deck.domain.TextChunker;
 import net.pamytno.deck.domain.TopicMaterial;
 import net.pamytno.deck.domain.TopicRef;
+import net.pamytno.deck.exception.TopicNotFoundException;
 import net.pamytno.deck.repository.TextChunkRepository;
 import net.pamytno.deck.repository.TopicMaterialRepository;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,21 @@ public class TopicMaterialService {
         chunkRepository.saveAll(chunks);
         log.info("Тема [{}]: версия текста [{}] разбита на [{}] фрагментов",
                 event.topicId(), event.version(), chunks.size());
+    }
+
+    /**
+     * Тема пользователя, известная модулю, даже если текста у неё ещё нет.
+     *
+     * @param topicId идентификатор темы
+     * @param userId  владелец
+     * @return тема и владелец
+     * @throws TopicNotFoundException если темы нет или она чужая
+     */
+    @Transactional(readOnly = true)
+    public TopicRef requireTopic(UUID topicId, UUID userId) {
+        return materialRepository.findByIdAndUserId(topicId, userId)
+                .map(TopicMaterial::topic)
+                .orElseThrow(() -> new TopicNotFoundException(topicId));
     }
 
     /**

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.pamytno.common.event.deck.FlashcardCreated;
 import net.pamytno.deck.domain.Flashcard;
 import net.pamytno.deck.domain.QuestionStatus;
+import net.pamytno.deck.domain.TopicRef;
+import net.pamytno.deck.domain.WordCard;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.repository.FlashcardRepository;
 import net.pamytno.deck.repository.QuestionRepository;
@@ -47,9 +49,29 @@ public class FlashcardWriter {
         var front = isBlank(generated.front()) ? question.get().getText() : generated.front().strip();
         var card = flashcardRepository.save(new Flashcard(question.get(), front, generated.back().strip(), now));
         question.get().markCardCreated(now);
+        publishCreated(card);
+        return true;
+    }
+
+    /**
+     * Создаёт карточку слова без вопроса.
+     *
+     * @param topic тема и владелец
+     * @param word  карточка слова
+     */
+    @Transactional
+    public void createWord(TopicRef topic, WordCard word) {
+        publishCreated(flashcardRepository.save(new Flashcard(topic, word.front(), word.back(), clock.instant())));
+    }
+
+    /**
+     * Сообщает модулю обучения о новой карточке.
+     *
+     * @param card сохранённая карточка
+     */
+    private void publishCreated(Flashcard card) {
         events.publishEvent(new FlashcardCreated(card.getId(), card.getTopicId(), card.getUserId(),
                 card.getFront(), card.getBack()));
-        return true;
     }
 
     /**

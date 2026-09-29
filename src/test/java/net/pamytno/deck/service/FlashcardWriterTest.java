@@ -5,6 +5,7 @@ import net.pamytno.deck.DeckFixtures;
 import net.pamytno.deck.domain.Flashcard;
 import net.pamytno.deck.domain.Question;
 import net.pamytno.deck.domain.QuestionStatus;
+import net.pamytno.deck.domain.WordCard;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.repository.FlashcardRepository;
 import net.pamytno.deck.repository.QuestionRepository;
@@ -89,5 +90,26 @@ class FlashcardWriterTest {
 
         assertThat(writer.create(question.getId(), new GeneratedCard("Что?", "  "))).isFalse();
         assertThat(question.getStatus()).isEqualTo(QuestionStatus.APPROVED);
+    }
+
+    @Test
+    @DisplayName("Карточка слова сохраняется без вопроса и публикует FlashcardCreated")
+    void createWord_savesCardWithoutQuestion() {
+        // given
+        var topic = DeckFixtures.topic();
+        var word = WordCard.of("contract", "договор", "A formal agreement.", "We signed a _____.",
+                "Мы подписали договор.").orElseThrow();
+        when(flashcardRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        writer.createWord(topic, word);
+
+        // then
+        var card = ArgumentCaptor.forClass(Flashcard.class);
+        verify(flashcardRepository).save(card.capture());
+        assertThat(card.getValue().getQuestionId()).isNull();
+        assertThat(card.getValue().getUserId()).isEqualTo(topic.userId());
+        verify(events).publishEvent(new FlashcardCreated(card.getValue().getId(), topic.topicId(), topic.userId(),
+                word.front(), word.back()));
     }
 }

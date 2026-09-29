@@ -5,6 +5,8 @@ import net.pamytno.deck.config.AiProperties;
 import net.pamytno.deck.integration.ai.AiProvider;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import net.pamytno.deck.integration.ai.GeneratedWord;
+import net.pamytno.deck.integration.ai.VocabularyRules;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +15,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Детерминированная заглушка без сети: вопрос на каждое предложение, ответ — предложения контекста.
+ * Детерминированная заглушка без сети: вопрос на каждое предложение, ответ — предложения контекста;
+ * слово — на каждое выделение {@code **…**}, а без выделений — на каждую строку.
  * Для локального запуска без ключей API и для тестов. Включается {@code pamytno.deck.ai.provider=stub}.
  */
 @Component
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
 public class StubAiProvider implements AiProvider {
 
     private static final Pattern SENTENCE_BREAK = Pattern.compile("(?<=[.!?…])\\s+|\\n+");
+    private static final Pattern BOLD = Pattern.compile("\\*\\*(.+?)\\*\\*");
+    private static final Pattern TRANSLATION_SEPARATOR = Pattern.compile("\\s+[—–-]\\s+|\\t");
     private static final int MAX_ANSWER_SENTENCES = 10;
     private static final int MAX_QUESTION_LENGTH = 80;
 
@@ -53,6 +58,25 @@ public class StubAiProvider implements AiProvider {
     public GeneratedCard generateCard(String question, String context) {
         var answer = sentences(context).stream().limit(MAX_ANSWER_SENTENCES).collect(Collectors.joining(" "));
         return new GeneratedCard(question, answer);
+    }
+
+    /**
+     * Карточка на каждое выделенное жирным выражение или, если выделений нет, на каждую строку;
+     * у пары «слово — перевод» берётся слово. Инструкция не учитывается.
+     *
+     * @param instruction что взять из текста
+     * @param text        слова, список или текст
+     * @return выражения с шаблонными объяснением, примером и переводами
+     */
+    @Override
+    public List<GeneratedWord> generateVocabulary(String instruction, String text) {
+        var bold = BOLD.matcher(text).results().map(match -> match.group(1)).toList();
+        var words = bold.isEmpty() ? text.lines().map(line -> TRANSLATION_SEPARATOR.split(line, 2)[0]).toList() : bold;
+        return words.stream().map(String::strip).filter(word -> !word.isEmpty()).distinct()
+                .limit(VocabularyRules.MAX_WORDS)
+                .map(word -> new GeneratedWord(word, "перевод: " + word, "The meaning of this word.",
+                        "I often use _____ in class.", "Я часто использую «" + word + "» на уроке."))
+                .toList();
     }
 
     /**

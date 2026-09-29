@@ -10,8 +10,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Карточка для изучения: вопрос на лицевой стороне, ответ на оборотной.
- * Карточка, составленная AI, всегда редактируема.
+ * Карточка для изучения: вопрос на лицевой стороне, ответ на оборотной. Составляется по одобренному вопросу
+ * или, для слов, прямо по тексту — тогда вопроса нет. Карточка, составленная AI, всегда редактируема.
  */
 @Getter
 @Entity
@@ -59,6 +59,24 @@ public class Flashcard extends BaseEntity {
         this.front = front;
         this.back = back;
         this.sourceFragment = question.getSourceFragment();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    /**
+     * Создаёт карточку без вопроса — например, карточку слова, составленную прямо по тексту.
+     *
+     * @param topic тема и владелец
+     * @param front лицевая сторона
+     * @param back  оборотная сторона
+     * @param now   момент создания
+     */
+    public Flashcard(TopicRef topic, String front, String back, Instant now) {
+        super(UUID.randomUUID());
+        this.topicId = topic.topicId();
+        this.userId = topic.userId();
+        this.front = front;
+        this.back = back;
         this.createdAt = now;
         this.updatedAt = now;
     }

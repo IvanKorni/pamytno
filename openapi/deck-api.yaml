@@ -13,6 +13,8 @@ tags:
     description: Сгенерированные вопросы и их отбор пользователем
   - name: CardGeneration
     description: Запуск генерации карточек по одобренным вопросам
+  - name: VocabularyGeneration
+    description: Карточки английских слов по вставленному тексту
   - name: Cards
     description: Карточки и их редактирование
   - name: GenerationJobs
@@ -191,6 +193,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/topics/{topicId}/vocabulary/generate:
+    parameters:
+      - $ref: '#/components/parameters/TopicId'
+    post:
+      tags: [ VocabularyGeneration ]
+      summary: Составить карточки английских слов по тексту
+      description: |
+        AI выбирает из текста слова или выражения по инструкции («слова, выделенные жирным», «коллокации»)
+        и сразу составляет карточки: на лицевой стороне — объяснение на простом английском (B1) и предложение
+        с пропуском, на оборотной — само выражение, русский перевод и перевод предложения.
+        Работает и для темы без материалов. Выполняется асинхронно.
+      operationId: generateVocabulary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateVocabularyRequest'
+      responses:
+        '202':
+          description: Задача генерации запущена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationJobDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Темы нет или она чужая (TOPIC_NOT_FOUND)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Составление карточек слов по теме уже идёт (GENERATION_IN_PROGRESS)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/topics/{topicId}/cards:
     parameters:
       - $ref: '#/components/parameters/TopicId'
@@ -348,7 +392,7 @@ components:
 
     GenerationJobType:
       type: string
-      enum: [ QUESTIONS, CARDS ]
+      enum: [ QUESTIONS, CARDS, VOCABULARY ]
 
     GenerationJobStatus:
       type: string
@@ -453,6 +497,20 @@ components:
         updatedAt:
           type: string
           format: date-time
+
+    GenerateVocabularyRequest:
+      type: object
+      required: [ text ]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 20000
+          description: Слова, список или текст; выделение жирным — `**слово**`
+        instruction:
+          type: string
+          maxLength: 500
+          description: Что взять из текста, например «слова, выделенные жирным» или «коллокации»; пусто — все слова
 
     UpdateCardRequest:
       type: object

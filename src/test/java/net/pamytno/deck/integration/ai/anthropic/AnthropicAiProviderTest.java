@@ -7,6 +7,8 @@ import net.pamytno.deck.integration.ai.AiFormatRules;
 import net.pamytno.deck.integration.ai.AiGenerationException;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import net.pamytno.deck.integration.ai.GeneratedWord;
+import net.pamytno.deck.integration.ai.VocabularyRules;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,6 +92,27 @@ class AnthropicAiProviderTest {
         assertThat(card).isEqualTo(new GeneratedCard("Что такое JVM?", "Виртуальная машина Java."));
         ANTHROPIC.verify(postRequestedFor(urlEqualTo("/v1/messages"))
                 .withRequestBody(matchingJsonPath("$.system", containing(AiFormatRules.CARD))));
+    }
+
+    @Test
+    @DisplayName("Слова запрашиваются с общими правилами, инструкцией и текстом и разбираются в GeneratedWord")
+    void generateVocabulary_sendsRulesAndParsesAnswer() {
+        // given
+        stubAnswer("end_turn", "{\\\"cards\\\":[{\\\"word\\\":\\\"contract\\\","
+                + "\\\"translation\\\":\\\"договор\\\",\\\"definition\\\":\\\"A formal agreement.\\\","
+                + "\\\"example\\\":\\\"We signed a _____.\\\","
+                + "\\\"exampleTranslation\\\":\\\"Мы подписали договор.\\\"}]}");
+
+        // when
+        var words = provider.generateVocabulary("коллокации", "We signed a contract.");
+
+        // then
+        assertThat(words).containsExactly(new GeneratedWord("contract", "договор", "A formal agreement.",
+                "We signed a _____.", "Мы подписали договор."));
+        ANTHROPIC.verify(postRequestedFor(urlEqualTo("/v1/messages"))
+                .withRequestBody(matchingJsonPath("$.system", equalTo(VocabularyRules.RULES)))
+                .withRequestBody(matchingJsonPath("$.messages[0].content",
+                        equalTo(VocabularyRules.message("коллокации", "We signed a contract.")))));
     }
 
     @Test

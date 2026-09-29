@@ -17,6 +17,8 @@ import net.pamytno.deck.integration.ai.AiGenerationException;
 import net.pamytno.deck.integration.ai.AiProvider;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import net.pamytno.deck.integration.ai.GeneratedWord;
+import net.pamytno.deck.integration.ai.VocabularyRules;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -64,6 +66,23 @@ public class AnthropicAiProvider implements AiProvider {
         var payload = call(params(AnthropicPrompts.CARD_SYSTEM, AnthropicPrompts.cardMessage(question, context),
                 CardPayload.class));
         return new GeneratedCard(payload.front(), payload.back());
+    }
+
+    /**
+     * Карточки английских слов по инструкции ученика.
+     *
+     * @param instruction что взять из текста
+     * @param text        слова, список или текст
+     * @return выражения для карточек
+     */
+    @Override
+    public List<GeneratedWord> generateVocabulary(String instruction, String text) {
+        var payload = call(params(VocabularyRules.RULES, VocabularyRules.message(instruction, text),
+                VocabularyPayload.class));
+        return payload.cards() == null ? List.of() : payload.cards().stream()
+                .map(item -> new GeneratedWord(item.word(), item.translation(), item.definition(), item.example(),
+                        item.exampleTranslation()))
+                .toList();
     }
 
     /**

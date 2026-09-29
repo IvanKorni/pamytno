@@ -9,6 +9,8 @@ import net.pamytno.deck.integration.ai.AiGenerationException;
 import net.pamytno.deck.integration.ai.AiProvider;
 import net.pamytno.deck.integration.ai.GeneratedCard;
 import net.pamytno.deck.integration.ai.GeneratedQuestion;
+import net.pamytno.deck.integration.ai.GeneratedWord;
+import net.pamytno.deck.integration.ai.VocabularyRules;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -59,6 +61,13 @@ public class CliAiProvider implements AiProvider {
             %s
             </material>
             """;
+    private static final String VOCABULARY_PROMPT = """
+            %s
+            Верни ТОЛЬКО JSON без обёртки ```json и пояснений:
+            {"cards":[{"word":"…","translation":"…","definition":"…","example":"… _____ …","exampleTranslation":"…"}]}
+
+            %s
+            """;
 
     private final AiProperties properties;
     private final ObjectMapper objectMapper;
@@ -104,6 +113,28 @@ public class CliAiProvider implements AiProvider {
             throw new AiGenerationException("CLI вернул неполную карточку");
         }
         return new GeneratedCard(front, back);
+    }
+
+    /**
+     * Карточки английских слов через установленный CLI.
+     *
+     * @param instruction что взять из текста
+     * @param text        слова, список или текст
+     * @return выражения для карточек
+     */
+    @Override
+    public List<GeneratedWord> generateVocabulary(String instruction, String text) {
+        var prompt = VOCABULARY_PROMPT.formatted(VocabularyRules.RULES, VocabularyRules.message(instruction, text));
+        var root = parse(execute(prompt));
+        var items = root.isArray() ? root : root.path("cards");
+        if (!items.isArray()) {
+            throw new AiGenerationException("CLI вернул JSON без массива cards");
+        }
+        var words = new ArrayList<GeneratedWord>();
+        items.forEach(item -> words.add(new GeneratedWord(item.path("word").asText(""),
+                item.path("translation").asText(""), item.path("definition").asText(""),
+                item.path("example").asText(""), item.path("exampleTranslation").asText(""))));
+        return words;
     }
 
     /** Выполняет CLI с prompt через stdin. */

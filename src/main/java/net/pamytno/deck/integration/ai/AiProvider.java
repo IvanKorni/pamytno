@@ -27,4 +27,14 @@ public interface AiProvider {
      * @throws AiGenerationException если модель недоступна или ответ непригоден
      */
     GeneratedCard generateCard(String question, String context);
+
+    /**
+     * Выбирает из текста английские слова или выражения по инструкции ученика и готовит по ним карточки.
+     *
+     * @param instruction что взять из текста, например «слова, выделенные жирным»; может быть пустой
+     * @param text        слова, список или текст; выделение жирным — {@code **слово**}
+     * @return выражения с объяснением, примером и переводами
+     * @throws AiGenerationException если модель недоступна или ответ непригоден
+     */
+    List<GeneratedWord> generateVocabulary(String instruction, String text);
 }
